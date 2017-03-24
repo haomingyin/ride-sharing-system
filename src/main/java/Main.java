@@ -1,13 +1,10 @@
 
-import controllers.SQLiteController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 import javafx.stage.Stage;
-
-import java.sql.Connection;
 
 
 /**
@@ -18,16 +15,14 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root, 500, 400);
+            Scene scene = new Scene(root, 1200, 800);
             stage.setTitle("UC RSS");
             stage.setScene(scene);
-            SQLiteController controller = new SQLiteController();
-            controller.connect();
-            //stage.show();
+            stage.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }
