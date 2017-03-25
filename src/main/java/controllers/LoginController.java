@@ -1,13 +1,18 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+import models.RSS;
 import models.SQLiteConnector;
+import models.User;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -33,31 +38,23 @@ public class LoginController implements Initializable {
 
 	private Connection conn;
 	private SQLiteConnector sqLiteConnector;
+	private User user;
+	private RSS rss;
 
-
+	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		sqLiteConnector = new SQLiteConnector();
 		sqLiteConnector.initializeDatabase();
 	}
 
 	public void pressLogin() {
-		String sql = String.format("SELECT count(username) AS cnt " +
-						"FROM user " +
-						"WHERE username = '%s' AND password = '%s';",
-				usernameField.getText(), passwordField.getText());
-		//System.out.println(sql);
 		try {
-			ResultSet rs = sqLiteConnector.executeSQLQuery(sql);
-			int cnt = rs.getInt("cnt");
 			loginPromptText.setVisible(true);
-			if (cnt > 0) {
+			if (validLogin()) {
 				loginPromptText.setText("Welcome!");
 			} else {
 				loginPromptText.setText("Oops! Our system cannot match this username and password.");
 			}
-			sql = "select count(*) as cnt from stop_point where trimmed like '%16vicki%';";
-			ResultSet rs2 = sqLiteConnector.executeSQLQuery(sql);
-			usernameField.setText(String.valueOf(rs2.getInt("cnt")));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -107,10 +104,57 @@ public class LoginController implements Initializable {
 		}
 	}
 
+	private boolean validLogin() {
+		try {
+			String sql = String.format("SELECT * " +
+							"FROM user " +
+							"WHERE username = '%s' AND password = '%s';",
+					usernameField.getText(), passwordField.getText());
+			ResultSet rs = sqLiteConnector.executeSQLQuery(sql);
+			if (!rs.isClosed()) {
+				user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setPassword(rs.getString("password"));
+				user.setEmail(rs.getString("email"));
+				user.setFname(rs.getString("fName"));
+				user.setLname(rs.getString("lName"));
+				user.setPhone(rs.getString("phone"));
+				this.rss.setUser(user);
+				showCarView();
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
 	private void cleanTextFields() {
 		usernameField.setText("");
 		passwordField.setText("");
 		rePasswordField.setText("");
 		emailField.setText("");
+	}
+
+	public void setRSS(RSS rss) {
+		this.rss = rss;
+		this.rss.setSqLiteConnector(sqLiteConnector);
+	}
+
+	public void showCarView() {
+		try {
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/CarView.fxml"));
+			Parent carView = fxmlLoader.load();
+			Scene scene = new Scene(carView);
+			CarController carController = fxmlLoader.getController();
+			this.rss.setCarController(carController);
+			carController.setRSS(this.rss);
+			this.rss.getpStage().setScene(scene);
+			this.rss.getpStage().show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
