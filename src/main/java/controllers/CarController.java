@@ -41,7 +41,7 @@ public class CarController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cars = new HashMap<>();
-		addComboBoxListsener();
+		addComboBoxListener();
 	}
 
 	public void setRSS(RSS rss) {
@@ -49,10 +49,10 @@ public class CarController implements Initializable {
 		loadCars();
 	}
 
-	public void addComboBoxListsener() {
+	public void addComboBoxListener() {
 		try {
 			carErrorText.setVisible(false);
-			carComboBox.setOnAction((event -> {loadTextFields();}));
+			carComboBox.setOnAction(event -> loadTextFields());
 		} catch (Exception e) {
 			System.out.println(e.getCause());
 		}
