@@ -15,7 +15,7 @@ import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 /**
- * Created by samschofield on 15/03/17.
+ * Created by Haoming on 15/03/17.
  */
 
 public class LoginController implements Initializable {
@@ -55,10 +55,12 @@ public class LoginController implements Initializable {
 			} else {
 				loginPromptText.setText("Oops! Our system cannot match this username and password.");
 			}
+			sql = "select count(*) as cnt from stop_point where trimmed like '%16vicki%';";
+			ResultSet rs2 = sqLiteConnector.executeSQLQuery(sql);
+			usernameField.setText(String.valueOf(rs2.getInt("cnt")));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-
 	}
 
 	public void pressSignup() {
@@ -74,7 +76,6 @@ public class LoginController implements Initializable {
 		try {
 			ResultSet rs = sqLiteConnector.executeSQLQuery(sql);
 			int cnt = rs.getInt("cnt");
-			System.out.println(usernameField.getText() + 'a');
 			if (usernameField.getText().equals("")) {
 				loginPromptText.setText("Seriously? You haven't typed your username.");
 			} else if (cnt > 0) {

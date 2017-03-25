@@ -1,23 +1,24 @@
 package models;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Scanner;
+
+import com.sun.tools.doclets.internal.toolkit.util.DocFinder;
 import org.sqlite.JDBC;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class SQLiteConnector {
 
 	private Connection conn;
 
-	public SQLiteConnector() {
-		conn = connect();
-	}
-
 	/**
 	 * Sets up a new connection to local SQLite database.
-	 * @return
+	 * @return a Connection object
 	 */
 	public Connection connect() {
 		try {
@@ -32,24 +33,17 @@ public class SQLiteConnector {
 		}
 	}
 
+	/**
+	 * Initialize database and connect to it
+	 */
 	public void initializeDatabase() {
-
 		try {
-			if (conn.isClosed()) this.connect();
-			// can only use input stream to read resource file
-			InputStream in = getClass().getResourceAsStream("/tables.txt");
-			Scanner sc = new Scanner(in, "UTF-8").useDelimiter(";|\\A");
-			Statement stmt = conn.createStatement();
-			while (sc.hasNext()) {
-				String sql = sc.next() + ";";
-				try {
-					stmt.execute(sql);
-				} catch (Exception e) {
-					System.out.println("Failed to create tables while initializing database. Error is:");
-					System.out.println(e.getMessage());
-				}
+			File file = new File("rss.db");
+			if (!file.exists()) {
+				exportDatabaseResource();
+				System.out.println("Database initialization succeed!");
 			}
-			System.out.println("Initialization succeed!");
+			conn = connect();
 		} catch (Exception e) {
 			System.out.println("Failed to initialize database. Error is:");
 			System.out.println(e.getMessage());
@@ -59,6 +53,9 @@ public class SQLiteConnector {
 
 	}
 
+	/**
+	 * Closes current database connection
+	 */
 	public void closeConnection() {
 		try {
 			if (conn != null && !conn.isClosed()) {
@@ -72,6 +69,11 @@ public class SQLiteConnector {
 		}
 	}
 
+	/**
+	 * Executes a given sql query
+	 * @param sql
+	 * @return a result set
+	 */
 	public ResultSet executeSQLQuery(String sql) {
 		try {
 			if (conn.isClosed()) connect();
@@ -84,6 +86,11 @@ public class SQLiteConnector {
 		}
 	}
 
+	/**
+	 * Update or insert a given sql query
+	 * @param sql
+	 * @return a int number showing how many rows affected
+	 */
 	public int executeSQLUpdate(String sql) {
 		try {
 			if (conn.isClosed()) connect();
@@ -93,6 +100,19 @@ public class SQLiteConnector {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			return 0;
+		}
+	}
+
+	private void exportDatabaseResource() throws Exception {
+		String fileName = "/rss.db";
+		try {
+			//note that each / is a directory down in the "jar tree" been the jar the root of the tree
+			InputStream stream = getClass().getResourceAsStream(fileName);
+			Path path = Paths.get("rss.db");
+			Files.copy(stream, path, REPLACE_EXISTING);
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 }
