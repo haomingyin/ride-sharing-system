@@ -36,15 +36,10 @@ public class LoginController implements Initializable {
 	@FXML
 	private Button submitBtn;
 
-	private Connection conn;
-	private SQLiteConnector sqLiteConnector;
-	private User user;
 	private RSS rss;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		sqLiteConnector = new SQLiteConnector();
-		sqLiteConnector.initializeDatabase();
 	}
 
 	public void pressLogin() {
@@ -71,7 +66,7 @@ public class LoginController implements Initializable {
 				"FROM user " +
 				"WHERE username = '%s';", usernameField.getText());
 		try {
-			ResultSet rs = sqLiteConnector.executeSQLQuery(sql);
+			ResultSet rs = this.rss.getSqLiteConnector().executeSQLQuery(sql);
 			int cnt = rs.getInt("cnt");
 			if (usernameField.getText().equals("")) {
 				loginPromptText.setText("Seriously? You haven't typed your username.");
@@ -86,7 +81,7 @@ public class LoginController implements Initializable {
 				sql = String.format("INSERT INTO user (username, password) " +
 								"VALUES ('%s', '%s');",
 						usernameField.getText(), passwordField.getText());
-				int result = sqLiteConnector.executeSQLUpdate(sql);
+				int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
 				if (result == 1) {
 					loginPromptText.setText("Hooray~ Welcome to our RRS!");
 					pressLogin();
@@ -110,17 +105,15 @@ public class LoginController implements Initializable {
 							"FROM user " +
 							"WHERE username = '%s' AND password = '%s';",
 					usernameField.getText(), passwordField.getText());
-			ResultSet rs = sqLiteConnector.executeSQLQuery(sql);
+			ResultSet rs = this.rss.getSqLiteConnector().executeSQLQuery(sql);
 			if (!rs.isClosed()) {
-				user = new User();
-				user.setUsername(rs.getString("username"));
-				user.setPassword(rs.getString("password"));
-				user.setEmail(rs.getString("email"));
-				user.setFname(rs.getString("fName"));
-				user.setLname(rs.getString("lName"));
-				user.setPhone(rs.getString("phone"));
-				this.rss.setUser(user);
-				showCarView();
+				this.rss.getUser().setUsername(rs.getString("username"));
+				this.rss.getUser().setPassword(rs.getString("password"));
+				this.rss.getUser().setEmail(rs.getString("email"));
+				this.rss.getUser().setFname(rs.getString("fName"));
+				this.rss.getUser().setLname(rs.getString("lName"));
+				this.rss.getUser().setPhone(rs.getString("phone"));
+				this.rss.showCarView();
 				return true;
 			}
 			return false;
@@ -128,7 +121,6 @@ public class LoginController implements Initializable {
 			e.printStackTrace();
 			return false;
 		}
-
 	}
 
 	private void cleanTextFields() {
@@ -140,21 +132,6 @@ public class LoginController implements Initializable {
 
 	public void setRSS(RSS rss) {
 		this.rss = rss;
-		this.rss.setSqLiteConnector(sqLiteConnector);
 	}
 
-	public void showCarView() {
-		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/CarView.fxml"));
-			Parent carView = fxmlLoader.load();
-			Scene scene = new Scene(carView);
-			CarController carController = fxmlLoader.getController();
-			this.rss.setCarController(carController);
-			carController.setRSS(this.rss);
-			this.rss.getpStage().setScene(scene);
-			this.rss.getpStage().show();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
