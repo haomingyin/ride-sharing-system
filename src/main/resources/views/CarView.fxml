@@ -119,7 +119,7 @@
                                 <Font size="20.0" />
                             </font>
                         </Text>
-                        <ComboBox fx:id="carComboBox" prefHeight="27.0" prefWidth="189.0" GridPane.columnIndex="1" />
+                        <ComboBox fx:id="carComboBox" onAction="#selectedComboBox" prefHeight="27.0" prefWidth="189.0" GridPane.columnIndex="1" />
                     </children>
                 </GridPane>
                 <Text fx:id="carErrorText" fill="#e13636" layoutX="422.0" layoutY="230.0" strokeType="OUTSIDE" strokeWidth="0.0" text="I'm a error promt message." textAlignment="CENTER" visible="false" wrappingWidth="236.0">
@@ -129,6 +129,6 @@
                 </Text>
             </children>
         </AnchorPane>
-        <fx:include fx:id="menuView" source="MenuView.fxml" />
+        <fx:include fx:id="menu" source="MenuView.fxml" />
     </children>
 </AnchorPane>

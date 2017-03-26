@@ -1,21 +1,14 @@
 package controllers;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import models.RSS;
-import models.SQLiteConnector;
-import models.User;
 
 import java.net.URL;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
@@ -47,6 +40,7 @@ public class LoginController implements Initializable {
 			loginPromptText.setVisible(true);
 			if (validLogin()) {
 				loginPromptText.setText("Welcome!");
+				this.rss.showCarView();
 			} else {
 				loginPromptText.setText("Oops! Our system cannot match this username and password.");
 			}
@@ -113,7 +107,6 @@ public class LoginController implements Initializable {
 				this.rss.getUser().setFname(rs.getString("fName"));
 				this.rss.getUser().setLname(rs.getString("lName"));
 				this.rss.getUser().setPhone(rs.getString("phone"));
-				this.rss.showCarView();
 				return true;
 			}
 			return false;

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="286.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MenuController">
+    <children>
+        <AnchorPane prefHeight="800.0" prefWidth="285.0" style="-fx-background-color: #e2e2e2;">
+            <children>
+                <Text fill="#170000" layoutX="45.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to RSS!">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Text>
+                <ImageView layoutX="111.0" layoutY="116.0">
+                    <image>
+                        <Image url="/images/user.png" />
+                    </image>
+                </ImageView>
+                <Text layoutX="118.0" layoutY="203.0" onMouseClicked="#logout" stroke="#4d4040" strokeType="OUTSIDE" strokeWidth="0.0" text="Log Out" underline="true" />
+                <Text layoutX="74.0" layoutY="383.0" onMouseClicked="#goToCars" strokeType="OUTSIDE" strokeWidth="0.0" text="My Cars" textAlignment="CENTER">
+                    <font>
+                        <Font size="23.0" />
+                    </font>
+                </Text>
+                <Text layoutX="61.0" layoutY="560.0" onMouseClicked="#goToRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Give Rides" textAlignment="CENTER">
+                    <font>
+                        <Font size="23.0" />
+                    </font>
+                </Text>
+                <Text layoutX="47.0" layoutY="642.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Search Rides" textAlignment="CENTER">
+                    <font>
+                        <Font size="23.0" />
+                    </font>
+                </Text>
+                <Text layoutX="59.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Edit Profile" textAlignment="CENTER">
+                    <font>
+                        <Font size="23.0" />
+                    </font>
+                </Text>
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="534.0" onMouseClicked="#goToRides">
+                    <image>
+                        <Image url="/images/heart.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="616.0">
+                    <image>
+                        <Image url="/images/search.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="356.0" onMouseClicked="#goToCars">
+                    <image>
+                        <Image url="/images/car.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="267.0">
+                    <image>
+                        <Image url="/images/setting.png" />
+                    </image>
+                </ImageView>
+            <Text layoutX="45.0" layoutY="471.0" onMouseClicked="#goToTrips" strokeType="OUTSIDE" strokeWidth="0.0" text="Manage Trips" textAlignment="CENTER">
+               <font>
+                  <Font size="23.0" />
+               </font>
+            </Text>
+            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="196.0" layoutY="445.0" onMouseClicked="#goToTrips">
+               <image>
+                  <Image url="/images/trip.png" />
+               </image>
+            </ImageView>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

@@ -1,7 +1,5 @@
 package controllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -9,14 +7,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import models.Car;
-import models.RSS;
+import models.SQLiteConnector;
 import models.User;
 
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.StringJoiner;
 
 public class CarController implements Initializable {
 
@@ -27,7 +25,7 @@ public class CarController implements Initializable {
 	@FXML
 	Parent menuView;
 	@FXML
-	MenuController menuController;
+	private MenuController menuController;
 
 	@FXML
 	ComboBox carComboBox;
@@ -41,30 +39,35 @@ public class CarController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cars = new HashMap<>();
-		addComboBoxListener();
+
 	}
 
 	public void setRSS(RSS rss) {
 		this.rss = rss;
+		menuController.setRSS(rss);
 		loadCars();
 	}
 
-	public void addComboBoxListener() {
-		try {
+	public void selectedComboBox() {
+		if (carComboBox.getValue() != null) {
 			carErrorText.setVisible(false);
-			carComboBox.setOnAction(event -> loadTextFields());
-		} catch (Exception e) {
-			System.out.println(e.getCause());
+			loadTextFields();
 		}
 	}
 
-	public void loadCars() {
+	/**
+	 * Fetches all the cars related to a given user
+	 *
+	 * @param user
+	 * @return a hash map containing car's plate as key, Car instance as value
+	 */
+	public static HashMap<String, Car> fetchCars(User user, SQLiteConnector conn) {
+		HashMap<String, Car> carsHashMap = new HashMap<>();
 		try {
 			String sql = String.format("SELECT * " +
 					"FROM car " +
-					"WHERE owner = '%s';", this.rss.getUser().getUsername());
-			ResultSet rs = this.rss.getSqLiteConnector().executeSQLQuery(sql);
-			cars = new HashMap<>();
+					"WHERE owner = '%s';", user.getUsername());
+			ResultSet rs = conn.executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				Car car = new Car(rs.getString("plate"),
 						rs.getString("owner"),
@@ -73,16 +76,21 @@ public class CarController implements Initializable {
 						rs.getString("color"),
 						rs.getInt("year"),
 						rs.getInt("seatNo"));
-				cars.put(car.getPlate(), car);
+				carsHashMap.put(car.getPlate(), car);
 			}
-			refreshCarCombobox();
-			loadTextFields();
 		} catch (Exception e) {
-			System.out.println(e.getCause());
+			e.printStackTrace();
 		}
+		return carsHashMap;
 	}
 
-	private void refreshCarCombobox() {
+	public void loadCars() {
+		this.cars = fetchCars(this.rss.getUser(), rss.getSqLiteConnector());
+		refreshCarComboBox();
+		loadTextFields();
+	}
+
+	private void refreshCarComboBox() {
 		carComboBox.getItems().clear();
 		carComboBox.getItems().addAll(cars.keySet());
 		carComboBox.getItems().addAll(defaultComboBoxText);
@@ -90,11 +98,11 @@ public class CarController implements Initializable {
 	}
 
 	private void loadTextFields() {
-		if (carComboBox.getSelectionModel().getSelectedItem().toString().equals(defaultComboBoxText)) {
+		if (carComboBox.getValue() == null || carComboBox.getValue().equals(defaultComboBoxText)) {
 			addCarMode();
 		} else {
 			updateCarMode();
-			Car car = cars.get(carComboBox.getSelectionModel().getSelectedItem().toString());
+			Car car = cars.get(carComboBox.getValue());
 			carPlateField.setText(car.getPlate());
 			carManuField.setText(car.getManufacturer());
 			carModelField.setText(car.getModel());
@@ -153,9 +161,9 @@ public class CarController implements Initializable {
 		try {
 			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
 			if (result == 0) {
-				carErrorText.setText("Oops, Operation failed. Please try it again.");
+				carErrorText.setText("Oops, operation failed. Please try it again.");
 			} else {
-				carErrorText.setText("Horray! Operation succeed!");
+				carErrorText.setText("Hooray! Operation succeeded!");
 				loadCars();
 			}
 			carErrorText.setVisible(true);
@@ -170,8 +178,9 @@ public class CarController implements Initializable {
 		try {
 			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
 			if (result == 0) {
-				carErrorText.setText("Oops, Deletion failed. Please try it again.");
+				carErrorText.setText("Oops, deletion failed. Please try it again.");
 			} else {
+				carErrorText.setText("Hooray! Operation succeeded!");
 				loadCars();
 			}
 		} catch (Exception e) {

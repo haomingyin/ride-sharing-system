@@ -26,6 +26,20 @@ CREATE TABLE IF NOT EXISTS ride_passenger
     CONSTRAINT ride_passenger_user_username_fk FOREIGN KEY (passenger) REFERENCES user (username),
     CONSTRAINT ride_passenger_ride_rideid_fk FOREIGN KEY (rideId) REFERENCES ride (rideId)
 );
+CREATE TABLE IF NOT EXISTS route
+(
+    routeId INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    CONSTRAINT route_user_username_fk FOREIGN KEY (username) REFERENCES user (username)
+);
+CREATE TABLE IF NOT EXISTS route_sp
+(
+    routeId INTEGER,
+    spId INTEGER,
+    CONSTRAINT route_sp_routeid_spid_pk PRIMARY KEY (routeid, spId),
+    CONSTRAINT route_sp_route_routeid_fk FOREIGN KEY (routeId) REFERENCES route (routeId),
+    CONSTRAINT route_sp_stop_point_spid_fk FOREIGN KEY (spId) REFERENCES stop_point (spId)
+);
 CREATE TABLE IF NOT EXISTS stop_point
 (
     spId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +54,7 @@ CREATE TABLE IF NOT EXISTS trip
     tripId INTEGER PRIMARY KEY AUTOINCREMENT,
     alias TEXT,
     username TEXT,
+    routeId INTEGER,
     direction TEXT,
     plate TEXT,
     beginDate DATE,
@@ -64,3 +79,11 @@ CREATE TABLE IF NOT EXISTS user
     phone TEXT
 );
 CREATE UNIQUE INDEX IF NOT EXISTS user_username_uindex ON user (username);
+CREATE TABLE IF NOT EXISTS user_sp
+(
+    username TEXT,
+    spId     INTEGER,
+    CONSTRAINT user_sp_username_spid_pk PRIMARY KEY (username, spId),
+    CONSTRAINT user_sp_stop_point_username_fk FOREIGN KEY (username) REFERENCES user (username),
+    CONSTRAINT user_sp_stop_point_spid_fk FOREIGN KEY (spId) REFERENCES stop_point (spId)
+);

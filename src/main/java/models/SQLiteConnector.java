@@ -71,6 +71,7 @@ public class SQLiteConnector {
 
 	/**
 	 * Executes a given sql query
+	 *
 	 * @param sql
 	 * @return a result set
 	 */
@@ -78,16 +79,16 @@ public class SQLiteConnector {
 		try {
 			if (conn.isClosed()) connect();
 			Statement stmt = conn.createStatement();
-			ResultSet resultSet = stmt.executeQuery(sql);
-			return resultSet;
+			return stmt.executeQuery(sql);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 			return null;
 		}
 	}
 
 	/**
 	 * Update or insert a given sql query
+	 *
 	 * @param sql
 	 * @return a int number showing how many rows affected
 	 */
@@ -95,15 +96,17 @@ public class SQLiteConnector {
 		try {
 			if (conn.isClosed()) connect();
 			Statement stmt = conn.createStatement();
-			int affectNo = stmt.executeUpdate(sql);
-			return affectNo;
+			return stmt.executeUpdate(sql);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 			return 0;
 		}
 	}
 
-	private void exportDatabaseResource() throws Exception {
+	/**
+	 * Copy pre-defined database file in resource to outside
+	 */
+	private void exportDatabaseResource() {
 		String fileName = "/rss.db";
 		try {
 			//note that each / is a directory down in the "jar tree" been the jar the root of the tree
@@ -111,7 +114,6 @@ public class SQLiteConnector {
 			Path path = Paths.get("rss.db");
 			Files.copy(stream, path, REPLACE_EXISTING);
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
 			ex.printStackTrace();
 		}
 	}

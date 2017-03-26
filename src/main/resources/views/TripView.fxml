@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.TripController">
+    <children>
+        <AnchorPane layoutX="282.0" prefHeight="800.0" prefWidth="918.0">
+            <children>
+                <Text layoutX="51.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Manange Trips">
+                    <font>
+                        <Font size="34.0" />
+                    </font>
+                </Text>
+            <GridPane layoutX="51.0" layoutY="98.0" prefHeight="30.0" prefWidth="741.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="331.0" minWidth="10.0" prefWidth="331.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="218.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="195.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Choose an opreation type for trips">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Text>
+                  <RadioButton fx:id="tripViewModeRbtn" mnemonicParsing="false" selected="true" text="View and update my trips" GridPane.columnIndex="1">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="modeRadioGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="tripAddModeRbtn" mnemonicParsing="false" text="Create a new trip" toggleGroup="$modeRadioGroup" GridPane.columnIndex="2" />
+               </children>
+            </GridPane>
+            <GridPane layoutX="474.0" layoutY="199.0" prefHeight="210.0" prefWidth="381.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="155.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="171.0" minWidth="10.0" prefWidth="142.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="36.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Trip Alias" GridPane.valignment="CENTER">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Trip ends on" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="tripAliasField" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
+                  <Button fx:id="tripSubmitBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Add" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="tripDeleteBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Delete" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Trip starts from" GridPane.rowIndex="1">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <DatePicker fx:id="tripStartDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <DatePicker fx:id="tripEndDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Car for this trip" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <ComboBox fx:id="tripCarComboBox" prefHeight="27.0" prefWidth="167.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+               </children>
+            </GridPane>
+            <Separator layoutX="51.0" layoutY="144.0" prefHeight="11.0" prefWidth="810.0" />
+            <Text layoutX="51.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a trip to view details">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Text>
+            <ListView fx:id="tripListView" layoutX="51.0" layoutY="211.0" prefHeight="192.0" prefWidth="291.0" />
+            <Separator layoutX="51.0" layoutY="433.0" prefHeight="11.0" prefWidth="810.0" />
+            <TableView fx:id="tripSPTable" layoutX="51.0" layoutY="474.0" prefHeight="297.0" prefWidth="488.0">
+              <columns>
+                <TableColumn fx:id="tripSPTimeCol" prefWidth="122.0" text="Time" />
+                <TableColumn fx:id="tripSPCol" prefWidth="363.0" text="Stop Point Address" />
+              </columns>
+            </TableView>
+            <GridPane layoutX="592.0" layoutY="465.0" prefHeight="306.0" prefWidth="252.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="122.0" minWidth="10.0" prefWidth="94.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="158.0" minWidth="10.0" prefWidth="158.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Add a stop point">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Street No." GridPane.rowIndex="1">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Street" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Suburb" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="City" GridPane.rowIndex="4">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Arrive time" GridPane.rowIndex="5">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="tripAddSPBtn" mnemonicParsing="false" prefHeight="29.0" prefWidth="170.0" text="Confirm" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <TextField fx:id="tripStreetNoField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="tripStreetField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="tripSuburbField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField fx:id="tripCityField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <TextField fx:id="tripTimeField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+               </children>
+            </GridPane>
+            </children>
+        </AnchorPane>
+        <fx:include fx:id="menu" source="MenuView.fxml" />
+    </children>
+</AnchorPane>
