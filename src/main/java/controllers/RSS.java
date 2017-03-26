@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import models.Route;
 import models.SQLiteConnector;
 import models.User;
 
@@ -16,6 +17,7 @@ public class RSS {
 	private CarController carController;
 	private TripController tripController;
 	private RideController rideController;
+	private RouteController routeController;
 	private SQLiteConnector sqLiteConnector;
 
 	public void initialize() {
@@ -50,6 +52,21 @@ public class RSS {
 			setCarController(carController);
 			carController.setRSS(this);
 			carController.loadCars();
+			pStage.setScene(scene);
+			pStage.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void showRouteView() {
+		try {
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/RouteView.fxml"));
+			Parent View = fxmlLoader.load();
+			Scene scene = new Scene(View);
+			RouteController Controller = fxmlLoader.getController();
+			setRouteController(Controller);
+			Controller.setRSS(this);
 			pStage.setScene(scene);
 			pStage.show();
 		} catch (Exception e) {
@@ -141,5 +158,13 @@ public class RSS {
 
 	public void setRideController(RideController rideController) {
 		this.rideController = rideController;
+	}
+
+	public RouteController getRouteController() {
+		return routeController;
+	}
+
+	public void setRouteController(RouteController routeController) {
+		this.routeController = routeController;
 	}
 }

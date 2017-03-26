@@ -22,54 +22,54 @@
                     </image>
                 </ImageView>
                 <Text layoutX="118.0" layoutY="203.0" onMouseClicked="#logout" stroke="#4d4040" strokeType="OUTSIDE" strokeWidth="0.0" text="Log Out" underline="true" />
-                <Text layoutX="74.0" layoutY="383.0" onMouseClicked="#goToCars" strokeType="OUTSIDE" strokeWidth="0.0" text="My Cars" textAlignment="CENTER">
+                <Text layoutX="78.0" layoutY="286.0" onMouseClicked="#goToCars" strokeType="OUTSIDE" strokeWidth="0.0" text="My Cars" textAlignment="CENTER">
                     <font>
                         <Font size="23.0" />
                     </font>
                 </Text>
-                <Text layoutX="61.0" layoutY="560.0" onMouseClicked="#goToRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Give Rides" textAlignment="CENTER">
+                <Text layoutX="64.0" layoutY="536.0" onMouseClicked="#goToRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Give Rides" textAlignment="CENTER">
                     <font>
                         <Font size="23.0" />
                     </font>
                 </Text>
-                <Text layoutX="47.0" layoutY="642.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Search Rides" textAlignment="CENTER">
+                <Text layoutX="50.0" layoutY="620.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Search Rides" textAlignment="CENTER">
                     <font>
                         <Font size="23.0" />
                     </font>
                 </Text>
-                <Text layoutX="59.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Edit Profile" textAlignment="CENTER">
-                    <font>
-                        <Font size="23.0" />
-                    </font>
-                </Text>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="534.0" onMouseClicked="#goToRides">
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="202.0" layoutY="509.0" onMouseClicked="#goToRides">
                     <image>
                         <Image url="/images/heart.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="616.0">
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="203.0" layoutY="593.0">
                     <image>
                         <Image url="/images/search.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="356.0" onMouseClicked="#goToCars">
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="200.0" layoutY="259.0" onMouseClicked="#goToCars">
                     <image>
                         <Image url="/images/car.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="197.0" layoutY="267.0">
-                    <image>
-                        <Image url="/images/setting.png" />
-                    </image>
-                </ImageView>
-            <Text layoutX="45.0" layoutY="471.0" onMouseClicked="#goToTrips" strokeType="OUTSIDE" strokeWidth="0.0" text="Manage Trips" textAlignment="CENTER">
+            <Text layoutX="49.0" layoutY="449.0" onMouseClicked="#goToTrips" strokeType="OUTSIDE" strokeWidth="0.0" text="Manage Trips" textAlignment="CENTER">
                <font>
                   <Font size="23.0" />
                </font>
             </Text>
-            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="196.0" layoutY="445.0" onMouseClicked="#goToTrips">
+            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="202.0" layoutY="421.0" onMouseClicked="#goToTrips">
                <image>
                   <Image url="/images/trip.png" />
+               </image>
+            </ImageView>
+            <Text layoutX="45.0" layoutY="367.0" onMouseClicked="#goToRoutes" strokeType="OUTSIDE" strokeWidth="0.0" text="Create Routes" textAlignment="CENTER">
+               <font>
+                  <Font size="23.0" />
+               </font>
+            </Text>
+            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="201.0" layoutY="340.0" onMouseClicked="#goToRoutes">
+               <image>
+                  <Image url="/images/route.png" />
                </image>
             </ImageView>
             </children>

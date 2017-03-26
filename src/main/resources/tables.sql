@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS car
 (
     plate TEXT PRIMARY KEY,
-    owner TEXT NOT NULL,
+    username TEXT NOT NULL,
     model TEXT NOT NULL,
     manufacturer TEXT NOT NULL,
     color TEXT NOT NULL,
     year INT NOT NULL,
     seatNo INT NOT NULL,
-    CONSTRAINT car_user_username_fk FOREIGN KEY (owner) REFERENCES user (username)
+    CONSTRAINT car_user_username_fk FOREIGN KEY (username) REFERENCES user (username)
 );
 CREATE UNIQUE INDEX car_plate_uindex ON car (plate);
 CREATE TABLE IF NOT EXISTS ride

@@ -5,11 +5,13 @@ import java.util.HashMap;
 public class Route {
 
 	private int routeId;
-	private String owner;
-	private HashMap<Integer, StopPoint> stopPointHashMap;
+	private String alias;
+	private HashMap<Integer, StopPoint> stopPoints;
 
-	public Route() {
-		stopPointHashMap = new HashMap<Integer, StopPoint>();
+	public Route(int routeId, String alias) {
+		this.routeId = routeId;
+		this.alias = alias;
+		this.stopPoints = new HashMap<>();
 	}
 
 	public int getRouteId() {
@@ -20,19 +22,19 @@ public class Route {
 		this.routeId = routeId;
 	}
 
-	public String getOwner() {
-		return owner;
+	public String getAlias() {
+		return alias;
 	}
 
-	public void setOwner(String owner) {
-		this.owner = owner;
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
-	public HashMap<Integer, StopPoint> getStopPointHashMap() {
-		return stopPointHashMap;
+	public HashMap<Integer, StopPoint> getStopPoints() {
+		return stopPoints;
 	}
 
-	public void addStopPoint(StopPoint stopPoint) {
-		stopPointHashMap.put(stopPoint.getSpId(), stopPoint);
+	public void setStopPoints(HashMap<Integer, StopPoint> stopPoints) {
+		this.stopPoints = stopPoints;
 	}
 }

@@ -97,10 +97,10 @@
             </Text>
             <ListView fx:id="tripListView" layoutX="51.0" layoutY="211.0" prefHeight="192.0" prefWidth="291.0" />
             <Separator layoutX="51.0" layoutY="433.0" prefHeight="11.0" prefWidth="810.0" />
-            <TableView fx:id="tripSPTable" layoutX="51.0" layoutY="474.0" prefHeight="297.0" prefWidth="488.0">
+            <TableView fx:id="tripSPTable" layoutX="51.0" layoutY="474.0" prefHeight="297.0" prefWidth="520.0">
               <columns>
                 <TableColumn fx:id="tripSPTimeCol" prefWidth="122.0" text="Time" />
-                <TableColumn fx:id="tripSPCol" prefWidth="363.0" text="Stop Point Address" />
+                <TableColumn fx:id="tripSPCol" prefWidth="359.0" text="Stop Point Address" />
               </columns>
             </TableView>
             <GridPane layoutX="592.0" layoutY="465.0" prefHeight="306.0" prefWidth="252.0">

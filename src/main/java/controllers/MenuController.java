@@ -26,6 +26,10 @@ public class MenuController implements Initializable {
 		this.rss.showRideView();
 	}
 
+	public void goToRoutes() {
+		this.rss.showRouteView();
+	}
+
 	public void logout() {
 		this.rss.showLoginView();
 	}

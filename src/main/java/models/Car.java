@@ -2,12 +2,12 @@ package models;
 
 public class Car {
 
-	private String plate, owner, model, manufacturer, color;
+	private String plate, username, model, manufacturer, color;
 	private int year, seatNo;
 
-	public Car(String plate, String owner, String model, String manufacturer, String color, int year, int seatNo) {
+	public Car(String plate, String username, String model, String manufacturer, String color, int year, int seatNo) {
 		this.plate = plate;
-		this.owner = owner;
+		this.username = username;
 		this.model = model;
 		this.manufacturer = manufacturer;
 		this.color = color;
@@ -23,12 +23,12 @@ public class Car {
 		this.plate = plate;
 	}
 
-	public String getOwner() {
-		return owner;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setOwner(String owner) {
-		this.owner = owner;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getModel() {

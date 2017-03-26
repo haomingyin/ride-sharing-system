@@ -66,11 +66,11 @@ public class CarController implements Initializable {
 		try {
 			String sql = String.format("SELECT * " +
 					"FROM car " +
-					"WHERE owner = '%s';", user.getUsername());
+					"WHERE username = '%s';", user.getUsername());
 			ResultSet rs = conn.executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				Car car = new Car(rs.getString("plate"),
-						rs.getString("owner"),
+						rs.getString("username"),
 						rs.getString("model"),
 						rs.getString("manufacturer"),
 						rs.getString("color"),
@@ -148,10 +148,10 @@ public class CarController implements Initializable {
 					carPlateField.getText());
 		} else {
 			sql = String.format("INSERT INTO car " +
-							"(plate, owner, model, manufacturer, color, year, seatNo) " +
+							"(plate, username, model, manufacturer, color, year, seatNo) " +
 							"VALUES ('%s', '%s', '%s', '%s', '%s', %s, %s);",
-					carPlateField.getText(),
-					this.rss.getUser().getUsername(),
+					carPlateField.getText().toUpperCase(),
+					rss.getUser().getUsername(),
 					carModelField.getText(),
 					carManuField.getText(),
 					carColorField.getText(),
