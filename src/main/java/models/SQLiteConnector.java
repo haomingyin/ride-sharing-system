@@ -7,9 +7,6 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Scanner;
 
-import com.sun.tools.doclets.internal.toolkit.util.DocFinder;
-import org.sqlite.JDBC;
-
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class SQLiteConnector {
