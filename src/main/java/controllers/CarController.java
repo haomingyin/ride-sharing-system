@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 import models.Car;
 import models.SQLiteConnector;
 import models.User;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -140,21 +141,21 @@ public class CarController implements Initializable {
 							"year = %s, " +
 							"seatNo = %s " +
 							"WHERE plate = '%s';",
-					carModelField.getText(),
-					carManuField.getText(),
-					carColorField.getText(),
+					carModelField.getText().toUpperCase(),
+					carManuField.getText().toUpperCase(),
+					WordUtils.capitalizeFully(carColorField.getText()),
 					carYearField.getText(),
 					carSeatField.getText(),
-					carPlateField.getText());
+					carPlateField.getText().toUpperCase());
 		} else {
 			sql = String.format("INSERT INTO car " +
 							"(plate, username, model, manufacturer, color, year, seatNo) " +
 							"VALUES ('%s', '%s', '%s', '%s', '%s', %s, %s);",
 					carPlateField.getText().toUpperCase(),
 					rss.getUser().getUsername(),
-					carModelField.getText(),
-					carManuField.getText(),
-					carColorField.getText(),
+					carModelField.getText().toUpperCase(),
+					carManuField.getText().toUpperCase(),
+					WordUtils.capitalizeFully(carColorField.getText()),
 					carYearField.getText(),
 					carSeatField.getText());
 		}

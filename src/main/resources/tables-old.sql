@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS ride
 );
 CREATE TABLE IF NOT EXISTS ride_passenger
 (
-    passenger TEXT,
+    username TEXT,
     rideId INTEGER,
-    CONSTRAINT ride_passenger_passenger_rideid_pk PRIMARY KEY (passenger, rideId),
-    CONSTRAINT ride_passenger_user_username_fk FOREIGN KEY (passenger) REFERENCES user (username),
+    CONSTRAINT ride_passenger_passenger_rideid_pk PRIMARY KEY (username, rideId),
+    CONSTRAINT ride_passenger_user_username_fk FOREIGN KEY (username) REFERENCES user (username),
     CONSTRAINT ride_passenger_ride_rideid_fk FOREIGN KEY (rideId) REFERENCES ride (rideId)
 );
 CREATE TABLE IF NOT EXISTS route
