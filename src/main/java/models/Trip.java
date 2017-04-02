@@ -1,28 +1,28 @@
 package models;
 
+import javafx.beans.property.SimpleStringProperty;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 
 public class Trip {
 
 	private int tripId;
-	private String alias, username, direction, plate;
+	private Integer routeId;
+	private SimpleStringProperty alias, username, direction, plate;
 	private LocalDate beginDate, expireDate;
 	private HashMap<Integer, StopPoint> stopPointHashMap;
 
 	public Trip(int tripId, String alias, String username, String direction, String plate) {
 		this.tripId = tripId;
-		this.alias = alias;
-		this.username = username;
-		this.direction = direction;
-		this.plate = plate;
+		this.alias = new SimpleStringProperty(alias);
+		this.username = new SimpleStringProperty(username);
+		this.direction = new SimpleStringProperty(direction);
+		this.plate = new SimpleStringProperty(plate);
+		this.routeId = null;
 		this.beginDate = null;
 		this.expireDate = null;
-		stopPointHashMap = new HashMap<Integer, StopPoint>();
-	}
-
-	public Trip() {
-		stopPointHashMap = new HashMap<Integer, StopPoint>();
+		this.stopPointHashMap = new HashMap<Integer, StopPoint>();
 	}
 
 	public int getTripId() {
@@ -33,44 +33,60 @@ public class Trip {
 		this.tripId = tripId;
 	}
 
-	public String getUsername() {
-		return username;
+	public Integer getRouteId() {
+		return routeId;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public HashMap<Integer, StopPoint> getStopPointHashMap() {
-		return stopPointHashMap;
-	}
-
-	public void addStopPoint(StopPoint stopPoint) {
-		stopPointHashMap.put(stopPoint.getSpId(), stopPoint);
+	public void setRouteId(Integer routeId) {
+		this.routeId = routeId;
 	}
 
 	public String getAlias() {
+		return alias.get();
+	}
+
+	public SimpleStringProperty aliasProperty() {
 		return alias;
 	}
 
 	public void setAlias(String alias) {
-		this.alias = alias;
+		this.alias.set(alias);
+	}
+
+	public String getUsername() {
+		return username.get();
+	}
+
+	public SimpleStringProperty usernameProperty() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username.set(username);
 	}
 
 	public String getDirection() {
+		return direction.get();
+	}
+
+	public SimpleStringProperty directionProperty() {
 		return direction;
 	}
 
 	public void setDirection(String direction) {
-		this.direction = direction;
+		this.direction.set(direction);
 	}
 
 	public String getPlate() {
+		return plate.get();
+	}
+
+	public SimpleStringProperty plateProperty() {
 		return plate;
 	}
 
 	public void setPlate(String plate) {
-		this.plate = plate;
+		this.plate.set(plate);
 	}
 
 	public LocalDate getBeginDate() {
@@ -89,9 +105,11 @@ public class Trip {
 		this.expireDate = expireDate;
 	}
 
+	public HashMap<Integer, StopPoint> getStopPointHashMap() {
+		return stopPointHashMap;
+	}
+
 	public void setStopPointHashMap(HashMap<Integer, StopPoint> stopPointHashMap) {
 		this.stopPointHashMap = stopPointHashMap;
 	}
-
-
 }

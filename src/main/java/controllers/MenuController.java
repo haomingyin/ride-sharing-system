@@ -11,7 +11,6 @@ public class MenuController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		System.out.println("menu initialized");
 	}
 
 	public void goToTrips() {
@@ -40,7 +39,6 @@ public class MenuController implements Initializable {
 
 	public void setRSS(RSS rss) {
 		this.rss = rss;
-		System.out.println("got rss passed in");
 	}
 
 }

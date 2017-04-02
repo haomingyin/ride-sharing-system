@@ -16,7 +16,7 @@ public class StopPoint {
 		this.street = new SimpleStringProperty(street);
 		this.suburb = new SimpleStringProperty(suburb);
 		this.city = new SimpleStringProperty(city);
-		this.time = null;
+		this.time = new SimpleStringProperty("");
 	}
 
 	public StopPoint(int spId, String streetNo, String street, String suburb, String city, String time) {

@@ -58,8 +58,8 @@ public class RouteController implements Initializable {
 				loadRouteDetail();
 			}
 		});
-		routeViewModeRbtn.setOnAction(event -> updateRouteMode());
-		routeAddModeRbtn.setOnAction(event -> addRouteMode());
+		routeViewModeRbtn.setOnAction(event -> loadRouteDetail());
+		routeAddModeRbtn.setOnAction(event -> loadRouteDetail());
 	}
 
 	public RSS getRSS() {
@@ -72,7 +72,7 @@ public class RouteController implements Initializable {
 		loadRoutes();
 	}
 
-	private static HashMap<Integer, Route> fetchRoutes(User user, SQLiteConnector connector) {
+	public static HashMap<Integer, Route> fetchRoutes(User user, SQLiteConnector connector) {
 		HashMap<Integer, Route> routeHashMap = new HashMap<>();
 		try {
 			String sql = String.format("SELECT * " +
@@ -113,7 +113,9 @@ public class RouteController implements Initializable {
 	 * add details to fields and get all related stop points
 	 */
 	private void loadRouteDetail() {
-		if (routeComboBox.getValue() == null || routeAddModeRbtn.isSelected()) {
+		if (routeComboBox.getValue() == null ||
+				routeAddModeRbtn.isSelected() ||
+				routeComboBox.getItems().size() == 0) {
 			addRouteMode();
 		} else {
 			updateRouteMode();

@@ -39,7 +39,7 @@
                   <RadioButton fx:id="rideAddModeRbtn" mnemonicParsing="false" text="Add a new ride" toggleGroup="$modeRadioGroup" GridPane.columnIndex="2" />
                </children>
             </GridPane>
-            <GridPane layoutX="474.0" layoutY="199.0" prefHeight="173.0" prefWidth="381.0">
+            <GridPane fx:id="rideDetailPane" layoutX="474.0" layoutY="199.0" prefHeight="173.0" prefWidth="381.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="155.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="171.0" minWidth="10.0" prefWidth="142.0" />
@@ -62,14 +62,14 @@
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <TextField fx:id="rideAliasField" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
-                  <ComboBox fx:id="rideSeatComboBox" prefHeight="27.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Button fx:id="rideSubmitBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Add" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                  <TextField fx:id="aliasField" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
+                  <ComboBox fx:id="seatComboBox" prefHeight="27.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                  <Button fx:id="submitBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Add" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="rideDeleteBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Delete" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                  <Button fx:id="deleteBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Delete" visible="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                      <font>
                         <Font size="15.0" />
                      </font>
@@ -79,28 +79,35 @@
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <ComboBox fx:id="rideTripComboBox" prefHeight="27.0" prefWidth="174.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="tripComboBox" prefHeight="27.0" prefWidth="174.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
             <Separator layoutX="51.0" layoutY="144.0" prefHeight="11.0" prefWidth="810.0" />
-            <Text layoutX="51.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a ride to view details">
+            <Text layoutX="51.0" layoutY="185.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a ride to view details">
                <font>
                   <Font size="18.0" />
                </font>
             </Text>
-            <ListView fx:id="rideListView" layoutX="51.0" layoutY="211.0" prefHeight="148.0" prefWidth="253.0" />
             <Separator layoutX="51.0" layoutY="395.0" prefHeight="11.0" prefWidth="810.0" />
-            <TableView fx:id="rideSPTable" layoutX="51.0" layoutY="474.0" prefHeight="297.0" prefWidth="588.0">
+            <TableView fx:id="SPTable" layoutX="51.0" layoutY="474.0" prefHeight="297.0" prefWidth="670.0">
               <columns>
-                <TableColumn fx:id="rideSPTimeCol" prefWidth="135.0" text="Time" />
-                <TableColumn fx:id="rideSPCol" prefWidth="452.0" text="Stop Point Address" />
+                <TableColumn fx:id="streetNoCol" prefWidth="90.0" text="Street No" />
+                <TableColumn fx:id="streetCol" prefWidth="220.0" text="Street" />
+                  <TableColumn fx:id="suburbCol" prefWidth="111.0" text="Suburb" />
+                  <TableColumn fx:id="cityCol" prefWidth="135.0" text="City" />
+                  <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="111.0" text="Time" />
               </columns>
             </TableView>
-            <Text layoutX="51.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="This trip has been scheduled between 3/7/2017 and 3/8/2017, set off from Uni.">
+            <Text fx:id="rideInfoText" layoutX="51.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="This trip has been scheduled between 3/7/2017 and 3/8/2017, set off from Uni.">
                <font>
                   <Font size="18.0" />
                </font>
             </Text>
+            <TableView fx:id="rideTable" layoutX="51.0" layoutY="197.0" prefHeight="192.0" prefWidth="295.0">
+              <columns>
+                <TableColumn fx:id="rideAliasCol" editable="false" prefWidth="290.0" text="Ride Alias" />
+              </columns>
+            </TableView>
             </children>
         </AnchorPane>
         <fx:include fx:id="menu" source="MenuView.fxml" />
