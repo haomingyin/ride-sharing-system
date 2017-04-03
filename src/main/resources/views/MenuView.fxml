@@ -32,7 +32,7 @@
                         <Font size="23.0" />
                     </font>
                 </Text>
-                <Text layoutX="58.0" layoutY="620.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides" textAlignment="CENTER">
+                <Text layoutX="58.0" layoutY="620.0" onMouseClicked="#goToBookRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides" textAlignment="CENTER">
                     <font>
                         <Font size="23.0" />
                     </font>
@@ -42,7 +42,7 @@
                         <Image url="/images/heart.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="203.0" layoutY="593.0">
+                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="203.0" layoutY="593.0" onMouseClicked="#goToBookRides">
                     <image>
                         <Image url="/images/search.png" />
                     </image>

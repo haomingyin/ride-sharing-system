@@ -122,6 +122,7 @@ public class RideController implements Initializable {
 		} else {
 			aliasField.setText(rideTable.getSelectionModel().getSelectedItem().getAlias());
 			updateRideMode();
+			tripComboBox.setValue(trips.get(rideTable.getSelectionModel().getSelectedItem().getTripId()));
 		}
 	}
 

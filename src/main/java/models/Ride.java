@@ -8,12 +8,14 @@ public class Ride {
 	private int rideId, tripId;
 	private SimpleStringProperty alias;
 	private SimpleIntegerProperty seatNo;
+	private Trip trip;
 
 	public Ride(int rideId, int tripId, String alias, int seatNo) {
 		this.rideId = rideId;
 		this.tripId = tripId;
 		this.alias = new SimpleStringProperty(alias);
 		this.seatNo = new SimpleIntegerProperty(seatNo);
+		this.trip = null;
 	}
 
 	public int getRideId() {
@@ -54,5 +56,13 @@ public class Ride {
 
 	public void setSeatNo(int seatNo) {
 		this.seatNo.set(seatNo);
+	}
+
+	public Trip getTrip() {
+		return trip;
+	}
+
+	public void setTrip(Trip trip) {
+		this.trip = trip;
 	}
 }

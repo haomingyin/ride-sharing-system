@@ -19,6 +19,7 @@ public class RSS {
 	private RideController rideController;
 	private RouteController routeController;
 	private SQLiteConnector sqLiteConnector;
+	private BookRideController bookRideController;
 
 	public void initialize() {
 		user = new User();
@@ -104,6 +105,21 @@ public class RSS {
 		}
 	}
 
+	public void showBookRideView() {
+		try {
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/BookRideView.fxml"));
+			Parent View = fxmlLoader.load();
+			Scene scene = new Scene(View);
+			BookRideController controller = fxmlLoader.getController();
+			setBookRideController(controller);
+			controller.setRSS(this);
+			pStage.setScene(scene);
+			pStage.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public User getUser() {
 		return user;
 	}
@@ -166,5 +182,13 @@ public class RSS {
 
 	public void setRouteController(RouteController routeController) {
 		this.routeController = routeController;
+	}
+
+	public BookRideController getBookRideController() {
+		return bookRideController;
+	}
+
+	public void setBookRideController(BookRideController bookRideController) {
+		this.bookRideController = bookRideController;
 	}
 }

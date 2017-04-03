@@ -26,7 +26,7 @@ public class CarController implements Initializable {
 	@FXML
 	Parent menuView;
 	@FXML
-	private MenuController menuController;
+	MenuController menuController;
 
 	@FXML
 	ComboBox carComboBox;

@@ -78,7 +78,7 @@ public class SQLiteConnector {
 			Statement stmt = conn.createStatement();
 			return stmt.executeQuery(sql);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return null;
 		}
 	}
@@ -95,7 +95,7 @@ public class SQLiteConnector {
 			Statement stmt = conn.createStatement();
 			return stmt.executeUpdate(sql);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return 0;
 		}
 	}
