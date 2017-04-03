@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.RouteController">
+    <children>
+        <AnchorPane layoutX="282.0" prefHeight="800.0" prefWidth="918.0">
+            <children>
+                <Text layoutX="51.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides">
+                    <font>
+                        <Font size="34.0" />
+                    </font>
+                </Text>
+            <GridPane layoutX="51.0" layoutY="98.0" prefHeight="29.0" prefWidth="810.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="433.0" minWidth="10.0" prefWidth="403.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="162.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="195.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Choose an opreation type for your bookings">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Text>
+                  <RadioButton fx:id="viewModeRbtn" mnemonicParsing="false" prefHeight="18.0" prefWidth="191.0" selected="true" text="View my bookings" GridPane.columnIndex="1">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="modeRadioGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="addModeRbtn" mnemonicParsing="false" text="Book a ride" toggleGroup="$modeRadioGroup" GridPane.columnIndex="2" />
+               </children>
+            </GridPane>
+            <Separator layoutX="51.0" layoutY="144.0" prefHeight="11.0" prefWidth="810.0" />
+            <TableView fx:id="SPTable" layoutX="51.0" layoutY="179.0" prefHeight="218.0" prefWidth="522.0">
+              <columns>
+                <TableColumn fx:id="streetNoCol" editable="false" prefWidth="85.0" text="Street No." />
+                <TableColumn fx:id="streetCol" editable="false" prefWidth="196.0" text="Street" />
+                  <TableColumn fx:id="suburbCol" editable="false" prefWidth="117.0" text="Suburb" />
+                  <TableColumn fx:id="cityCol" editable="false" prefWidth="127.0" text="City" />
+              </columns>
+            </TableView>
+            <GridPane fx:id="addSPPane" layoutX="594.0" layoutY="165.0" prefHeight="232.0" prefWidth="267.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="122.0" minWidth="10.0" prefWidth="94.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="158.0" minWidth="10.0" prefWidth="158.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Street No." GridPane.rowIndex="1">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Street" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Suburb" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="City" GridPane.rowIndex="4">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#clickAddSPBtn" prefHeight="29.0" prefWidth="170.0" text="Search" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <TextField fx:id="routeStreetNoField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="routeStreetField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="routeSuburbField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField fx:id="routeCityField" text="Christchurch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search a Stop Point">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Text>
+               </children>
+            </GridPane>
+            <Text fx:id="routeErrorText" fill="#da0b0b" layoutX="609.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="I'm an error message text." textAlignment="JUSTIFY" visible="false" wrappingWidth="267.0">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Text>
+            <Separator layoutX="51.0" layoutY="431.0" prefHeight="18.0" prefWidth="810.0" />
+            <TableView fx:id="routeTable" layoutX="51.0" layoutY="477.0" prefHeight="288.0" prefWidth="591.0">
+              <columns>
+                <TableColumn fx:id="directionCol" prefWidth="88.0" text="Direction" />
+                <TableColumn fx:id="TimeCol" prefWidth="95.0" text="Time" />
+                  <TableColumn fx:id="seatNoCol" prefWidth="100.0" text="Seats Num." />
+                  <TableColumn fx:id="usernameCol" prefWidth="107.0" text="Driver" />
+                  <TableColumn fx:id="carColorCol" prefWidth="92.0" text="Car Color" />
+                  <TableColumn fx:id="carPlateCol" prefWidth="108.0" text="Plate" />
+              </columns>
+            </TableView>
+            <GridPane layoutX="662.0" layoutY="477.0" prefHeight="218.0" prefWidth="212.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="49.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="93.0" minHeight="10.0" prefHeight="69.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="bookBtn" mnemonicParsing="false" text="Book Ride" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select a ride in the left pane, and click 'Book Ride' to book the selected ride." textAlignment="JUSTIFY" wrappingWidth="204.0" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Text>
+                  <RadioButton fx:id="toUniRBtn" mnemonicParsing="false" text="To Uni">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="directionRadioGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="fromUniRBtn" mnemonicParsing="false" text="From Uni" toggleGroup="$directionRadioGroup" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            </children>
+        </AnchorPane>
+        <fx:include fx:id="menu" source="MenuView.fxml" />
+    </children>
+</AnchorPane>
