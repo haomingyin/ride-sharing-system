@@ -325,6 +325,7 @@ public class TripController implements Initializable {
 				loadTrips();
 				errorText.setVisible(true);
 			} else {
+				errorText.setText("Something went wrong, check if you filled all fields.");
 				errorText.setVisible(true);
 			}
 		} catch (Exception e) {

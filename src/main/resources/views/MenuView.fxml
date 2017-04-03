@@ -32,7 +32,7 @@
                         <Font size="23.0" />
                     </font>
                 </Text>
-                <Text layoutX="50.0" layoutY="620.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Search Rides" textAlignment="CENTER">
+                <Text layoutX="58.0" layoutY="620.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides" textAlignment="CENTER">
                     <font>
                         <Font size="23.0" />
                     </font>

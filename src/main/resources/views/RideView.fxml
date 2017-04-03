@@ -64,7 +64,7 @@
                   </Text>
                   <TextField fx:id="aliasField" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
                   <ComboBox fx:id="seatComboBox" prefHeight="27.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Button fx:id="submitBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="130.0" text="Add" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                  <Button fx:id="submitBtn" mnemonicParsing="false" onAction="#clickSubmitBtn" prefHeight="30.0" prefWidth="130.0" text="Add" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                      <font>
                         <Font size="15.0" />
                      </font>
@@ -108,6 +108,7 @@
                 <TableColumn fx:id="rideAliasCol" editable="false" prefWidth="290.0" text="Ride Alias" />
               </columns>
             </TableView>
+            <Text fx:id="errorText" fill="#c31f1f" layoutX="474.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Something went wrong, check if you filled all fields." visible="false" />
             </children>
         </AnchorPane>
         <fx:include fx:id="menu" source="MenuView.fxml" />

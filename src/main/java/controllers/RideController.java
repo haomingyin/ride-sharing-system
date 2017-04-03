@@ -32,6 +32,8 @@ public class RideController implements Initializable {
 	@FXML
 	TableColumn<Ride, String> rideAliasCol;
 	@FXML
+	Text errorText;
+	@FXML
 	TextField aliasField;
 	@FXML
 	GridPane rideDetailPane;
@@ -56,13 +58,14 @@ public class RideController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		rideAddModeRbtn.setOnAction(event -> loadRides());
-		rideViewModeRbtn.setOnAction(event -> loadRides());
+		rideAddModeRbtn.setOnAction(event -> loadRideDetail());
+		rideViewModeRbtn.setOnAction(event -> loadRideDetail());
 		tripComboBox.setOnAction(event -> {
 			if (tripComboBox.getValue() != null){
 				loadTripDetail();
 			}
 		});
+		rideTable.getSelectionModel().selectedItemProperty().addListener(event -> loadRideDetail());
 	}
 
 	public RSS getRSS() {
@@ -89,7 +92,7 @@ public class RideController implements Initializable {
 						rs.getInt("seatNo"));
 
 				// alias must be unique!!!!
-				rideHashMap.put(ride.getTripId(), ride);
+				rideHashMap.put(ride.getRideId(), ride);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -105,9 +108,9 @@ public class RideController implements Initializable {
 
 	private void refreshRideTable() {
 		rideTable.getItems().clear();
-		rideObservableList = FXCollections.observableList(new ArrayList<Ride>(rides.values()));
+		rideObservableList = FXCollections.observableList(new ArrayList<>(rides.values()));
 		rideTable.setItems(rideObservableList);
-		rideAliasCol.setCellValueFactory(new PropertyValueFactory<Ride, String>("alias"));
+		rideAliasCol.setCellValueFactory(new PropertyValueFactory<>("alias"));
 		rideTable.getSelectionModel().selectFirst();
 	}
 
@@ -116,13 +119,8 @@ public class RideController implements Initializable {
 		loadTripDetail();
 		if (rideTable.getItems().size() == 0 || rideAddModeRbtn.isSelected()) {
 			addRideMode();
-			Trip trip = tripComboBox.getValue();
-			rideInfoText.setText(String.format("This trip has been scheduled between " +
-							"%s and %s, set off %s.",
-					trip.getBeginDate().toString(),
-					trip.getExpireDate().toString(),
-					trip.getDirection()));
 		} else {
+			aliasField.setText(rideTable.getSelectionModel().getSelectedItem().getAlias());
 			updateRideMode();
 		}
 	}
@@ -131,6 +129,7 @@ public class RideController implements Initializable {
 		rideAddModeRbtn.setSelected(true);
 		rideDetailPane.setDisable(false);
 		rideTable.setDisable(true);
+		aliasField.setText("");
 	}
 
 	private void updateRideMode() {
@@ -148,13 +147,20 @@ public class RideController implements Initializable {
 	private void loadTripDetail() {
 		refreshSeatComboBox();
 		fillSPTable(fetchStopPoints());
+		Trip trip = tripComboBox.getValue();
+		if (trip != null) {
+			rideInfoText.setText(String.format("This trip has been scheduled between " +
+							"%s and %s, depart %s.",
+					trip.getBeginDate().toString(),
+					trip.getExpireDate().toString(),
+					trip.getDirection()));
+		}
 	}
 
 	private void refreshTripComboBox() {
 		tripComboBox.getItems().clear();
 		ObservableList<Trip> trips1 = FXCollections.observableList(new ArrayList<>(trips.values()));
 		tripComboBox.setItems(trips1);
-		tripComboBox.getSelectionModel().selectFirst();
 		tripComboBox.setCellFactory(new Callback<ListView<Trip>, ListCell<Trip>>() {
 			@Override
 			public ListCell<Trip> call(ListView<Trip> param) {
@@ -187,7 +193,7 @@ public class RideController implements Initializable {
 				return null;
 			}
 		});
-
+		tripComboBox.getSelectionModel().selectFirst();
 	}
 
 	private void refreshSeatComboBox() {
@@ -195,7 +201,7 @@ public class RideController implements Initializable {
 		if (tripComboBox.getValue() != null) {
 			Trip trip = tripComboBox.getValue();
 			Car car = fetchCar(trip.getPlate(), rss.getSqLiteConnector());
-			for (int i = 1; i <= car.getSeatNo(); i++) {
+			for (int i = 0; i <= car.getSeatNo(); i++) {
 				seatComboBox.getItems().add(i);
 			}
 			seatComboBox.getSelectionModel().selectFirst();
@@ -231,20 +237,22 @@ public class RideController implements Initializable {
 	private ArrayList<StopPoint> fetchStopPoints() {
 		ArrayList<StopPoint> stopPoints = new ArrayList<>();
 		try {
-			String sql = String.format("SELECT * " +
-					"FROM stop_point JOIN trip_sp ON stop_point.spId = trip_sp.spId " +
-					"WHERE tripId = %d", tripComboBox.getValue().getTripId());
+			if (tripComboBox.getValue() != null) {
+				String sql = String.format("SELECT * " +
+						"FROM stop_point JOIN trip_sp ON stop_point.spId = trip_sp.spId " +
+						"WHERE tripId = %d", tripComboBox.getValue().getTripId());
 
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
-			if (!rs.isClosed() && rs.next()) {
-				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
-						rs.getString("streetNo"),
-						rs.getString("street"),
-						rs.getString("suburb"),
-						rs.getString("city"));
-				stopPoint.setTime(rs.getString("time"));
+				ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+				if (!rs.isClosed() && rs.next()) {
+					StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
+							rs.getString("streetNo"),
+							rs.getString("street"),
+							rs.getString("suburb"),
+							rs.getString("city"));
+					stopPoint.setTime(rs.getString("time"));
 
-				stopPoints.add(stopPoint);
+					stopPoints.add(stopPoint);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,5 +271,38 @@ public class RideController implements Initializable {
 		suburbCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("suburb"));
 		cityCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("city"));
 		SPTable.setItems(stopPointObservableList);
+	}
+
+	public void clickSubmitBtn() {
+		try {
+			if (isAllFieldsValid()) {
+				String sql = String.format("INSERT INTO ride (alias, tripId, seatNo, username) " +
+								"VALUES ('%s', %d, %d, '%s');",
+						aliasField.getText(),
+						tripComboBox.getValue().getTripId(),
+						seatComboBox.getValue(),
+						rss.getUser().getUsername());
+				int result = rss.getSqLiteConnector().executeSQLUpdate(sql);
+				if (result == 1) {
+					errorText.setText("Hooray! Operation succeeded!");
+					loadRides();
+				} else {
+					errorText.setText("Oops, operation failed. Please try it again.");
+				}
+			} else {
+				errorText.setText("Something went wrong, check if you filled all fields.");
+			}
+			errorText.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean isAllFieldsValid() {
+		boolean isValid = true;
+		if (aliasField.getText().equals("") || tripComboBox.getValue() == null || seatComboBox.getValue() == null) {
+			isValid = false;
+		}
+		return isValid;
 	}
 }
