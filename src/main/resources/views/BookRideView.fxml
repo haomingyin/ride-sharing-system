@@ -9,7 +9,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BookRideController">
     <children>
-        <AnchorPane layoutX="282.0" prefHeight="800.0" prefWidth="918.0">
+        <AnchorPane layoutX="268.0" prefHeight="800.0" prefWidth="918.0">
             <children>
                 <Text layoutX="51.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides">
                     <font>
@@ -31,7 +31,7 @@
                         <Font size="18.0" />
                      </font>
                   </Text>
-                  <RadioButton fx:id="viewModeRbtn" disable="true" mnemonicParsing="false" prefHeight="18.0" prefWidth="191.0" selected="true" text="View my bookings" visible="false" GridPane.columnIndex="1">
+                  <RadioButton fx:id="viewModeRbtn" mnemonicParsing="false" prefHeight="18.0" prefWidth="191.0" selected="true" text="View my bookings" GridPane.columnIndex="1">
                      <toggleGroup>
                         <ToggleGroup fx:id="modeRadioGroup" />
                      </toggleGroup>
@@ -130,7 +130,7 @@
                         <Font size="15.0" />
                      </font>
                   </Button>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select a ride in the left pane, and click 'Book Ride' to book the selected ride." textAlignment="JUSTIFY" wrappingWidth="204.0" GridPane.rowIndex="3">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select a ride in the left pane, and click the button below to book or cancel the selected ride." wrappingWidth="204.0" GridPane.rowIndex="3">
                      <font>
                         <Font size="15.0" />
                      </font>

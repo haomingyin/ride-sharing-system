@@ -10,6 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
+import javafx.util.StringConverter;
 import models.*;
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -37,13 +38,13 @@ public class RouteController implements Initializable {
 	@FXML
 	Button addSPBtn, addRouteBtn;
 	@FXML
-	ComboBox routeComboBox;
+	ComboBox<Route> routeComboBox;
 	@FXML
 	RadioButton routeAddModeRbtn, routeViewModeRbtn;
 	@FXML
 	GridPane addRoutePane, addSPPane;
 	@FXML
-	TableView SPTable;
+	TableView<StopPoint> SPTable;
 	@FXML
 	TableColumn<StopPoint, String> streetNoCol, streetCol, suburbCol, cityCol;
 
@@ -72,6 +73,12 @@ public class RouteController implements Initializable {
 		loadRoutes();
 	}
 
+	/**
+	 * Fetches all routes associated with a give user
+	 * @param user
+	 * @param connector
+	 * @return HashMap containing routeId as key, Route as values.
+	 */
 	public static HashMap<Integer, Route> fetchRoutes(User user, SQLiteConnector connector) {
 		HashMap<Integer, Route> routeHashMap = new HashMap<>();
 		try {
@@ -102,10 +109,23 @@ public class RouteController implements Initializable {
 
 	private void refreshComboBox() {
 		routeComboBox.getItems().clear();
-		int cnt = 0;
-		for (Route route : routeArrayList) {
-			routeComboBox.getItems().add(cnt++, route.getAlias());
-		}
+		ObservableList<Route> routeObservableList = FXCollections.observableList(new ArrayList<>(routes.values()));
+		routeComboBox.setItems(routeObservableList);
+		routeComboBox.setConverter(new StringConverter<Route>() {
+			@Override
+			public String toString(Route object) {
+				if (object == null) {
+					return null;
+				} else {
+					return object.getAlias();
+				}
+			}
+
+			@Override
+			public Route fromString(String string) {
+				return null;
+			}
+		});
 		routeComboBox.getSelectionModel().selectFirst();
 	}
 
@@ -113,9 +133,7 @@ public class RouteController implements Initializable {
 	 * add details to fields and get all related stop points
 	 */
 	private void loadRouteDetail() {
-		if (routeComboBox.getValue() == null ||
-				routeAddModeRbtn.isSelected() ||
-				routeComboBox.getItems().size() == 0) {
+		if (routeAddModeRbtn.isSelected() || routeComboBox.getItems().size() == 0) {
 			addRouteMode();
 		} else {
 			updateRouteMode();
@@ -134,7 +152,7 @@ public class RouteController implements Initializable {
 
 	private void updateRouteMode() {
 		routeComboBox.setDisable(false);
-		Route route = routeArrayList.get(routeComboBox.getSelectionModel().getSelectedIndex());
+		Route route = routeComboBox.getValue();
 		routeAliasField.setText(route.getAlias());
 		addSPPane.setVisible(true);
 		addRouteBtn.setText("Rename Alias");
@@ -163,7 +181,7 @@ public class RouteController implements Initializable {
 		try {
 			String sql = String.format("SELECT * " +
 					"FROM route_sp JOIN stop_point ON route_sp.spId = stop_point.spId " +
-					"WHERE routeId = %d;", routeArrayList.get(routeComboBox.getSelectionModel().getSelectedIndex()).getRouteId());
+					"WHERE routeId = %d;", routeComboBox.getValue().getRouteId());
 			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				StopPoint sp = new StopPoint(rs.getInt("spId"),
@@ -180,7 +198,7 @@ public class RouteController implements Initializable {
 
 	public void clickAddRouteBtn() {
 		String sql;
-		Integer routeId = null;
+		Route route = null;
 		Integer index = null; // current selected item index in combo box
 		try {
 			if (addRouteBtn.getText().equals("Create")) {
@@ -189,12 +207,12 @@ public class RouteController implements Initializable {
 						rss.getUser().getUsername(),
 						routeAliasField.getText());
 			} else {
-				routeId = routeArrayList.get(routeComboBox.getSelectionModel().getSelectedIndex()).getRouteId();
+				route = routeComboBox.getValue();
 				sql = String.format("UPDATE route " +
 								"SET alias = '%s' " +
 								"WHERE routeId = %d;",
 						routeAliasField.getText(),
-						routeId);
+						route.getRouteId());
 			}
 
 			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
@@ -207,11 +225,10 @@ public class RouteController implements Initializable {
 				}
 			}
 			routeErrorText.setVisible(true);
-			// after refresh screen, remove current sp deatails to previous selected route info.
+			// after refresh screen, set combo box to previous selected route info.
 			loadRoutes();
-			if (routeId != null) index = getComboBoxIndexByRouteId(routeId);
-			if (index != null) {
-				routeComboBox.getSelectionModel().select((int) index);
+			if (route != null) {
+				routeComboBox.getSelectionModel().select(route);
 			} else {
 				routeComboBox.getSelectionModel().selectLast();
 			}
@@ -225,39 +242,29 @@ public class RouteController implements Initializable {
 
 	public void clickAddSPBtn() {
 		String sql;
-		Integer spId, routeId;
+		Integer spId;
 		try {
 			// just in case we are going to 'Update' btn in future
 			if (addSPBtn.getText().equals("Add")) {
 				spId = addSPToDatabase();
-				routeId = routeArrayList.get(routeComboBox.getSelectionModel().getSelectedIndex()).getRouteId();
 				// associate spId with routeId
 				sql = String.format("INSERT INTO route_sp (routeId, spId) " +
 						"VALUES " +
-						"(%d, %d);", routeId, spId);
+						"(%d, %d);", routeComboBox.getValue().getRouteId(), spId);
 				int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
 				if (result == 0) {
 					routeErrorText.setText("Oops, operation failed. Please try it again.");
 				} else {
 					routeErrorText.setText("Hooray! Operation succeeded!");
-					loadRoutes();
-					if (addRouteBtn.getText().equals("Create")) {
-						routeComboBox.getSelectionModel().selectLast();
-					}
-					loadRouteDetail();
+					fillSPTable();
 					// clean sp details
 					routeStreetNoField.clear();
 					routeStreetField.clear();
 					routeSuburbField.clear();
 					routeCityField.setText("Christchurch");
-					// set current comboBox to current routeId
-					Integer index = getComboBoxIndexByRouteId(routeId);
-					if (index != null)
-					routeComboBox.getSelectionModel().select((int) index);
 				}
 				routeErrorText.setVisible(true);
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -304,6 +311,10 @@ public class RouteController implements Initializable {
 		}
 	}
 
+	/**
+	 * fetch spid by a string.
+	 * @return spid if there is a such SP, otherwise null.
+	 */
 	private Integer fetchSPId() {
 		Integer spId = null;
 		try {
@@ -330,19 +341,5 @@ public class RouteController implements Initializable {
 				routeCityField.getText()).replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
 		return trimmedSP;
 	}
-
-	private Integer getComboBoxIndexByRouteId(Integer routeId) {
-		Integer index = null;
-		for (int i = 0; i < routeArrayList.size(); i++) {
-			if (routeArrayList.get(i).getRouteId() == routeId) {
-				return i;
-			}
-		}
-		return index;
-	}
 }
 
-// Known bug:
-// when two route have the same alias, switch between these routes cannot activate
-// the selection (combo box) listener, as the showing values are the same, thus
-// listener thinks there is no changes.

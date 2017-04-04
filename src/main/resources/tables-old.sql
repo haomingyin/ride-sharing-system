@@ -105,3 +105,16 @@ AS
              LEFT JOIN ride_passenger rp ON r.rideId = rp.rideId
          GROUP BY r.rideId) seatCounter ON seatCounter.rideId = r.rideId
     WHERE r.seatNo - seatCounter.cnt > 0;
+
+CREATE VIEW IF NOT EXISTS book_ride_passenger_view
+AS
+    SELECT r.rideId, r.tripId, ts.spId, t.direction, ts.time, r.seatNo - seatCounter.cnt as seatNo, r.username, t.plate, p.username as passenger
+    FROM ride r
+        LEFT JOIN trip t ON r.tripId = t.tripId
+        LEFT JOIN trip_sp ts ON ts.tripId = r.tripId
+        LEFT JOIN ride_passenger p ON r.rideId = p.rideId
+        LEFT JOIN
+        (SELECT r.rideId, count(rp.username) AS cnt
+         FROM ride r
+             LEFT JOIN ride_passenger rp ON r.rideId = rp.rideId
+         GROUP BY r.rideId) seatCounter ON seatCounter.rideId = r.rideId

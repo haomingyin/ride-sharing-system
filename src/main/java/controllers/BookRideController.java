@@ -53,10 +53,12 @@ public class BookRideController implements Initializable{
 	TableColumn<StopPoint, String> streetNoCol, streetCol, suburbCol, cityCol;
 
 	private RSS rss;
-	private HashMap<Integer, StopPoint> stopPoints;
+	private List<StopPoint> stopPoints;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		addModeRbtn.setOnAction(event -> loadRides());
+		viewModeRbtn.setOnAction(event -> loadRides());
 		searchBtn.setOnAction(event -> loadRides());
 		SPTable.getSelectionModel().selectedItemProperty().addListener(event -> {
 			if (SPTable.getSelectionModel().getSelectedItem() != null)
@@ -89,6 +91,11 @@ public class BookRideController implements Initializable{
 		if (SPTable.getItems().size() != 0) {
 			SPTable.getSelectionModel().selectFirst();
 		}
+		if (viewModeRbtn.isSelected()) {
+			viewMode();
+		} else {
+			bookMode();
+		}
 	}
 
 	private void loadSP() {
@@ -99,8 +106,20 @@ public class BookRideController implements Initializable{
 	private void bookMode() {
 		addModeRbtn.setSelected(true);
 		errorText.setVisible(false);
+		bookBtn.setText("Book Ride");
 	}
 
+	private void viewMode() {
+		viewModeRbtn.setSelected(true);
+		errorText.setVisible(false);
+		bookBtn.setText("Cancel Ride");
+	}
+
+	/**
+	 * Gets all text from all SP fields, and add % at the end, so SQLite can do
+	 * ambiguous search.
+	 * @return a string of 'like' clause
+	 */
 	private String getSPSearchLikeClause() {
 		String result = "%";
 		if (!streetNoField.getText().equals("")) {
@@ -123,10 +142,18 @@ public class BookRideController implements Initializable{
 	 */
 	private void fetchAllSPRelatedToRides(String likeClause) {
 		try {
-			stopPoints = new HashMap<>();
-			String sql = String.format("SELECT * " +
-					"FROM ride_sp_view " +
-					"WHERE trimmed LIKE '%s';", likeClause);
+			stopPoints = new ArrayList<>();
+			String sql;
+			if (addModeRbtn.isSelected()) {
+				sql = String.format("SELECT * " +
+						"FROM ride_sp_view " +
+						"WHERE trimmed LIKE '%s';", likeClause);
+			} else {
+				sql = String.format("SELECT * " +
+						"FROM ride_passenger r LEFT JOIN stop_point sp ON r.spId = sp.spId " +
+						"WHERE r.username = '%s' AND sp.trimmed LIKE '%s' " +
+						"GROUP BY sp.spId;", rss.getUser().getUsername(), likeClause);
+			}
 			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
@@ -135,7 +162,7 @@ public class BookRideController implements Initializable{
 						rs.getString("suburb"),
 						rs.getString("city"));
 
-				stopPoints.put(stopPoint.getSpId(), stopPoint);
+				stopPoints.add(stopPoint);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -144,7 +171,7 @@ public class BookRideController implements Initializable{
 
 	private void fillSPTable(){
 		SPTable.getItems().clear();
-		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<StopPoint>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(stopPoints);
 
 		streetNoCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("streetNo"));
 		streetCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("street"));
@@ -179,23 +206,28 @@ public class BookRideController implements Initializable{
 		try {
 			String sql;
 			if (spId != null) {
-				sql = String.format("SELECT * FROM book_ride_view WHERE spId = %d;", spId);
-			} else {
-				sql = "SELECT * FROM book_ride_view GROUP BY rideId;";
-			}
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				RideTableBean rideTableBean = new RideTableBean(
-						rs.getInt("rideId"),
-						rs.getInt("tripId"),
-						rs.getInt("spId"),
-						rs.getString("direction"),
-						rs.getString("time"),
-						rs.getInt("seatNo"),
-						rs.getString("username"),
-						rs.getString("plate")
-				);
-				rideTableBeans.add(rideTableBean);
+				if (addModeRbtn.isSelected()) {
+					sql = String.format("SELECT * FROM book_ride_view WHERE spId = %d;", spId);
+				} else {
+					sql = String.format("SELECT * FROM ride_passenger p "+
+							"LEFT JOIN book_ride_passenger_view v " +
+							"ON p.rideId = v.rideId AND p.spId = v.spId AND p.username = v.passenger " +
+							"WHERE v.spId = %d AND passenger = '%s';", spId, rss.getUser().getUsername());
+				}
+				ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+				while (!rs.isClosed() && rs.next()) {
+					RideTableBean rideTableBean = new RideTableBean(
+							rs.getInt("rideId"),
+							rs.getInt("tripId"),
+							rs.getInt("spId"),
+							rs.getString("direction"),
+							rs.getString("time"),
+							rs.getInt("seatNo"),
+							rs.getString("username"),
+							rs.getString("plate")
+					);
+					rideTableBeans.add(rideTableBean);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -207,17 +239,26 @@ public class BookRideController implements Initializable{
 	public void clickBookBtn() {
 		try {
 			if (rideTable.getSelectionModel().getSelectedItem() != null) {
-				String sql = String.format("INSERT INTO ride_passenger " +
-								"(username, rideId, spId) " +
-								"VALUES ('%s', %d, %d);",
-						rss.getUser().getUsername(),
-						rideTable.getSelectionModel().getSelectedItem().getRideId(),
-						SPTable.getSelectionModel().getSelectedItem().getSpId());
+				String sql;
+				if (addModeRbtn.isSelected()) {
+					sql = String.format("INSERT INTO ride_passenger " +
+									"(username, rideId, spId) " +
+									"VALUES ('%s', %d, %d);",
+							rss.getUser().getUsername(),
+							rideTable.getSelectionModel().getSelectedItem().getRideId(),
+							SPTable.getSelectionModel().getSelectedItem().getSpId());
+				} else {
+					sql = String.format("DELETE FROM ride_passenger " +
+									"WHERE username = '%s' AND rideId = %d AND spId = %d;",
+							rss.getUser().getUsername(),
+							rideTable.getSelectionModel().getSelectedItem().getRideId(),
+							SPTable.getSelectionModel().getSelectedItem().getSpId());
+				}
 				int result = rss.getSqLiteConnector().executeSQLUpdate(sql);
 				if (result == 0) {
-					errorText.setText("You have already booked this ride.");
+					errorText.setText("You may have already booked/cancelled this ride.");
 				} else {
-					errorText.setText("You have successfully booked this ride.");
+					errorText.setText("You have successfully booked/cancelled this ride.");
 					loadRides();
 				}
 			} else {
@@ -225,7 +266,7 @@ public class BookRideController implements Initializable{
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			errorText.setText("You have already booked this ride.");
+			errorText.setText("You may have already booked/cancelled this ride.");
 		} finally {
 			errorText.setVisible(true);
 		}
