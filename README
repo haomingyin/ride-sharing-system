@@ -1,0 +1,27 @@
+RSS User Instruction:
+
+1. You can login as the default account (haoming). If you wish to create a account, click the sign up button.
+2. In order to give a ride, you need to follow the following steps:
+    a. Creating a car. (please do not delete the car if you have associated to a trip.
+    b. Creating a route. Check 'create a new route' radio button, and give you a route an alias. After this,
+        you can add stop points for the route. (at this stage, SPs cannot be removed from routes.)
+    c. Creating a trip.  Check 'create a new trip' radio button, set up alias, direction, trip start, end,
+        car, and route. Once you select a route, the bottom table will show all SPs related to the selected
+        route. You need select each SP and set up a time at the right side. After you have assigned time for
+        all SPs, click 'Add' to create a trip. (at the stage, trips cannot be changed or deleted.)
+    d. Giving a ride. Click 'add a new ride' and set up alias, and pick a trip and available seats #. The
+        maximum available seats is derived from to the trip's car. (at this stage, rides cannot be changed)
+3. To book a ride, just click 'Book a ride' in Book Rides view. Firstly, type the desire SP at the right side,
+    click 'search' to find your destination or set off location. When select a SP in the table view, the bottom
+    table will show all rides associated with the SP. Simply picking a ride and clicking 'Book Ride', you can
+    book it and view it from view mode. FYI, bookings can be deleted as it won't mess anything up. (Known bug:
+    you can even book your own rides = =#)
+
+Note:
+SQLite database is used for this assignment. All controllers are basically just do queries with DB, so I really
+don't know how to write unit tests or Cucumber for it. Writing another queries in tests doesn't value much as we
+are not to test for database. So for now I only have one test and I know that is bad. Hope I can improve that for
+next delivery.
+
+Cheers,
+Haoming Yin (hyi25) -- the programmer
