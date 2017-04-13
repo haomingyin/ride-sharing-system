@@ -8,20 +8,18 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 import models.*;
+import models.database.SQLExecutor;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.net.URL;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.*;
 
-public class RouteController implements Initializable {
+public class RouteController extends Controller implements Initializable {
 
-	private RSS rss;
 	private HashMap<Integer, StopPoint> stopPoints;
 	private ObservableList<StopPoint> stopPointObservableList;
 	private HashMap<Integer, Route> routes;
@@ -63,45 +61,21 @@ public class RouteController implements Initializable {
 		routeAddModeRbtn.setOnAction(event -> loadRouteDetail());
 	}
 
-	public RSS getRSS() {
-		return rss;
-	}
-
-	public void setRSS(RSS rss) {
-		this.rss = rss;
+	@Override
+	 protected void afterSetRSS() {
 		menuController.setRSS(rss);
 		loadRoutes();
 	}
 
-	/**
-	 * Fetches all routes associated with a give user
-	 * @param user
-	 * @param connector
-	 * @return HashMap containing routeId as key, Route as values.
-	 */
-	public static HashMap<Integer, Route> fetchRoutes(User user, SQLiteConnector connector) {
-		HashMap<Integer, Route> routeHashMap = new HashMap<>();
-		try {
-			String sql = String.format("SELECT * " +
-					"FROM route " +
-					"WHERE username = '%s';", user.getUsername());
-			ResultSet rs = connector.executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				Route route = new Route(rs.getInt("routeId"),
-						rs.getString("alias"));
-				routeHashMap.put(route.getRouteId(), route);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return routeHashMap;
+	private void fetchRoutes() {
+		routes = SQLExecutor.fetchRoutesByUser(rss.getUser());
 	}
 
 	/**
 	 * Refreshes the whole thing, including drop down box, combox, and all fields.
 	 */
 	private void loadRoutes() {
-		routes = fetchRoutes(rss.getUser(), rss.getSqLiteConnector());
+		fetchRoutes();
 		routeArrayList = new ArrayList<>(routes.values());
 		refreshComboBox();
 		loadRouteDetail();
@@ -182,7 +156,7 @@ public class RouteController implements Initializable {
 			String sql = String.format("SELECT * " +
 					"FROM route_sp JOIN stop_point ON route_sp.spId = stop_point.spId " +
 					"WHERE routeId = %d;", routeComboBox.getValue().getRouteId());
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				StopPoint sp = new StopPoint(rs.getInt("spId"),
 						rs.getString("streetNo"),
@@ -215,7 +189,7 @@ public class RouteController implements Initializable {
 						route.getRouteId());
 			}
 
-			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
+			int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
 			if (result == 0) {
 				routeErrorText.setText("Oops, operation failed. Please try it again.");
 			} else {
@@ -251,7 +225,7 @@ public class RouteController implements Initializable {
 				sql = String.format("INSERT INTO route_sp (routeId, spId) " +
 						"VALUES " +
 						"(%d, %d);", routeComboBox.getValue().getRouteId(), spId);
-				int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
+				int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
 				if (result == 0) {
 					routeErrorText.setText("Oops, operation failed. Please try it again.");
 				} else {
@@ -294,7 +268,7 @@ public class RouteController implements Initializable {
 						WordUtils.capitalizeFully(routeCityField.getText().replace("[^a-zA-Z0-9 ]", "")),
 						getTrimmedSP());
 
-				int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
+				int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
 				if (result == 0) {
 					routeErrorText.setText("Oops, operation failed. Please try it again.");
 				} else {
@@ -322,7 +296,7 @@ public class RouteController implements Initializable {
 							"FROM stop_point " +
 							"WHERE trimmed = '%s';",
 					getTrimmedSP());
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 			// if the address is already existed
 			if (!rs.isClosed() && rs.next()) {
 				spId = rs.getInt("spId");

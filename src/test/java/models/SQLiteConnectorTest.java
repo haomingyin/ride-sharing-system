@@ -1,5 +1,6 @@
 package models;
 
+import models.database.SQLConnector;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,7 +18,7 @@ public class SQLiteConnectorTest {
 	 */
 	@Test
 	public void initializeDatabase() throws Exception {
-		SQLiteConnector sqLiteConnector = new SQLiteConnector();
+		SQLConnector sqLiteConnector = new SQLConnector();
 		sqLiteConnector.initializeDatabase();
 		File file = new File("rss.db");
 		assertTrue(file.exists());

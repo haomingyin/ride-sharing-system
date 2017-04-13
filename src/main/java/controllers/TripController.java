@@ -13,6 +13,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import models.*;
+import models.database.SQLConnector;
+import models.database.SQLExecutor;
 
 import java.net.URL;
 import java.sql.ResultSet;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-public class TripController implements Initializable {
+public class TripController extends Controller implements Initializable {
 
 	@FXML
 	Parent menuView;
@@ -48,7 +50,6 @@ public class TripController implements Initializable {
 	@FXML
 	TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
 
-	private RSS rss;
 	private HashMap<Integer, Trip> trips;
 	private ArrayList<Trip> tripsList;
 	private HashMap<Integer, StopPoint> stopPoints;
@@ -86,18 +87,13 @@ public class TripController implements Initializable {
 		directionComboBox.getSelectionModel().selectFirst();
 	}
 
-
-	public RSS getRSS() {
-		return rss;
-	}
-
-	public void setRSS(RSS rss) {
-		this.rss = rss;
+	@Override
+	protected void afterSetRSS() {
 		menuController.setRSS(rss);
 		loadTrips();
 	}
 
-	public static HashMap<Integer, Trip> fetchTrips(User user, SQLiteConnector connector) {
+	public static HashMap<Integer, Trip> fetchTrips(User user, SQLConnector connector) {
 		HashMap<Integer, Trip> tripHashMap = new HashMap<>();
 		try {
 			String sql = String.format("SELECT * " +
@@ -123,7 +119,7 @@ public class TripController implements Initializable {
 	}
 
 	private void loadTrips() {
-		trips = fetchTrips(this.rss.getUser(), this.rss.getSqLiteConnector());
+		trips = fetchTrips(this.rss.getUser(), this.rss.getSqlConnector());
 		tripsList = new ArrayList<>(trips.values());
 		refreshViewList();
 		loadTripDetail();
@@ -216,7 +212,7 @@ public class TripController implements Initializable {
 						"WHERE tripId = %d", tripId);
 			}
 
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
 						rs.getString("streetNo"),
@@ -235,11 +231,11 @@ public class TripController implements Initializable {
 
 	private void refreshCarComboBox() {
 		tripCarComboBox.getItems().clear();
-		tripCarComboBox.getItems().addAll(CarController.fetchCars(rss.getUser(), rss.getSqLiteConnector()).keySet());
+		tripCarComboBox.getItems().addAll(SQLExecutor.fetchCarsByUser(rss.getUser()).keySet());
 	}
 
 	private void loadRoutes() {
-		routes = RouteController.fetchRoutes(rss.getUser(), rss.getSqLiteConnector());
+		routes = SQLExecutor.fetchRoutesByUser(rss.getUser());
 		routesList = new ArrayList<>(routes.values());
 		routeIdtoIndex = new HashMap<>();
 		refreshRouteComboBox();
@@ -304,13 +300,13 @@ public class TripController implements Initializable {
 						tripStartDatePicker.getValue().toString(),
 						tripEndDatePicker.getValue().toString());
 
-				int result = rss.getSqLiteConnector().executeSQLUpdate(sql);
+				int result = rss.getSqlConnector().executeSQLUpdate(sql);
 				if (result == 0) {
 					errorText.setText("Oops, operation failed. Please try it again.");
 					errorText.setVisible(true);
 				} else {
 					sql = "SELECT last_insert_rowid() AS tripId;";
-					ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+					ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 					Integer tripId = rs.getInt("tripId");
 					for (StopPoint stopPoint : stopPoints.values()) {
 						sql = String.format("INSERT INTO trip_sp (tripId, spId, time) " +
@@ -318,7 +314,7 @@ public class TripController implements Initializable {
 								tripId,
 								stopPoint.getSpId(),
 								stopPoint.getTime());
-						rss.getSqLiteConnector().executeSQLUpdate(sql);
+						rss.getSqlConnector().executeSQLUpdate(sql);
 						errorText.setText("Hooray! Operation succeeded!");
 					}
 				}

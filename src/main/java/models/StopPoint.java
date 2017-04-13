@@ -28,6 +28,19 @@ public class StopPoint {
 		this.time = new SimpleStringProperty(time);
 	}
 
+	public StopPoint() {
+		this.spId = -1;
+		this.streetNo = new SimpleStringProperty();
+		this.street = new SimpleStringProperty();
+		this.suburb = new SimpleStringProperty();
+		this.city = new SimpleStringProperty();
+		this.time = new SimpleStringProperty();
+	}
+	@Override
+	public String toString() {
+		return String.format("%s %s, %s, %s", streetNo.get(), street.get(), suburb.get(), city.get());
+	}
+
 	public int getSpId() {
 		return spId;
 	}

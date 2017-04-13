@@ -1,4 +1,4 @@
-package models;
+package models.database;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -9,9 +9,9 @@ import java.util.Scanner;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class SQLiteConnector {
+public class SQLConnector {
 
-	private Connection conn;
+	protected Connection conn;
 
 	/**
 	 * Sets up a new connection to local SQLite database.

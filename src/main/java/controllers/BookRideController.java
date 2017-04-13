@@ -9,15 +9,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import models.StopPoint;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.net.URL;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -154,7 +151,7 @@ public class BookRideController implements Initializable{
 						"WHERE r.username = '%s' AND sp.trimmed LIKE '%s' " +
 						"GROUP BY sp.spId;", rss.getUser().getUsername(), likeClause);
 			}
-			ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
 				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
 						rs.getString("streetNo"),
@@ -214,7 +211,7 @@ public class BookRideController implements Initializable{
 							"ON p.rideId = v.rideId AND p.spId = v.spId AND p.username = v.passenger " +
 							"WHERE v.spId = %d AND passenger = '%s';", spId, rss.getUser().getUsername());
 				}
-				ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+				ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 				while (!rs.isClosed() && rs.next()) {
 					RideTableBean rideTableBean = new RideTableBean(
 							rs.getInt("rideId"),
@@ -254,7 +251,7 @@ public class BookRideController implements Initializable{
 							rideTable.getSelectionModel().getSelectedItem().getRideId(),
 							SPTable.getSelectionModel().getSelectedItem().getSpId());
 				}
-				int result = rss.getSqLiteConnector().executeSQLUpdate(sql);
+				int result = rss.getSqlConnector().executeSQLUpdate(sql);
 				if (result == 0) {
 					errorText.setText("You may have already booked/cancelled this ride.");
 				} else {

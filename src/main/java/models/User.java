@@ -1,19 +1,13 @@
 package models;
 
+import java.time.LocalDate;
+
 public class User {
 
-	private String username, password, email, fname, lname, phone;
+	private String username, password, email, fName, lName, hPhone, mPhone, address, licenceNo, licenceType;
+	private LocalDate issueDate, expireDate;
 
 	public User() {};
-
-	public User(String username, String password, String email, String fname, String lname, String phone) {
-		this.username = username;
-		this.password = password;
-		this.email = email;
-		this.fname = fname;
-		this.lname = lname;
-		this.phone = phone;
-	}
 
 	public String getUsername() {
 		return username;
@@ -39,27 +33,75 @@ public class User {
 		this.email = email;
 	}
 
-	public String getFname() {
-		return fname;
+	public String getfName() {
+		return fName;
 	}
 
-	public void setFname(String fname) {
-		this.fname = fname;
+	public void setfName(String fName) {
+		this.fName = fName;
 	}
 
-	public String getLname() {
-		return lname;
+	public String getlName() {
+		return lName;
 	}
 
-	public void setLname(String lname) {
-		this.lname = lname;
+	public void setlName(String lName) {
+		this.lName = lName;
 	}
 
-	public String getPhone() {
-		return phone;
+	public String gethPhone() {
+		return hPhone;
 	}
 
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void sethPhone(String hPhone) {
+		this.hPhone = hPhone;
+	}
+
+	public String getmPhone() {
+		return mPhone;
+	}
+
+	public void setmPhone(String mPhone) {
+		this.mPhone = mPhone;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getLicenceNo() {
+		return licenceNo;
+	}
+
+	public void setLicenceNo(String licenceNo) {
+		this.licenceNo = licenceNo;
+	}
+
+	public String getLicenceType() {
+		return licenceType;
+	}
+
+	public void setLicenceType(String licenceType) {
+		this.licenceType = licenceType;
+	}
+
+	public LocalDate getIssueDate() {
+		return issueDate;
+	}
+
+	public void setIssueDate(LocalDate issueDate) {
+		this.issueDate = issueDate;
+	}
+
+	public LocalDate getExpireDate() {
+		return expireDate;
+	}
+
+	public void setExpireDate(LocalDate expireDate) {
+		this.expireDate = expireDate;
 	}
 }

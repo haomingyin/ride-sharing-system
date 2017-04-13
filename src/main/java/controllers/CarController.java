@@ -6,20 +6,16 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
-import models.Car;
-import models.SQLiteConnector;
-import models.User;
+import models.*;
+import models.database.*;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-public class CarController implements Initializable {
+public class CarController extends Controller implements Initializable {
 
-	private RSS rss;
 	private HashMap<String, Car> cars;
 	private String defaultComboBoxText = "Click to add a new car.";
 
@@ -29,7 +25,7 @@ public class CarController implements Initializable {
 	MenuController menuController;
 
 	@FXML
-	ComboBox carComboBox;
+	ComboBox<String> carComboBox;
 	@FXML
 	Text carErrorText;
 	@FXML
@@ -43,8 +39,8 @@ public class CarController implements Initializable {
 
 	}
 
-	public void setRSS(RSS rss) {
-		this.rss = rss;
+	@Override
+	protected void afterSetRSS() {
 		menuController.setRSS(rss);
 		loadCars();
 	}
@@ -56,37 +52,12 @@ public class CarController implements Initializable {
 		}
 	}
 
-	/**
-	 * Fetches all the cars related to a given user
-	 *
-	 * @param user
-	 * @return a hash map containing car's plate as key, Car instance as value
-	 */
-	public static HashMap<String, Car> fetchCars(User user, SQLiteConnector conn) {
-		HashMap<String, Car> carsHashMap = new HashMap<>();
-		try {
-			String sql = String.format("SELECT * " +
-					"FROM car " +
-					"WHERE username = '%s';", user.getUsername());
-			ResultSet rs = conn.executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				Car car = new Car(rs.getString("plate"),
-						rs.getString("username"),
-						rs.getString("model"),
-						rs.getString("manufacturer"),
-						rs.getString("color"),
-						rs.getInt("year"),
-						rs.getInt("seatNo"));
-				carsHashMap.put(car.getPlate(), car);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return carsHashMap;
+	private void fetchCars() {
+		cars = SQLExecutor.fetchCarsByUser(this.rss.getUser());
 	}
 
 	public void loadCars() {
-		this.cars = fetchCars(this.rss.getUser(), rss.getSqLiteConnector());
+		fetchCars();
 		refreshCarComboBox();
 		loadTextFields();
 	}
@@ -133,61 +104,43 @@ public class CarController implements Initializable {
 
 	public void clickCarSubmitBtn() {
 		String sql;
+		int result = 0;
+
+		Car car = new Car();
+		car.setPlate(carPlateField.getText().toUpperCase());
+		car.setUsername(rss.getUser().getUsername());
+		car.setModel(carModelField.getText().toUpperCase());
+		car.setManufacturer(carManuField.getText().toUpperCase());
+		car.setColor(WordUtils.capitalizeFully(carColorField.getText()));
+		car.setYear(Integer.valueOf(carYearField.getText()));
+		car.setSeatNo(Integer.valueOf(carSeatField.getText()));
+
 		if (carSubmitBtn.getText() == "Update") {
-			sql = String.format("UPDATE car " +
-							"SET model = '%s', " +
-							"manufacturer = '%s', " +
-							"color = '%s', " +
-							"year = %s, " +
-							"seatNo = %s " +
-							"WHERE plate = '%s';",
-					carModelField.getText().toUpperCase(),
-					carManuField.getText().toUpperCase(),
-					WordUtils.capitalizeFully(carColorField.getText()),
-					carYearField.getText(),
-					carSeatField.getText(),
-					carPlateField.getText().toUpperCase());
+			result = SQLExecutor.updateCar(car);
 		} else {
-			sql = String.format("INSERT INTO car " +
-							"(plate, username, model, manufacturer, color, year, seatNo) " +
-							"VALUES ('%s', '%s', '%s', '%s', '%s', %s, %s);",
-					carPlateField.getText().toUpperCase(),
-					rss.getUser().getUsername(),
-					carModelField.getText().toUpperCase(),
-					carManuField.getText().toUpperCase(),
-					WordUtils.capitalizeFully(carColorField.getText()),
-					carYearField.getText(),
-					carSeatField.getText());
+			result = SQLExecutor.addCar(car);
 		}
-		try {
-			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
-			if (result == 0) {
-				carErrorText.setText("Oops, operation failed. Please try it again.");
-			} else {
-				carErrorText.setText("Hooray! Operation succeeded!");
-				loadCars();
-			}
-			carErrorText.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		if (result == 0) {
+			carErrorText.setText("Oops, operation failed. Please try it again.");
+		} else {
+			carErrorText.setText("Hooray! Operation succeeded!");
+			loadCars();
 		}
+		carErrorText.setVisible(true);
 	}
 
 	public void clickCarDeleteBtn() {
-		String sql = String.format("DELETE FROM car WHERE plate = '%s';",
-				carPlateField.getText());
-		try {
-			int result = this.rss.getSqLiteConnector().executeSQLUpdate(sql);
-			if (result == 0) {
-				carErrorText.setText("Oops, deletion failed. Please try it again.");
-			} else {
-				carErrorText.setText("Hooray! Operation succeeded!");
-				loadCars();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		Car car = new Car();
+		car.setPlate(carPlateField.getText());
+
+		int result = SQLExecutor.deleteCar(car);
+		if (result == 0) {
+			carErrorText.setText("Oops, deletion failed. Please try it again.");
+		} else {
+			carErrorText.setText("Hooray! Operation succeeded!");
+			loadCars();
 		}
+		carErrorText.setVisible(true);
 	}
-
-
 }

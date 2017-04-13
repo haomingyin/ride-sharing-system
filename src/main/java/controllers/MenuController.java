@@ -5,13 +5,14 @@ import javafx.fxml.Initializable;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MenuController implements Initializable {
-
-	private RSS rss;
+public class MenuController extends Controller implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 	}
+
+	@Override
+	protected void afterSetRSS() {}
 
 	public void goToTrips() {
 		this.rss.showTripView();
@@ -35,14 +36,6 @@ public class MenuController implements Initializable {
 
 	public void logout() {
 		this.rss.showLoginView();
-	}
-
-	public RSS getRSS() {
-		return rss;
-	}
-
-	public void setRSS(RSS rss) {
-		this.rss = rss;
 	}
 
 }

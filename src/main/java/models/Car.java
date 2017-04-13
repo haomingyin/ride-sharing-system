@@ -6,9 +6,10 @@ import javafx.beans.property.SimpleStringProperty;
 public class Car {
 
 	private SimpleStringProperty plate, username, model, manufacturer, color;
-	private SimpleIntegerProperty year, seatNo;
+	private SimpleIntegerProperty carId, year, seatNo;
 
 	public Car(String plate, String username, String model, String manufacturer, String color, int year, int seatNo) {
+		this.carId = new SimpleIntegerProperty();
 		this.plate = new SimpleStringProperty(plate);
 		this.username = new SimpleStringProperty(username);
 		this.model = new SimpleStringProperty(model);
@@ -16,6 +17,29 @@ public class Car {
 		this.color = new SimpleStringProperty(color);
 		this.year = new SimpleIntegerProperty(year);
 		this.seatNo = new SimpleIntegerProperty(seatNo);
+	}
+
+	public Car() {
+		this.carId = new SimpleIntegerProperty();
+		this.plate = new SimpleStringProperty();
+		this.username = new SimpleStringProperty();
+		this.model = new SimpleStringProperty();
+		this.manufacturer = new SimpleStringProperty();
+		this.color = new SimpleStringProperty();
+		this.year = new SimpleIntegerProperty();
+		this.seatNo = new SimpleIntegerProperty();
+	}
+
+	public int getCarId() {
+		return carId.get();
+	}
+
+	public SimpleIntegerProperty carIdProperty() {
+		return carId;
+	}
+
+	public void setCarId(int carId) {
+		this.carId.set(carId);
 	}
 
 	public String getPlate() {

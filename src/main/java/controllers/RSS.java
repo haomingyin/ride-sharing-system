@@ -1,12 +1,12 @@
 package controllers;
 
-import controllers.*;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import models.Route;
-import models.SQLiteConnector;
+import models.database.SQLConnector;
 import models.User;
 
 public class RSS {
@@ -18,14 +18,16 @@ public class RSS {
 	private TripController tripController;
 	private RideController rideController;
 	private RouteController routeController;
-	private SQLiteConnector sqLiteConnector;
+	private SQLConnector sqlConnector;
 	private BookRideController bookRideController;
 
 	public void initialize() {
 		user = new User();
+		// close all other windows when primary stage is closed
+		pStage.setOnCloseRequest(e -> Platform.exit());
 		pStage.setTitle("UC RSS");
-		sqLiteConnector = new SQLiteConnector();
-		sqLiteConnector.initializeDatabase();
+		sqlConnector = new SQLConnector();
+		sqlConnector.initializeDatabase();
 		showLoginView();
 	}
 
@@ -39,7 +41,21 @@ public class RSS {
 			pStage.setScene(scene);
 			pStage.show();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	public void showSignUpView() {
+		try {
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/SignupView.fxml"));
+			Parent root = fxmlLoader.load();
+			Controller controller = fxmlLoader.getController();
+			controller.setRSS(this);
+			Stage stage = new Stage();
+			controller.setStage(stage);
+			stage.setScene(new Scene(root));
+			stage.show();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -120,6 +136,15 @@ public class RSS {
 		}
 	}
 
+	public void showErrorDialog(String headMsg, String errorMsg) {
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setTitle("Error Dialog");
+		alert.setHeaderText(headMsg);
+		alert.setContentText(errorMsg);
+		alert.getDialogPane().setPrefWidth(600);
+		alert.showAndWait();
+	}
+
 	public User getUser() {
 		return user;
 	}
@@ -152,12 +177,12 @@ public class RSS {
 		this.carController = carController;
 	}
 
-	public SQLiteConnector getSqLiteConnector() {
-		return sqLiteConnector;
+	public SQLConnector getSqlConnector() {
+		return sqlConnector;
 	}
 
-	public void setSqLiteConnector(SQLiteConnector sqLiteConnector) {
-		this.sqLiteConnector = sqLiteConnector;
+	public void setSqlConnector(SQLConnector sqlConnector) {
+		this.sqlConnector = sqlConnector;
 	}
 
 	public TripController getTripController() {

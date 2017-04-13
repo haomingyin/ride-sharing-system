@@ -16,62 +16,77 @@
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Text>
-                <ImageView layoutX="111.0" layoutY="116.0">
+                <ImageView layoutX="103.0" layoutY="116.0">
                     <image>
                         <Image url="/images/user.png" />
                     </image>
                 </ImageView>
                 <Text layoutX="118.0" layoutY="203.0" onMouseClicked="#logout" stroke="#4d4040" strokeType="OUTSIDE" strokeWidth="0.0" text="Log Out" underline="true" />
-                <Text layoutX="78.0" layoutY="286.0" onMouseClicked="#goToCars" strokeType="OUTSIDE" strokeWidth="0.0" text="My Cars" textAlignment="CENTER">
-                    <font>
-                        <Font size="23.0" />
-                    </font>
-                </Text>
-                <Text layoutX="64.0" layoutY="536.0" onMouseClicked="#goToRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Give Rides" textAlignment="CENTER">
-                    <font>
-                        <Font size="23.0" />
-                    </font>
-                </Text>
-                <Text layoutX="58.0" layoutY="620.0" onMouseClicked="#goToBookRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides" textAlignment="CENTER">
-                    <font>
-                        <Font size="23.0" />
-                    </font>
-                </Text>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="202.0" layoutY="509.0" onMouseClicked="#goToRides">
-                    <image>
-                        <Image url="/images/heart.png" />
-                    </image>
-                </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="203.0" layoutY="593.0" onMouseClicked="#goToBookRides">
-                    <image>
-                        <Image url="/images/search.png" />
-                    </image>
-                </ImageView>
-                <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="200.0" layoutY="259.0" onMouseClicked="#goToCars">
-                    <image>
-                        <Image url="/images/car.png" />
-                    </image>
-                </ImageView>
-            <Text layoutX="49.0" layoutY="449.0" onMouseClicked="#goToTrips" strokeType="OUTSIDE" strokeWidth="0.0" text="Manage Trips" textAlignment="CENTER">
-               <font>
-                  <Font size="23.0" />
-               </font>
-            </Text>
-            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="202.0" layoutY="421.0" onMouseClicked="#goToTrips">
-               <image>
-                  <Image url="/images/trip.png" />
-               </image>
-            </ImageView>
-            <Text layoutX="45.0" layoutY="367.0" onMouseClicked="#goToRoutes" strokeType="OUTSIDE" strokeWidth="0.0" text="Create Routes" textAlignment="CENTER">
-               <font>
-                  <Font size="23.0" />
-               </font>
-            </Text>
-            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="201.0" layoutY="340.0" onMouseClicked="#goToRoutes">
-               <image>
-                  <Image url="/images/route.png" />
-               </image>
-            </ImageView>
+            <GridPane layoutX="45.0" layoutY="263.0" prefHeight="369.0" prefWidth="195.0">
+              <columnConstraints>
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="159.0" />
+                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="96.0" minWidth="10.0" prefWidth="41.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                      <Text onMouseClicked="#goToCars" strokeType="OUTSIDE" strokeWidth="0.0" text="My Cars" textAlignment="CENTER">
+                          <font>
+                              <Font size="20.0" />
+                          </font>
+                      </Text>
+                  <Text onMouseClicked="#goToRoutes" strokeType="OUTSIDE" strokeWidth="0.0" text="My Routes" textAlignment="CENTER" GridPane.rowIndex="1">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Text>
+                  <Text onMouseClicked="#goToTrips" strokeType="OUTSIDE" strokeWidth="0.0" text="My Trips" textAlignment="CENTER" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Text>
+                      <Text onMouseClicked="#goToRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Give Rides" textAlignment="CENTER" GridPane.rowIndex="3">
+                          <font>
+                              <Font size="20.0" />
+                          </font>
+                      </Text>
+                      <Text onMouseClicked="#goToBookRides" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides" textAlignment="CENTER" GridPane.rowIndex="4">
+                          <font>
+                              <Font size="20.0" />
+                          </font>
+                      </Text>
+                      <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#goToCars" GridPane.columnIndex="1">
+                          <image>
+                              <Image url="/images/car.png" />
+                          </image>
+                      </ImageView>
+                  <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#goToRoutes" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <image>
+                        <Image url="/images/route.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#goToTrips" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <image>
+                        <Image url="/images/trip.png" />
+                     </image>
+                  </ImageView>
+                      <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#goToRides" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                          <image>
+                              <Image url="/images/heart.png" />
+                          </image>
+                      </ImageView>
+                      <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#goToBookRides" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                          <image>
+                              <Image url="/images/search.png" />
+                          </image>
+                      </ImageView>
+               </children>
+            </GridPane>
             </children>
         </AnchorPane>
     </children>

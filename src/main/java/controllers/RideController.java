@@ -12,6 +12,8 @@ import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import models.*;
+import models.database.SQLConnector;
+import models.database.SQLExecutor;
 
 import java.net.URL;
 import java.sql.ResultSet;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-public class RideController implements Initializable {
+public class RideController extends Controller implements Initializable {
 
 	@FXML
 	Parent menuView;
@@ -50,7 +52,6 @@ public class RideController implements Initializable {
 	@FXML
 	TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
 
-	private RSS rss;
 	private HashMap<Integer, StopPoint> stopPoints;
 	private HashMap<Integer, Ride> rides;
 	private HashMap<Integer, Trip> trips;
@@ -68,40 +69,18 @@ public class RideController implements Initializable {
 		rideTable.getSelectionModel().selectedItemProperty().addListener(event -> loadRideDetail());
 	}
 
-	public RSS getRSS() {
-		return rss;
-	}
-
-	public void setRSS(RSS rss) {
-		this.rss = rss;
+	@Override
+	protected void afterSetRSS() {
 		menuController.setRSS(rss);
 		loadRides();
 	}
 
-	public static HashMap<Integer, Ride> fetchRides(User user, SQLiteConnector connector) {
-		HashMap<Integer, Ride> rideHashMap = new HashMap<>();
-		try {
-			String sql = String.format("SELECT * " +
-					"FROM ride " +
-					"WHERE username = '%s';", user.getUsername());
-			ResultSet rs = connector.executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				Ride ride = new Ride(rs.getInt("rideId"),
-						rs.getInt("tripId"),
-						rs.getString("alias"),
-						rs.getInt("seatNo"));
-
-				// alias must be unique!!!!
-				rideHashMap.put(ride.getRideId(), ride);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return rideHashMap;
+	private void fetchRides() {
+		rides = SQLExecutor.fetchRidesByUser(rss.getUser());
 	}
 
 	private void loadRides() {
-		rides = fetchRides(rss.getUser(), rss.getSqLiteConnector());
+		fetchRides();
 		refreshRideTable();
 		loadRideDetail();
 	}
@@ -141,7 +120,7 @@ public class RideController implements Initializable {
 	}
 
 	private void loadTrips() {
-		trips = TripController.fetchTrips(rss.getUser(), rss.getSqLiteConnector());
+		trips = TripController.fetchTrips(rss.getUser(), rss.getSqlConnector());
 		refreshTripComboBox();
 	}
 
@@ -201,7 +180,7 @@ public class RideController implements Initializable {
 		seatComboBox.getItems().clear();
 		if (tripComboBox.getValue() != null) {
 			Trip trip = tripComboBox.getValue();
-			Car car = fetchCar(trip.getPlate(), rss.getSqLiteConnector());
+			Car car = fetchCar(trip.getPlate(), rss.getSqlConnector());
 			for (int i = 0; i <= car.getSeatNo(); i++) {
 				seatComboBox.getItems().add(i);
 			}
@@ -214,7 +193,7 @@ public class RideController implements Initializable {
 
 	}
 
-	public static Car fetchCar(String plate, SQLiteConnector connector) {
+	public static Car fetchCar(String plate, SQLConnector connector) {
 		Car car = null;
 		try {
 			String sql = String.format("SELECT * FROM car WHERE plate = '%s';", plate);
@@ -243,7 +222,7 @@ public class RideController implements Initializable {
 						"FROM stop_point JOIN trip_sp ON stop_point.spId = trip_sp.spId " +
 						"WHERE tripId = %d", tripComboBox.getValue().getTripId());
 
-				ResultSet rs = rss.getSqLiteConnector().executeSQLQuery(sql);
+				ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
 				if (!rs.isClosed() && rs.next()) {
 					StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
 							rs.getString("streetNo"),
@@ -283,7 +262,7 @@ public class RideController implements Initializable {
 						tripComboBox.getValue().getTripId(),
 						seatComboBox.getValue(),
 						rss.getUser().getUsername());
-				int result = rss.getSqLiteConnector().executeSQLUpdate(sql);
+				int result = rss.getSqlConnector().executeSQLUpdate(sql);
 				if (result == 1) {
 					errorText.setText("Hooray! Operation succeeded!");
 					loadRides();
