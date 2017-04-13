@@ -2,8 +2,10 @@ package models.database;
 
 import models.*;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +63,16 @@ public class SQLExecutor {
 				user.setEmail(rs.getString("email"));
 				user.setfName(rs.getString("fName"));
 				user.setlName(rs.getString("lName"));
-				user.setmPhone(rs.getString("phone"));
+				user.setAddress(rs.getString("address"));
+				user.sethPhone(rs.getString("hPhone"));
+				user.setmPhone(rs.getString("mPhone"));
+				user.setLicenceNo(rs.getString("licenceNo"));
+				if (!user.getLicenceNo().equals("")) {
+					user.setLicenceType(rs.getString("licenceType"));
+					user.setIssueDate(LocalDate.parse(rs.getString("issueDate")));
+					user.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
+				}
+				user.setPhoto(rs.getBytes("photo"));
 				return user;
 			}
 			return null;
@@ -81,10 +92,64 @@ public class SQLExecutor {
 	public static int addUser(User user) {
 		try {
 			connectDB();
-			String sql = String.format("INSERT INTO user (username, password) " +
-							"VALUES ('%s', '%s');",
-					user.getUsername(), user.getPassword());
-			return connector.executeSQLUpdate(sql);
+			String sql = "INSERT INTO user (username, password, email, " +
+							"fName, lName, address, hPhone, mPhone, licenceNo, licenceType, " +
+							"issueDate, expireDate, photo) " +
+							"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			int cnt = 1;
+			pstmt.setString(cnt++, user.getUsername());
+			pstmt.setString(cnt++, user.getPassword());
+			pstmt.setString(cnt++, user.getEmail());
+			pstmt.setString(cnt++, user.getfName());
+			pstmt.setString(cnt++, user.getlName());
+			pstmt.setString(cnt++, user.getAddress());
+			pstmt.setString(cnt++, user.gethPhone());
+			pstmt.setString(cnt++, user.getmPhone());
+			pstmt.setString(cnt++, user.getLicenceNo());
+			pstmt.setString(cnt++, user.getLicenceType());
+			pstmt.setString(cnt++, user.getIssueDate().toString());
+			pstmt.setString(cnt++, user.getExpireDate().toString());
+			pstmt.setBytes(cnt, user.getPhoto());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		} finally {
+			disconnectDB();
+		}
+	}
+
+	/**
+	 * Updates a user into database
+	 * @param user the user need to be updated
+	 * @return 1 if succeed, otherwise 0
+	 */
+	public static int updateUser(User user) {
+		try {
+			connectDB();
+			String sql = "UPDATE user " +
+					"SET password = ?, email = ?, fName = ?, lName = ?, " +
+					"address = ?, hPhone = ?, mPhone = ?, licenceNo = ?, " +
+					"licenceType = ?, issueDate = ?, expireDate = ?, photo = ? " +
+					"WHERE username = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			int cnt = 1;
+			pstmt.setString(cnt++, user.getPassword());
+			pstmt.setString(cnt++, user.getEmail());
+			pstmt.setString(cnt++, user.getfName());
+			pstmt.setString(cnt++, user.getlName());
+			pstmt.setString(cnt++, user.getAddress());
+			pstmt.setString(cnt++, user.gethPhone());
+			pstmt.setString(cnt++, user.getmPhone());
+			pstmt.setString(cnt++, user.getLicenceNo());
+			pstmt.setString(cnt++, user.getLicenceType());
+			pstmt.setString(cnt++, user.getIssueDate().toString());
+			pstmt.setString(cnt++, user.getExpireDate().toString());
+			pstmt.setBytes(cnt++, user.getPhoto());
+			pstmt.setString(cnt, user.getUsername());
+			return pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0;
@@ -131,11 +196,11 @@ public class SQLExecutor {
 	 * @return 1 if update succeed, otherwise 0
 	 */
 	public static int updateCar(Car car) {
-		connectDB();
-		String sql = "UPDATE car " +
-				"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ? " +
-				"WHERE plate = ?;";
 		try {
+			connectDB();
+			String sql = "UPDATE car " +
+					"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ? " +
+					"WHERE plate = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
 			pstmt.setString(1, car.getModel());
@@ -143,6 +208,7 @@ public class SQLExecutor {
 			pstmt.setString(3, car.getColor());
 			pstmt.setInt(4, car.getYear());
 			pstmt.setInt(5, car.getSeatNo());
+			pstmt.setString(6, car.getPlate());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -159,11 +225,11 @@ public class SQLExecutor {
 	 * @return 1 if operation succeed, otherwise 0
 	 */
 	public static int addCar(Car car) {
-		connectDB();
-		String sql = "INSERT INTO car " +
-				"(plate, username, model, manufacturer, color, year, seatNo) " +
-				"VALUES (?, ?, ?, ?, ?, ?, ?);";
 		try {
+			connectDB();
+			String sql = "INSERT INTO car " +
+					"(plate, username, model, manufacturer, color, year, seatNo) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
 			pstmt.setString(1, car.getPlate());

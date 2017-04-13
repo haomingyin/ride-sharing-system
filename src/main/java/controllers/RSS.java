@@ -60,6 +60,22 @@ public class RSS {
 		}
 	}
 
+	public void showProfile() {
+		try {
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/SignupView.fxml"));
+			Parent root = fxmlLoader.load();
+			SignupController controller = fxmlLoader.getController();
+			controller.setRSS(this);
+			Stage stage = new Stage();
+			controller.setStage(stage);
+			controller.myProfileMode();
+			stage.setScene(new Scene(root));
+			stage.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void showCarView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CarView.fxml"));
@@ -138,10 +154,28 @@ public class RSS {
 
 	public void showErrorDialog(String headMsg, String errorMsg) {
 		Alert alert = new Alert(Alert.AlertType.ERROR);
-		alert.setTitle("Error Dialog");
+		alert.setTitle("RSS Error Dialog");
 		alert.setHeaderText(headMsg);
 		alert.setContentText(errorMsg);
 		alert.getDialogPane().setPrefWidth(600);
+		alert.showAndWait();
+	}
+
+	public void showInformationDialog(String headMsg, String infoMsg) {
+		Alert alert = new Alert(Alert.AlertType.INFORMATION);
+		alert.setTitle("RSS Information Dialog");
+		alert.setHeaderText(headMsg);
+		alert.setContentText(infoMsg);
+		alert.getDialogPane().setPrefWidth(500);
+		alert.showAndWait();
+	}
+
+	public void showWarningDialog(String headMsg, String warnMsg) {
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle("RSS Warning Dialog");
+		alert.setHeaderText(headMsg);
+		alert.setContentText(warnMsg);
+		alert.getDialogPane().setPrefWidth(500);
 		alert.showAndWait();
 	}
 

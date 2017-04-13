@@ -74,15 +74,22 @@ CREATE TABLE IF NOT EXISTS trip_sp
     CONSTRAINT trip_sp_trip_tripid_fk FOREIGN KEY (tripId) REFERENCES trip (tripId),
     CONSTRAINT trip_sp_stop_point_spid_fk FOREIGN KEY (spId) REFERENCES stop_point (spId)
 );
-CREATE TABLE IF NOT EXISTS user
-(
-    username TEXT PRIMARY KEY,
-    password TEXT NOT NULL,
-    email TEXT,
-    fName TEXT,
-    lName TEXT,
-    phone TEXT
+CREATE TABLE IF NOT EXISTS user  (
+    username    TEXT PRIMARY KEY,
+    password    TEXT NOT NULL,
+    email       TEXT,
+    fName       TEXT,
+    lName       TEXT,
+    address     TEXT,
+    hPhone      TEXT,
+    mPhone      TEXT,
+    licenceNo   TEXT,
+    licenceType TEXT,
+    issueDate   DATE,
+    expireDate  DATE,
+    photo       BLOB
 );
+
 CREATE UNIQUE INDEX IF NOT EXISTS user_username_uindex ON user (username);
 
 CREATE VIEW IF NOT EXISTS ride_sp_view

@@ -6,6 +6,7 @@ public class User {
 
 	private String username, password, email, fName, lName, hPhone, mPhone, address, licenceNo, licenceType;
 	private LocalDate issueDate, expireDate;
+	private byte[] photo;
 
 	public User() {};
 
@@ -26,6 +27,7 @@ public class User {
 	}
 
 	public String getEmail() {
+		if (email == null) return "@uclive.ac.nz";
 		return email;
 	}
 
@@ -34,6 +36,7 @@ public class User {
 	}
 
 	public String getfName() {
+		if (fName == null) return "";
 		return fName;
 	}
 
@@ -42,6 +45,7 @@ public class User {
 	}
 
 	public String getlName() {
+		if (lName == null) return "";
 		return lName;
 	}
 
@@ -50,6 +54,7 @@ public class User {
 	}
 
 	public String gethPhone() {
+		if (hPhone == null) return "";
 		return hPhone;
 	}
 
@@ -58,6 +63,7 @@ public class User {
 	}
 
 	public String getmPhone() {
+		if (mPhone == null) return "";
 		return mPhone;
 	}
 
@@ -66,6 +72,7 @@ public class User {
 	}
 
 	public String getAddress() {
+		if (address == null) return "";
 		return address;
 	}
 
@@ -74,6 +81,7 @@ public class User {
 	}
 
 	public String getLicenceNo() {
+		if (licenceNo == null) return "";
 		return licenceNo;
 	}
 
@@ -82,6 +90,7 @@ public class User {
 	}
 
 	public String getLicenceType() {
+		if (licenceType == null) return "";
 		return licenceType;
 	}
 
@@ -90,6 +99,7 @@ public class User {
 	}
 
 	public LocalDate getIssueDate() {
+		if (issueDate == null) return LocalDate.of(1901,1,1);
 		return issueDate;
 	}
 
@@ -98,10 +108,20 @@ public class User {
 	}
 
 	public LocalDate getExpireDate() {
+		if (expireDate == null) return LocalDate.of(1901,1,1);
 		return expireDate;
 	}
 
 	public void setExpireDate(LocalDate expireDate) {
 		this.expireDate = expireDate;
+	}
+
+	public byte[] getPhoto() {
+		if (photo == null) return new byte[] {};
+		return photo;
+	}
+
+	public void setPhoto(byte[] photo) {
+		this.photo = photo;
 	}
 }

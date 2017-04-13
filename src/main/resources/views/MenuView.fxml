@@ -16,12 +16,12 @@
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Text>
-                <ImageView layoutX="103.0" layoutY="116.0">
+                <ImageView fitHeight="79.0" fitWidth="79.0" layoutX="103.0" layoutY="116.0" onMouseClicked="#goToProfile">
                     <image>
                         <Image url="/images/user.png" />
                     </image>
                 </ImageView>
-                <Text layoutX="118.0" layoutY="203.0" onMouseClicked="#logout" stroke="#4d4040" strokeType="OUTSIDE" strokeWidth="0.0" text="Log Out" underline="true" />
+                <Text layoutX="118.0" layoutY="774.0" onMouseClicked="#logout" stroke="#4d4040" strokeType="OUTSIDE" strokeWidth="0.0" text="Log Out" underline="true" />
             <GridPane layoutX="45.0" layoutY="263.0" prefHeight="369.0" prefWidth="195.0">
               <columnConstraints>
                 <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="159.0" />
@@ -87,6 +87,16 @@
                       </ImageView>
                </children>
             </GridPane>
+            <ImageView fitHeight="35.0" fitWidth="35.0" layoutX="124.0" layoutY="721.0" onMouseClicked="#logout">
+               <image>
+                  <Image url="/images/logout.png" />
+               </image>
+            </ImageView>
+            <Text layoutX="107.0" layoutY="216.0" onMouseClicked="#goToProfile" strokeType="OUTSIDE" strokeWidth="0.0" text="My Profile" underline="true">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Text>
             </children>
         </AnchorPane>
     </children>

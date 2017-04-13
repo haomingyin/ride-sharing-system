@@ -8,11 +8,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.SignupController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="485.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.SignupController">
    <children>
       <AnchorPane layoutX="42.0" layoutY="25.0" prefHeight="768.0" prefWidth="400.0" style="-fx-background-color: #eeeeee;">
          <children>
-            <Text layoutX="150.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign Up" textAlignment="CENTER" textOrigin="CENTER">
+            <Text fx:id="titleText" layoutX="150.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign Up" textAlignment="CENTER" textOrigin="CENTER">
                <font>
                   <Font size="26.0" />
                </font>
@@ -79,7 +79,7 @@
 
                </children>
             </GridPane>
-            <GridPane fx:id="licencePane" disable="true" layoutX="55.0" layoutY="515.0" prefHeight="174.0" prefWidth="290.0">
+            <GridPane fx:id="licencePane" disable="true" layoutX="55.0" layoutY="510.0" prefHeight="174.0" prefWidth="290.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

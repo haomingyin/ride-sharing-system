@@ -34,6 +34,10 @@ public class MenuController extends Controller implements Initializable {
 		this.rss.showBookRideView();
 	}
 
+	public void goToProfile() {
+		this.rss.showProfile();
+	}
+
 	public void logout() {
 		this.rss.showLoginView();
 	}
