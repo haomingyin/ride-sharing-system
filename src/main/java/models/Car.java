@@ -1,23 +1,15 @@
 package models;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Car {
 
-	private SimpleStringProperty plate, username, model, manufacturer, color;
+	private SimpleStringProperty plate, username, model, manufacturer, color, wof;
 	private SimpleIntegerProperty carId, year, seatNo;
-
-	public Car(String plate, String username, String model, String manufacturer, String color, int year, int seatNo) {
-		this.carId = new SimpleIntegerProperty();
-		this.plate = new SimpleStringProperty(plate);
-		this.username = new SimpleStringProperty(username);
-		this.model = new SimpleStringProperty(model);
-		this.manufacturer = new SimpleStringProperty(manufacturer);
-		this.color = new SimpleStringProperty(color);
-		this.year = new SimpleIntegerProperty(year);
-		this.seatNo = new SimpleIntegerProperty(seatNo);
-	}
+	private SimpleDoubleProperty performance;
 
 	public Car() {
 		this.carId = new SimpleIntegerProperty();
@@ -28,6 +20,13 @@ public class Car {
 		this.color = new SimpleStringProperty();
 		this.year = new SimpleIntegerProperty();
 		this.seatNo = new SimpleIntegerProperty();
+		this.wof = new SimpleStringProperty();
+		this.performance = new SimpleDoubleProperty();
+	}
+
+	@Override
+	public String toString() {
+		return getPlate();
 	}
 
 	public int getCarId() {
@@ -124,5 +123,29 @@ public class Car {
 
 	public void setSeatNo(int seatNo) {
 		this.seatNo.set(seatNo);
+	}
+
+	public String getWof() {
+		return wof.get();
+	}
+
+	public SimpleStringProperty wofProperty() {
+		return wof;
+	}
+
+	public void setWof(String wof) {
+		this.wof.set(wof);
+	}
+
+	public double getPerformance() {
+		return performance.get();
+	}
+
+	public SimpleDoubleProperty performanceProperty() {
+		return performance;
+	}
+
+	public void setPerformance(double performance) {
+		this.performance.set(performance);
 	}
 }

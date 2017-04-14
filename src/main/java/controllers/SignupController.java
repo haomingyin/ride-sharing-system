@@ -142,7 +142,7 @@ public class SignupController extends Controller implements Initializable {
 			}
 
 			String headMsg, infoMsg;
-			if (submitBtn.getText().equals("Submit")) {
+			if (mode == Mode.SIGNUP) {
 				if (SQLExecutor.addUser(user) == 1) {
 					headMsg = "Operation Succeeded.";
 					infoMsg = "You have successfully signed up with RSS.";
@@ -217,6 +217,9 @@ public class SignupController extends Controller implements Initializable {
 		// check username
 		if (!usernameField.getText().matches("[a-zA-Z1-9]{4,7}")) {
 			errorMsg.add("Username should only contains 4 to 7 alphanumeric characters.\n");
+		} else {
+			if (mode == Mode.SIGNUP && SQLExecutor.fetchNumberOfUser(usernameField.getText()) != 0)
+				errorMsg.add("Username already existed in our system.\n");
 		}
 
 		// check passwords
@@ -284,7 +287,8 @@ public class SignupController extends Controller implements Initializable {
 			for (Integer i = 1; i <= errorMsg.size(); i++) {
 				errorString += i.toString() + ". " + errorMsg.get(i - 1);
 			}
-			rss.showErrorDialog("Sign up failed.", errorString);
+			String headMsg = mode == Mode.SIGNUP ? "Sign up failed." : "Update failed.";
+			rss.showErrorDialog(headMsg, errorString);
 			return false;
 		}
 

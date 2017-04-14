@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS car
 (
-    plate TEXT PRIMARY KEY,
+    carId TEXT PRIMARY KEY,
     username TEXT NOT NULL,
     model TEXT NOT NULL,
     manufacturer TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS car
     seatNo INT NOT NULL,
     CONSTRAINT car_user_username_fk FOREIGN KEY (username) REFERENCES user (username)
 );
-CREATE UNIQUE INDEX car_plate_uindex ON car (plate);
+CREATE UNIQUE INDEX car_plate_uindex ON car (carId);
 CREATE TABLE IF NOT EXISTS ride
 (
     rideId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS trip
     alias TEXT,
     username TEXT,
     direction TEXT,
-    plate TEXT,
+    carId TEXT,
     beginDate DATE,
     expireDate DATE
 );

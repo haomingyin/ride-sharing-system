@@ -180,7 +180,7 @@ public class RideController extends Controller implements Initializable {
 		seatComboBox.getItems().clear();
 		if (tripComboBox.getValue() != null) {
 			Trip trip = tripComboBox.getValue();
-			Car car = fetchCar(trip.getPlate(), rss.getSqlConnector());
+			Car car = fetchCar(trip.getCarId(), rss.getSqlConnector());
 			for (int i = 0; i <= car.getSeatNo(); i++) {
 				seatComboBox.getItems().add(i);
 			}
@@ -193,19 +193,21 @@ public class RideController extends Controller implements Initializable {
 
 	}
 
-	public static Car fetchCar(String plate, SQLConnector connector) {
+	public static Car fetchCar(Integer carId, SQLConnector connector) {
 		Car car = null;
 		try {
-			String sql = String.format("SELECT * FROM car WHERE plate = '%s';", plate);
+			String sql = String.format("SELECT * FROM car WHERE carId = '%s';", carId);
 			ResultSet rs = connector.executeSQLQuery(sql);
 			if (!rs.isClosed() && rs.next()) {
-				car = new Car(rs.getString("plate"),
-						rs.getString("username"),
-						rs.getString("model"),
-						rs.getString("manufacturer"),
-						rs.getString("color"),
-						rs.getInt("year"),
-						rs.getInt("seatNo"));
+				car = new Car();
+				car.setCarId(rs.getInt("carId"));
+				car.setPlate(rs.getString("plate"));
+				car.setUsername(rs.getString("username"));
+				car.setModel(rs.getString("model"));
+				car.setManufacturer(rs.getString("manufacturer"));
+				car.setColor(rs.getString("color"));
+				car.setYear(rs.getInt("year"));
+				car.setSeatNo(rs.getInt("seatNo"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

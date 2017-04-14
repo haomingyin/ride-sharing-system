@@ -72,15 +72,10 @@ public class SQLConnector {
 	 * @param sql
 	 * @return a result set
 	 */
-	public ResultSet executeSQLQuery(String sql) {
-		try {
-			if (conn.isClosed()) connect();
-			Statement stmt = conn.createStatement();
-			return stmt.executeQuery(sql);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return null;
-		}
+	public ResultSet executeSQLQuery(String sql) throws Exception {
+		if (conn.isClosed()) connect();
+		Statement stmt = conn.createStatement();
+		return stmt.executeQuery(sql);
 	}
 
 	/**
@@ -89,15 +84,10 @@ public class SQLConnector {
 	 * @param sql
 	 * @return a int number showing how many rows affected
 	 */
-	public int executeSQLUpdate(String sql) {
-		try {
-			if (conn.isClosed()) connect();
-			Statement stmt = conn.createStatement();
-			return stmt.executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return 0;
-		}
+	public int executeSQLUpdate(String sql) throws Exception{
+		if (conn.isClosed()) connect();
+		Statement stmt = conn.createStatement();
+		return stmt.executeUpdate(sql);
 	}
 
 	/**

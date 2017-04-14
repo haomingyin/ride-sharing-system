@@ -1,5 +1,6 @@
 package models;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.time.LocalDate;
@@ -9,16 +10,17 @@ public class Trip {
 
 	private int tripId;
 	private Integer routeId;
-	private SimpleStringProperty alias, username, direction, plate;
+	private SimpleStringProperty alias, username, direction;
+	private SimpleIntegerProperty carId;
 	private LocalDate beginDate, expireDate;
 	private HashMap<Integer, StopPoint> stopPointHashMap;
 
-	public Trip(int tripId, String alias, String username, String direction, String plate) {
+	public Trip(int tripId, String alias, String username, String direction, Integer carId) {
 		this.tripId = tripId;
 		this.alias = new SimpleStringProperty(alias);
 		this.username = new SimpleStringProperty(username);
 		this.direction = new SimpleStringProperty(direction);
-		this.plate = new SimpleStringProperty(plate);
+		this.carId = new SimpleIntegerProperty(carId);
 		this.routeId = null;
 		this.beginDate = null;
 		this.expireDate = null;
@@ -77,16 +79,16 @@ public class Trip {
 		this.direction.set(direction);
 	}
 
-	public String getPlate() {
-		return plate.get();
+	public int getCarId() {
+		return carId.get();
 	}
 
-	public SimpleStringProperty plateProperty() {
-		return plate;
+	public SimpleIntegerProperty carIdProperty() {
+		return carId;
 	}
 
-	public void setPlate(String plate) {
-		this.plate.set(plate);
+	public void setCarId(int carId) {
+		this.carId.set(carId);
 	}
 
 	public LocalDate getBeginDate() {

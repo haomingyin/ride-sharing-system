@@ -1,6 +1,7 @@
 package models.database;
 
 import models.*;
+import org.sqlite.SQLiteException;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -16,6 +17,28 @@ public class SQLExecutor {
 	private static void connectDB() {
 		connector = new SQLConnector();
 		connector.connect();
+		enableForeignKeys();
+	}
+
+
+	public static int enableForeignKeys() {
+		try {
+			if (connector != null)
+				return connector.executeSQLUpdate("PRAGMA foreign_keys = 1;");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static int disableForeignKeys() {
+		try {
+			if (connector != null)
+				return connector.executeSQLUpdate("PRAGMA foreign_keys = 0;");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	private static void disconnectDB() {
@@ -173,13 +196,18 @@ public class SQLExecutor {
 					"WHERE username = '%s';", user.getUsername());
 			ResultSet rs = connector.executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
-				Car car = new Car(rs.getString("plate"),
-						rs.getString("username"),
-						rs.getString("model"),
-						rs.getString("manufacturer"),
-						rs.getString("color"),
-						rs.getInt("year"),
-						rs.getInt("seatNo"));
+				Car car = new Car();
+				car.setCarId(rs.getInt("carId"));
+				car.setPlate(rs.getString("plate"));
+				car.setUsername(rs.getString("username"));
+				car.setModel(rs.getString("model"));
+				car.setManufacturer(rs.getString("manufacturer"));
+				car.setColor(rs.getString("color"));
+				car.setYear(rs.getInt("year"));
+				car.setSeatNo(rs.getInt("seatNo"));
+				car.setWof(rs.getString("wof"));
+				car.setPerformance(rs.getDouble("performance"));
+
 				carsHashMap.put(car.getPlate(), car);
 			}
 		} catch (Exception e) {
@@ -199,16 +227,19 @@ public class SQLExecutor {
 		try {
 			connectDB();
 			String sql = "UPDATE car " +
-					"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ? " +
-					"WHERE plate = ?;";
+					"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ?, wof = ?, performance = ? " +
+					"WHERE carId = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
-			pstmt.setString(1, car.getModel());
-			pstmt.setString(2, car.getManufacturer());
-			pstmt.setString(3, car.getColor());
-			pstmt.setInt(4, car.getYear());
-			pstmt.setInt(5, car.getSeatNo());
-			pstmt.setString(6, car.getPlate());
+			int cnt = 1;
+			pstmt.setString(cnt++, car.getModel());
+			pstmt.setString(cnt++, car.getManufacturer());
+			pstmt.setString(cnt++, car.getColor());
+			pstmt.setInt(cnt++, car.getYear());
+			pstmt.setInt(cnt++, car.getSeatNo());
+			pstmt.setString(cnt++, car.getWof());
+			pstmt.setDouble(cnt++, car.getPerformance());
+			pstmt.setInt(cnt, car.getCarId());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -222,31 +253,37 @@ public class SQLExecutor {
 	/**
 	 * Adds a given car to database
 	 * @param car a car needs to be stored into database
-	 * @return 1 if operation succeed, otherwise 0
+	 * @return 1 if operation succeed, otherwise 0. However, a specific error code
+	 * can also be returned
 	 */
 	public static int addCar(Car car) {
 		try {
 			connectDB();
 			String sql = "INSERT INTO car " +
-					"(plate, username, model, manufacturer, color, year, seatNo) " +
-					"VALUES (?, ?, ?, ?, ?, ?, ?);";
+					"(plate, username, model, manufacturer, color, year, seatNo, wof, performance) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
-			pstmt.setString(1, car.getPlate());
-			pstmt.setString(2, car.getUsername());
-			pstmt.setString(3, car.getModel());
-			pstmt.setString(4, car.getManufacturer());
-			pstmt.setString(5, car.getColor());
-			pstmt.setInt(6, car.getYear());
-			pstmt.setInt(7, car.getSeatNo());
+			int cnt = 1;
+			pstmt.setString(cnt++, car.getPlate());
+			pstmt.setString(cnt++, car.getUsername());
+			pstmt.setString(cnt++, car.getModel());
+			pstmt.setString(cnt++, car.getManufacturer());
+			pstmt.setString(cnt++, car.getColor());
+			pstmt.setInt(cnt++, car.getYear());
+			pstmt.setInt(cnt++, car.getSeatNo());
+			pstmt.setString(cnt++, car.getWof());
+			pstmt.setDouble(cnt, car.getPerformance());
 
 			return pstmt.executeUpdate();
+		} catch (SQLiteException e) {
+			return e.getResultCode().code;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return 0;
 		} finally {
 			disconnectDB();
 		}
+		return 0;
 	}
 
 	/**
@@ -257,9 +294,11 @@ public class SQLExecutor {
 	public static int deleteCar(Car car) {
 		connectDB();
 		try {
-			String sql = String.format("DELETE FROM car WHERE plate = '%s';",
-					car.getPlate());
+			String sql = String.format("DELETE FROM car WHERE carId = '%s';",
+					car.getCarId());
 			return connector.executeSQLUpdate(sql);
+		} catch (SQLiteException e) {
+			return e.getResultCode().code;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0;

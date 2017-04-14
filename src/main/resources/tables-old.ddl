@@ -1,15 +1,18 @@
-CREATE TABLE IF NOT EXISTS car
-(
-    plate TEXT PRIMARY KEY,
-    username TEXT NOT NULL,
-    model TEXT NOT NULL,
-    manufacturer TEXT NOT NULL,
-    color TEXT NOT NULL,
-    year INT NOT NULL,
-    seatNo INT NOT NULL,
+CREATE TABLE car (
+    carId        INTEGER PRIMARY KEY AUTOINCREMENT,
+    plate        TEXT    UNIQUE,
+    username     TEXT    NOT NULL,
+    model        TEXT    NOT NULL,
+    manufacturer TEXT    NOT NULL,
+    color        TEXT    NOT NULL,
+    year         INT     NOT NULL,
+    seatNo       INT     NOT NULL,
+    wof          DATE,
+    performance  DOUBLE,
     CONSTRAINT car_user_username_fk FOREIGN KEY (username) REFERENCES user (username)
 );
-CREATE UNIQUE INDEX car_plate_uindex ON car (plate);
+
+CREATE UNIQUE INDEX car_plate_uindex ON car (carId);
 CREATE TABLE IF NOT EXISTS ride
 (
     rideId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,16 +57,15 @@ CREATE TABLE IF NOT EXISTS stop_point
     city TEXT NOT NULL,
     trimmed TEXT
 );
-CREATE TABLE IF NOT EXISTS trip
-(
-    tripId INTEGER PRIMARY KEY AUTOINCREMENT,
-    alias TEXT,
-    username TEXT,
-    routeId INTEGER,
-    direction TEXT,
-    plate TEXT,
-    beginDate DATE,
-    expireDate DATE
+CREATE TABLE trip (
+    tripid     INTEGER PRIMARY KEY AUTOINCREMENT,
+    alias      TEXT,
+    username   TEXT,
+    routeid    INTEGER,
+    direction  TEXT,
+    carid      INTEGER CONSTRAINT trip_car_carid REFERENCES car (carId) ON DELETE RESTRICT NOT DEFERRABLE,
+    begindate  DATE,
+    expiredate DATE
 );
 CREATE TABLE IF NOT EXISTS trip_sp
 (
@@ -102,7 +104,7 @@ AS
 
 CREATE VIEW IF NOT EXISTS book_ride_view
 AS
-    SELECT r.rideId, r.tripId, ts.spId, t.direction, ts.time, r.seatNo - seatCounter.cnt as seatNo, r.username, t.plate
+    SELECT r.rideId, r.tripId, ts.spId, t.direction, ts.time, r.seatNo - seatCounter.cnt as seatNo, r.username, t.carId
     FROM ride r
         LEFT JOIN trip t ON r.tripId = t.tripId
         LEFT JOIN trip_sp ts ON ts.tripId = r.tripId
@@ -115,7 +117,7 @@ AS
 
 CREATE VIEW IF NOT EXISTS book_ride_passenger_view
 AS
-    SELECT r.rideId, r.tripId, ts.spId, t.direction, ts.time, r.seatNo - seatCounter.cnt as seatNo, r.username, t.plate, p.username as passenger
+    SELECT r.rideId, r.tripId, ts.spId, t.direction, ts.time, r.seatNo - seatCounter.cnt as seatNo, r.username, t.carId, p.username as passenger
     FROM ride r
         LEFT JOIN trip t ON r.tripId = t.tripId
         LEFT JOIN trip_sp ts ON ts.tripId = r.tripId

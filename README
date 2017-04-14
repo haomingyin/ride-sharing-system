@@ -12,7 +12,7 @@ Note:
 1. SQLite database is used for this assignment. All controllers are basically just do queries with DB, so I really don't know how to write unit tests or Cucumber for it. Writing another queries in tests doesn't value much as the purpose for testing is not see if database works. So for, I only have one test and I know that is bad. Hope I can improve that for the next delivery.
 2. Known bugs: 
     a. any fields containing quotes would mess up sql queries and cause operation failures. 
-    b. Deleting a car after associating the car with a trip/ride causes ride view failed to load, as app cannot load car's plate and seat no to combo box.
+    b. Deleting a car after associating the car with a trip/ride causes ride view failed to load, as app cannot load car's carId and seat no to combo box.
     c. You can book your own rides.
     d. When booking a ride, if a ride has no more available seats, the ride does not show up but its stop points do. It means that even though you can see there is a stop point, no ride is available to book after you click the SP.
 

@@ -105,7 +105,7 @@ public class TripController extends Controller implements Initializable {
 						rs.getString("alias"),
 						rs.getString("username"),
 						rs.getString("direction"),
-						rs.getString("plate"));
+						rs.getInt("carId"));
 				trip.setRouteId(rs.getInt("routeId"));
 				trip.setBeginDate(LocalDate.parse(rs.getString("beginDate")));
 				trip.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
@@ -154,7 +154,7 @@ public class TripController extends Controller implements Initializable {
 			// set date picker
 			tripStartDatePicker.setValue(trip.getBeginDate());
 			tripEndDatePicker.setValue(trip.getExpireDate());
-			tripCarComboBox.getSelectionModel().select(trip.getPlate());
+			tripCarComboBox.getSelectionModel().select(trip.getCarId());
 			routeComboBox.getSelectionModel().select((int) routeIdtoIndex.get(trip.getRouteId()));
 		}
 
