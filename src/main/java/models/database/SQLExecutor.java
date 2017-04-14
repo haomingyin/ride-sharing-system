@@ -291,33 +291,33 @@ public class SQLExecutor {
 	 * @param car a car needs to be deleted from database
 	 * @return 1 if deletion succeed, otherwise 0
 	 */
-	public static int deleteCar(Car car) {
+	public static int deleteCar(Car car) throws SQLiteException {
 		connectDB();
 		try {
 			String sql = String.format("DELETE FROM car WHERE carId = '%s';",
 					car.getCarId());
 			return connector.executeSQLUpdate(sql);
 		} catch (SQLiteException e) {
-			return e.getResultCode().code;
+			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return 0;
 		} finally {
 			disconnectDB();
 		}
+		return 0;
 	}
 
 	/**
 	 * Fetches all stop points whose trimmed address matches the give string
-	 * @param trimmed a trimmed string of the address
+	 * @param query a query string of the address
 	 * @param limit a integer of how many records need to be fetched, -1 for all.
 	 * @return a HashMap containing spId as keys, StopPoint as values
 	 */
-	public static Map<Integer, StopPoint> fetchStopPointsByTrimmed(String trimmed, int limit) {
+	public static Map<Integer, StopPoint> fetchStopPointsByString(String query, int limit) {
 		// add a % wildcard at the end of the trimmed string
-		String request = trimmed + "%";
+		String request = query + "%";
 		// replace one or more non alphanumeric character to %
-		request = request.replaceAll("[^a-zA-Z0-9]+", "%").toLowerCase();
+		request = request.toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "%");
 		String sql = String.format("SELECT * FROM stop_point " +
 				"WHERE trimmed like '%s' ", request);
 		if (limit >= 0) sql += "LIMIT " + String.valueOf(limit) + ";";
@@ -332,8 +332,35 @@ public class SQLExecutor {
 				stopPoint.setStreetNo(rs.getString("streetNo"));
 				stopPoint.setSuburb(rs.getString("suburb"));
 				stopPoint.setCity(rs.getString("city"));
-				stopPoint.setTime(rs.getString("time"));
 				stopPoints.put(stopPoint.getSpId(), stopPoint);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return stopPoints;
+	}
+
+	public static Map<Integer, StopPoint> fetchStopPointByRoute(Route route) {
+		Map<Integer, StopPoint> stopPoints = new HashMap<>();
+		try {
+			connectDB();
+			String sql = "SELECT * " +
+					"FROM route_sp JOIN stop_point ON route_sp.spId = stop_point.spId " +
+					"WHERE routeId = ?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, route.getRouteId());
+
+			ResultSet rs = pstmt.executeQuery();
+			while (!rs.isClosed() && rs.next()) {
+				StopPoint sp = new StopPoint(rs.getInt("spId"),
+						rs.getString("streetNo"),
+						rs.getString("street"),
+						rs.getString("suburb"),
+						rs.getString("city"));
+				stopPoints.put(sp.getSpId(), sp);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -347,22 +374,103 @@ public class SQLExecutor {
 	 * @param user a user associated with routes to be fetched
 	 * @return HashMap containing routeId as key, Route as values.
 	 */
-	public static HashMap<Integer, Route> fetchRoutesByUser(User user) {
+	public static Map<Integer, Route> fetchRoutesByUser(User user) {
 		HashMap<Integer, Route> routeHashMap = new HashMap<>();
 		try {
+			connectDB();
 			String sql = String.format("SELECT * " +
 					"FROM route " +
 					"WHERE username = '%s';", user.getUsername());
 			ResultSet rs = connector.executeSQLQuery(sql);
 			while (!rs.isClosed() && rs.next()) {
-				Route route = new Route(rs.getInt("routeId"),
-						rs.getString("alias"));
+				Route route = new Route();
+				route.setRouteId(rs.getInt("routeId"));
+				route.setAlias(rs.getString("alias"));
+				route.setUsername(rs.getString("username"));
 				routeHashMap.put(route.getRouteId(), route);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			disconnectDB();
 		}
 		return routeHashMap;
+	}
+
+	public static int addRoute(Route route) {
+		try {
+			connectDB();
+			String sql = "INSERT INTO route (username, alias) VALUES (?, ?);";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setString(1, route.getUsername());
+			pstmt.setString(2, route.getAlias());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static int updateRouteAlias(Route route) {
+		try {
+			connectDB();
+			String sql = "UPDATE route " +
+					"SET alias = ? " +
+					"WHERE routeId = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setString(1, route.getAlias());
+			pstmt.setInt(2, route.getRouteId());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static int deleteRoute(Route route) throws SQLiteException{
+		try {
+			connectDB();
+			String sql = "DELETE FROM route WHERE routeId = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, route.getRouteId());
+			return pstmt.executeUpdate();
+		} catch (SQLiteException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static int addStopPointIntoRoute(Route route, StopPoint stopPoint) throws SQLiteException{
+		try {
+			connectDB();
+			String sql = "INSERT INTO route_sp (routeId, spId) " +
+					"VALUES " +
+					"(?, ?);";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, route.getRouteId());
+			pstmt.setInt(2, stopPoint.getSpId());
+
+			return pstmt.executeUpdate();
+		} catch (SQLiteException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
 	}
 
 	/**

@@ -1,27 +1,33 @@
 package models;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.HashMap;
 
 public class Route {
 
-	private int routeId;
-	private SimpleStringProperty alias;
+	private SimpleIntegerProperty routeId;
+	private SimpleStringProperty alias, username;
 	private HashMap<Integer, StopPoint> stopPoints;
 
-	public Route(int routeId, String alias) {
-		this.routeId = routeId;
+	public Route(Integer routeId, String alias) {
+		this.routeId = new SimpleIntegerProperty(routeId);
 		this.alias = new SimpleStringProperty(alias);
+		this.username = new SimpleStringProperty();
 		this.stopPoints = new HashMap<>();
 	}
 
-	public int getRouteId() {
-		return routeId;
+	public Route() {
+		this.routeId = new SimpleIntegerProperty();
+		this.alias = new SimpleStringProperty();
+		this.stopPoints = new HashMap<>();
+		this.username = new SimpleStringProperty();
 	}
 
-	public void setRouteId(int routeId) {
-		this.routeId = routeId;
+	@Override
+	public String toString() {
+		return getAlias().toString();
 	}
 
 	public String getAlias() {
@@ -42,5 +48,29 @@ public class Route {
 
 	public void setStopPoints(HashMap<Integer, StopPoint> stopPoints) {
 		this.stopPoints = stopPoints;
+	}
+
+	public int getRouteId() {
+		return routeId.get();
+	}
+
+	public SimpleIntegerProperty routeIdProperty() {
+		return routeId;
+	}
+
+	public void setRouteId(int routeId) {
+		this.routeId.set(routeId);
+	}
+
+	public String getUsername() {
+		return username.get();
+	}
+
+	public SimpleStringProperty usernameProperty() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username.set(username);
 	}
 }

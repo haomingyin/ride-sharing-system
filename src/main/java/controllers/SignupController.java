@@ -157,7 +157,8 @@ public class SignupController extends Controller implements Initializable {
 			} else {
 				if (SQLExecutor.updateUser(user) == 1) {
 					headMsg = "Operation Succeeded.";
-					infoMsg = "Your profile has been updated.";
+					infoMsg = "Your profile has been updated.\n" +
+							"If you have chosen to be a driver, you need to re-log into RSS system to make it effect.";
 					rss.showInformationDialog(headMsg, infoMsg);
 					myProfileMode();
 				} else {

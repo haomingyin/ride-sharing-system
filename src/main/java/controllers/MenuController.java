@@ -1,18 +1,30 @@
 package controllers;
 
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.GridPane;
+import models.database.SQLConnector;
+import models.database.SQLExecutor;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MenuController extends Controller implements Initializable {
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-	}
+	@FXML
+	private GridPane driverPane;
 
 	@Override
-	protected void afterSetRSS() {}
+	public void initialize(URL location, ResourceBundle resources) {}
+
+	@Override
+	protected void afterSetRSS() {
+		if(this.rss.getUser().getLicenceNo().equals("") || this.rss.getUser().getLicenceNo() == null) {
+			driverPane.setVisible(false);
+		} else {
+			driverPane.setVisible(true);
+		}
+	}
 
 	public void goToTrips() {
 		this.rss.showTripView();
@@ -39,6 +51,7 @@ public class MenuController extends Controller implements Initializable {
 	}
 
 	public void logout() {
+
 		this.rss.showLoginView();
 	}
 

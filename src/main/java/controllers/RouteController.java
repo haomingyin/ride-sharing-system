@@ -9,10 +9,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import javafx.util.StringConverter;
+import javafx.util.Callback;
 import models.*;
 import models.database.SQLExecutor;
 import org.apache.commons.lang3.text.WordUtils;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
+import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.sql.ResultSet;
@@ -20,49 +23,62 @@ import java.util.*;
 
 public class RouteController extends Controller implements Initializable {
 
-	private HashMap<Integer, StopPoint> stopPoints;
+
+	@FXML
+	private MenuController menuController;
+	@FXML
+	private Parent menuView;
+	@FXML
+	private Text routeErrorText;
+	@FXML
+	private TextField aliasField, addressField;
+	@FXML
+	private Button addSPBtn, addRouteBtn, deleteBtn;
+	@FXML
+	private ComboBox<Route> routeComboBox;
+	@FXML
+	private RadioButton addModeRbtn, updateModeRbtn;
+	@FXML
+	private GridPane addRoutePane, addSPPane, routesPane;
+	@FXML
+	private TableView<StopPoint> SPTable;
+	@FXML
+	private TableColumn<StopPoint, String> streetNoCol, streetCol, suburbCol, cityCol;
+
+	private enum Mode {UPDATE_MODE, ADD_MODE}
+	private Mode mode;
+
+	private Map<Integer, StopPoint> stopPoints;
 	private ObservableList<StopPoint> stopPointObservableList;
-	private HashMap<Integer, Route> routes;
-	private ArrayList<Route> routeArrayList;
-
-	@FXML
-	MenuController menuController;
-	@FXML
-	Parent menuView;
-	@FXML
-	Text routeErrorText;
-	@FXML
-	TextField routeAliasField, routeStreetNoField, routeStreetField, routeSuburbField, routeCityField;
-	@FXML
-	Button addSPBtn, addRouteBtn;
-	@FXML
-	ComboBox<Route> routeComboBox;
-	@FXML
-	RadioButton routeAddModeRbtn, routeViewModeRbtn;
-	@FXML
-	GridPane addRoutePane, addSPPane;
-	@FXML
-	TableView<StopPoint> SPTable;
-	@FXML
-	TableColumn<StopPoint, String> streetNoCol, streetCol, suburbCol, cityCol;
-
+	private Map<Integer, Route> routes;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		stopPoints = new HashMap<>();
 		routes = new HashMap<>();
-		routeArrayList = new ArrayList<>();
+
 		routeComboBox.setOnAction(event -> {
 			if (routeComboBox.getValue() != null) {
 				loadRouteDetail();
 			}
 		});
-		routeViewModeRbtn.setOnAction(event -> loadRouteDetail());
-		routeAddModeRbtn.setOnAction(event -> loadRouteDetail());
+
+		addRouteBtn.setOnAction(event -> clickAddRouteBtn());
+		addSPBtn.setOnAction(event -> clickAddSPBtn());
+		deleteBtn.setOnAction(event -> clickDeleteBtn());
+		updateModeRbtn.setOnAction(event -> {mode = Mode.UPDATE_MODE; loadRouteDetail();});
+		addModeRbtn.setOnAction(event -> {mode = Mode.ADD_MODE; loadRouteDetail();});
+
+		// autocomplete address finder
+		TextFields.bindAutoCompletion(addressField, new Callback<AutoCompletionBinding.ISuggestionRequest, Collection<StopPoint>>() {
+			public Collection<StopPoint> call(AutoCompletionBinding.ISuggestionRequest param) {
+				return SQLExecutor.fetchStopPointsByString(param.getUserText(), 6).values();
+			}
+		}).setPrefWidth(315);
 	}
 
 	@Override
-	 protected void afterSetRSS() {
+	protected void afterSetRSS() {
 		menuController.setRSS(rss);
 		loadRoutes();
 	}
@@ -76,7 +92,6 @@ public class RouteController extends Controller implements Initializable {
 	 */
 	private void loadRoutes() {
 		fetchRoutes();
-		routeArrayList = new ArrayList<>(routes.values());
 		refreshComboBox();
 		loadRouteDetail();
 	}
@@ -85,29 +100,14 @@ public class RouteController extends Controller implements Initializable {
 		routeComboBox.getItems().clear();
 		ObservableList<Route> routeObservableList = FXCollections.observableList(new ArrayList<>(routes.values()));
 		routeComboBox.setItems(routeObservableList);
-		routeComboBox.setConverter(new StringConverter<Route>() {
-			@Override
-			public String toString(Route object) {
-				if (object == null) {
-					return null;
-				} else {
-					return object.getAlias();
-				}
-			}
-
-			@Override
-			public Route fromString(String string) {
-				return null;
-			}
-		});
-		routeComboBox.getSelectionModel().selectFirst();
+		routeComboBox.getSelectionModel().selectLast();
 	}
 
 	/**
 	 * add details to fields and get all related stop points
 	 */
 	private void loadRouteDetail() {
-		if (routeAddModeRbtn.isSelected() || routeComboBox.getItems().size() == 0) {
+		if (mode == Mode.ADD_MODE || routeComboBox.getItems().size() == 0) {
 			addRouteMode();
 		} else {
 			updateRouteMode();
@@ -116,21 +116,34 @@ public class RouteController extends Controller implements Initializable {
 	}
 
 	private void addRouteMode() {
+		mode = Mode.ADD_MODE;
+		addModeRbtn.setSelected(true);
+
 		routeComboBox.setDisable(true);
 		SPTable.getItems().clear();
-		routeAliasField.clear();
+		aliasField.clear();
+
+		routesPane.setDisable(true);
 		addSPPane.setVisible(false);
 		addRouteBtn.setText("Create");
-		routeAddModeRbtn.setSelected(true);
 	}
 
 	private void updateRouteMode() {
+		mode = Mode.UPDATE_MODE;
+		updateModeRbtn.setSelected(true);
+
 		routeComboBox.setDisable(false);
-		Route route = routeComboBox.getValue();
-		routeAliasField.setText(route.getAlias());
+
+		routesPane.setDisable(false);
 		addSPPane.setVisible(true);
 		addRouteBtn.setText("Rename Alias");
-		routeViewModeRbtn.setSelected(true);
+
+		fillALlFields();
+	}
+
+	private void fillALlFields() {
+		Route route = routeComboBox.getValue();
+		aliasField.setText(route.getAlias());
 		fillSPTable();
 	}
 
@@ -149,171 +162,81 @@ public class RouteController extends Controller implements Initializable {
 		SPTable.setItems(stopPointObservableList);
 	}
 
-
 	private void fetchStopPoints() {
-		stopPoints = new HashMap<>();
-		try {
-			String sql = String.format("SELECT * " +
-					"FROM route_sp JOIN stop_point ON route_sp.spId = stop_point.spId " +
-					"WHERE routeId = %d;", routeComboBox.getValue().getRouteId());
-			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				StopPoint sp = new StopPoint(rs.getInt("spId"),
-						rs.getString("streetNo"),
-						rs.getString("street"),
-						rs.getString("suburb"),
-						rs.getString("city"));
-				stopPoints.put(sp.getSpId(), sp);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		stopPoints = SQLExecutor.fetchStopPointByRoute(routeComboBox.getValue());
 	}
 
-	public void clickAddRouteBtn() {
-		String sql;
-		Route route = null;
-		Integer index = null; // current selected item index in combo box
-		try {
-			if (addRouteBtn.getText().equals("Create")) {
-				sql = String.format("INSERT INTO route (username, alias) " +
-								"VALUES ('%s', '%s');",
-						rss.getUser().getUsername(),
-						routeAliasField.getText());
-			} else {
-				route = routeComboBox.getValue();
-				sql = String.format("UPDATE route " +
-								"SET alias = '%s' " +
-								"WHERE routeId = %d;",
-						routeAliasField.getText(),
-						route.getRouteId());
-			}
+	private void clickAddRouteBtn() {
+		Route route = mode == Mode.ADD_MODE ? new Route() : routeComboBox.getValue();
+		route.setAlias(aliasField.getText());
+		int result;
+		String infoMsg = "";
+		if (mode == Mode.ADD_MODE) {
+			route.setUsername(rss.getUser().getUsername());
+			if ((result = SQLExecutor.addRoute(route)) == 1)
+				infoMsg = "A route with alias '" + route.getAlias() + "' has been created.";
 
-			int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
-			if (result == 0) {
-				routeErrorText.setText("Oops, operation failed. Please try it again.");
-			} else {
-				routeErrorText.setText("Hooray! Operation succeeded!");
-				if (addRouteBtn.getText().equals("Create")) {
-					routeComboBox.getSelectionModel().selectLast();
-				}
-			}
-			routeErrorText.setVisible(true);
-			// after refresh screen, set combo box to previous selected route info.
+		} else {
+			if ((result = SQLExecutor.updateRouteAlias(route)) == 1)
+				infoMsg = "The alias of this route has been updated.";
+		}
+
+		if (result == 0) {
+			rss.showErrorDialog("Operation failed.",
+					"Operation failed with unknown reason. Please contact administrator.");
+		} else {
+			rss.showInformationDialog("Operation succeeded!", infoMsg);
 			loadRoutes();
-			if (route != null) {
-				routeComboBox.getSelectionModel().select(route);
-			} else {
-				routeComboBox.getSelectionModel().selectLast();
-			}
-			loadRouteDetail();
 			updateRouteMode();
-
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
-	public void clickAddSPBtn() {
-		String sql;
-		Integer spId;
-		try {
-			// just in case we are going to 'Update' btn in future
-			if (addSPBtn.getText().equals("Add")) {
-				spId = addSPToDatabase();
-				// associate spId with routeId
-				sql = String.format("INSERT INTO route_sp (routeId, spId) " +
-						"VALUES " +
-						"(%d, %d);", routeComboBox.getValue().getRouteId(), spId);
-				int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
-				if (result == 0) {
-					routeErrorText.setText("Oops, operation failed. Please try it again.");
-				} else {
-					routeErrorText.setText("Hooray! Operation succeeded!");
+	private void clickAddSPBtn() {
+		String address = addressField.getText().toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "");
+		List<StopPoint> sp = new ArrayList<>(SQLExecutor.fetchStopPointsByString(address, 2).values());
+		int result = 0;
+		String errorMsg;
+		if (sp.size() == 1) {
+			try {
+				if ((result = SQLExecutor.addStopPointIntoRoute(routeComboBox.getValue(), sp.get(0))) == 1) {
 					fillSPTable();
-					// clean sp details
-					routeStreetNoField.clear();
-					routeStreetField.clear();
-					routeSuburbField.clear();
-					routeCityField.setText("Christchurch");
-				}
-				routeErrorText.setVisible(true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Adds the current SP fields info into database no matter if it is already
-	 * in database, this will return the associated spId to identify the SP.
-	 *
-	 * @return spId in Integer format
-	 */
-	private Integer addSPToDatabase() {
-		String sql;
-		Integer spId = null;
-		try {
-			// find if the address is already in database
-			// if the address is NOT existed, then add into our system.
-			spId = fetchSPId();
-			if (spId == null) {
-				sql = String.format("INSERT INTO stop_point " +
-								"(streetNo, street, suburb, city, trimmed) " +
-								"VALUES " +
-								"('%s', '%s', '%s', '%s', '%s');",
-						routeStreetNoField.getText().replaceAll("[^a-zA-Z0-9]", "").toUpperCase(),
-						WordUtils.capitalizeFully(routeStreetField.getText().replace("[^a-zA-Z0-9 ]", "")),
-						WordUtils.capitalizeFully(routeSuburbField.getText().replace("[^a-zA-Z0-9 ]", "")),
-						WordUtils.capitalizeFully(routeCityField.getText().replace("[^a-zA-Z0-9 ]", "")),
-						getTrimmedSP());
-
-				int result = this.rss.getSqlConnector().executeSQLUpdate(sql);
-				if (result == 0) {
-					routeErrorText.setText("Oops, operation failed. Please try it again.");
 				} else {
-					routeErrorText.setText("Hooray! Operation succeeded!");
-					loadRouteDetail();
+					errorMsg = "Your stop point address is an invalid Christchurch address.\n";
+					if (sp.size() > 1) errorMsg = "The entered address is not precise enough.\n";
+					rss.showErrorDialog("Operation Failed!", errorMsg);
 				}
-				routeErrorText.setVisible(true);
+			} catch (SQLiteException e) {
+				if (e.getResultCode().code == 1555) {
+					errorMsg = "The entered address is already existed in the route.\n";
+					rss.showErrorDialog("Operation Failed!", errorMsg);
+				}
 			}
-			spId = fetchSPId();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			return spId;
 		}
 	}
 
-	/**
-	 * fetch spid by a string.
-	 * @return spid if there is a such SP, otherwise null.
-	 */
-	private Integer fetchSPId() {
-		Integer spId = null;
+	private void clickDeleteBtn () {
+		int result = 0;
+		String errorMsg;
 		try {
-			String sql = String.format("SELECT spId " +
-							"FROM stop_point " +
-							"WHERE trimmed = '%s';",
-					getTrimmedSP());
-			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
-			// if the address is already existed
-			if (!rs.isClosed() && rs.next()) {
-				spId = rs.getInt("spId");
+			result = SQLExecutor.deleteRoute(routeComboBox.getValue());
+			if (result == 1) {
+				rss.showInformationDialog("Deletion Succeeded!", "The car has been deleted.");
+				loadRoutes();
+			} else {
+				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";
+				rss.showErrorDialog("Deletion Failed!", errorMsg);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			return spId;
+		} catch (SQLiteException e) {
+			// if error code is 1811, which means sql foreign key constraint is violated.
+			if (e.getResultCode().code == 1811) {
+				errorMsg = "Before delete the route, you must delete all trips associated with this route.\n" +
+						"(Error code: 1811. Database foreign key constraint has been violated.)\n";
+			} else {
+				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";
+			}
+			rss.showErrorDialog("Deletion Failed!", errorMsg);
 		}
-	}
 
-	private String getTrimmedSP() {
-		String trimmedSP = (routeStreetNoField.getText() +
-				routeStreetField.getText() +
-				routeSuburbField.getText() +
-				routeCityField.getText()).replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-		return trimmedSP;
 	}
 }
 

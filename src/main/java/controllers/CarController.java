@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 import models.*;
 import models.database.*;
 import org.apache.commons.lang3.text.WordUtils;
+import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -163,16 +164,22 @@ public class CarController extends Controller implements Initializable {
 	}
 
 	public void clickDeleteBtn() {
-		int result = SQLExecutor.deleteCar(carComboBox.getValue());
-		if (result == 1) {
-			rss.showInformationDialog("Deletion Succeeded!", "The car has been deleted.");
-			loadCars();
-		}
+
+		int result = 0;
+		String errorMsg;
+		try {
+			result = SQLExecutor.deleteCar(carComboBox.getValue());
+			if (result == 1) {
+				rss.showInformationDialog("Deletion Succeeded!", "The car has been deleted.");
+				loadCars();
+			} else {
+				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";
+				rss.showErrorDialog("Deletion Failed!", errorMsg);
+			}
+		} catch (SQLiteException e) {
 		// if error code is 1811, which means sql foreign key constraint is violated.
-		else {
-			String errorMsg;
-			if (result == 1811) {
-				errorMsg = "Before you delete the car, you must delete all trips associated with the car.\n" +
+			if (e.getResultCode().code == 1811) {
+				errorMsg = "Before delete the car, you must delete all trips associated with the car.\n" +
 						"(Error code: 1811. Database foreign key constraint has been violated.)\n";
 			} else {
 				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";

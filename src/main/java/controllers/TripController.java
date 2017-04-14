@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class TripController extends Controller implements Initializable {
@@ -52,9 +53,9 @@ public class TripController extends Controller implements Initializable {
 
 	private HashMap<Integer, Trip> trips;
 	private ArrayList<Trip> tripsList;
-	private HashMap<Integer, StopPoint> stopPoints;
-	private HashMap<Integer, Route> routes;
-	private HashMap<Integer, Integer> routeIdtoIndex;
+	private Map<Integer, StopPoint> stopPoints;
+	private Map<Integer, Route> routes;
+	private Map<Integer, Integer> routeIdtoIndex;
 	private ArrayList<Route> routesList;
 	private ObservableList<StopPoint> stopPointObservableList;
 
