@@ -84,7 +84,6 @@ public class RSS {
 			CarController carController = fxmlLoader.getController();
 			setCarController(carController);
 			carController.setRSS(this);
-			carController.loadCars();
 			pStage.setScene(scene);
 			pStage.show();
 		} catch (Exception e) {

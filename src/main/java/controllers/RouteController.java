@@ -220,7 +220,7 @@ public class RouteController extends Controller implements Initializable {
 		try {
 			result = SQLExecutor.deleteRoute(routeComboBox.getValue());
 			if (result == 1) {
-				rss.showInformationDialog("Deletion Succeeded!", "The car has been deleted.");
+				rss.showInformationDialog("Deletion Succeeded!", "The route has been deleted.");
 				loadRoutes();
 			} else {
 				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";

@@ -13,6 +13,7 @@ import models.Route;
 import models.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
+import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -68,9 +69,11 @@ public class TripController extends Controller implements Initializable {
 
 		setSPTimeBtn.setOnAction(event -> clickSetSPTimeBtn());
 		submitBtn.setOnAction(event -> clickSubmitBtn());
+		deleteBtn.setOnAction(event -> clickDeleteBtn());
 		addModeRbtn.setOnAction(event -> {mode = Mode.ADD_MODE; loadTrips();});
 		updateModeRbtn.setOnAction(event -> {mode = Mode.UPDATE_MODE; loadTrips();});
 		routeComboBox.setOnAction(event -> {if (routeComboBox.getValue() != null) loadStopPoints();});
+		tripComboBox.setOnAction(event -> {if (tripComboBox.getValue() != null) loadTripDetail();});
 
 		directionComboBox.getItems().add("To UC");
 		directionComboBox.getItems().add("From UC");
@@ -195,9 +198,12 @@ public class TripController extends Controller implements Initializable {
 
 		// temporary setting as update and deleting features are postponed
 		setTimePane.setVisible(true);
-		tripDetailPane.setDisable(false);
 		recurrencePane.setDisable(false);
-
+		directionComboBox.setDisable(false);
+		carComboBox.setDisable(false);
+		routeComboBox.setDisable(false);
+		startDatePicker.setDisable(false);
+		endDatePicker.setDisable(false);
 	}
 
 	private void updateTripMode() {
@@ -211,8 +217,12 @@ public class TripController extends Controller implements Initializable {
 
 		// temporary setting as update and deleting features are postponed
 		setTimePane.setVisible(false);
-		tripDetailPane.setDisable(true);
 		recurrencePane.setDisable(true);
+		directionComboBox.setDisable(true);
+		carComboBox.setDisable(true);
+		routeComboBox.setDisable(true);
+		startDatePicker.setDisable(true);
+		endDatePicker.setDisable(true);
 	}
 
 	private void clearRecurrenceCheckBox() {
@@ -298,8 +308,33 @@ public class TripController extends Controller implements Initializable {
 			result = SQLExecutor.addTrip(trip);
 
 			if (result == 1) {
+				rss.showInformationDialog("Operation Succeeded!", "The trip has been created.");
 				loadTrips();
 			}
+		}
+	}
+
+	private void clickDeleteBtn() {
+		int result = 0;
+		String errorMsg;
+		try {
+			result = SQLExecutor.deleteTrip(tripComboBox.getValue());
+			if (result == 1) {
+				rss.showInformationDialog("Deletion Succeeded!", "The trip has been deleted.");
+				loadTrips();
+			} else {
+				errorMsg = "Deletion failed with unknown reason, please contact administrator.\n";
+				rss.showErrorDialog("Deletion Failed!", errorMsg);
+			}
+		} catch (SQLiteException e) {
+			// if error code is 1811, which means sql foreign key constraint is violated.
+			if (e.getResultCode().code == 1811) {
+				errorMsg = "Before delete the trip, you must delete all rides associated with this trip.\n" +
+						"(Error code: 1811. Database foreign key constraint has been violated.)\n";
+			} else {
+				errorMsg = "Deletion failed with unknown reasons, please contact administrator.\n";
+			}
+			rss.showErrorDialog("Deletion Failed!", errorMsg);
 		}
 	}
 

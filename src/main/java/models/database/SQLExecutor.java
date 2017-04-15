@@ -575,6 +575,24 @@ public class SQLExecutor {
 		return 0;
 	}
 
+	public static int deleteTrip(Trip trip) throws SQLiteException {
+		try {
+			connectDB();
+			String sql = "DELETE FROM trip WHERE tripId = ?";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setInt(1, trip.getTripId());
+			return pstmt.executeUpdate();
+		} catch (SQLiteException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
 	/**
 	 * Fetches rides which are owned by the given user
 	 * @param user a user associated with rides to be fetched
