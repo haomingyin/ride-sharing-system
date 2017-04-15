@@ -17,7 +17,7 @@ import java.util.*;
 
 public class CarController extends Controller implements Initializable {
 
-	private HashMap<String, Car> cars;
+	private Map<Integer, Car> cars;
 
 	@FXML
 	private Parent menuView;
@@ -31,7 +31,7 @@ public class CarController extends Controller implements Initializable {
 	@FXML
 	private TextField plateField, manuField, modelField, colorField, performanceField;
 	@FXML
-	private DatePicker wofDatePicker;
+	private DatePicker wofDatePicker, regDatePicker;
 	@FXML
 	private Button submitBtn, deleteBtn, addBtn;
 
@@ -104,6 +104,7 @@ public class CarController extends Controller implements Initializable {
 			seatNoComboBox.setValue(car.getSeatNo());
 			performanceField.setText(String.valueOf(car.getPerformance()));
 			wofDatePicker.setValue(LocalDate.parse(car.getWof()));
+			regDatePicker.setValue(LocalDate.parse(car.getRegistration()));
 		}
 	}
 
@@ -119,6 +120,7 @@ public class CarController extends Controller implements Initializable {
 		yearComboBox.getSelectionModel().selectLast();
 		seatNoComboBox.getSelectionModel().selectLast();
 		wofDatePicker.setValue(null);
+		regDatePicker.setValue(null);
 		performanceField.clear();
 		submitBtn.setText("Add");
 	}
@@ -145,6 +147,7 @@ public class CarController extends Controller implements Initializable {
 			car.setSeatNo(seatNoComboBox.getValue());
 			car.setPerformance(Double.valueOf(performanceField.getText()));
 			car.setWof(wofDatePicker.getValue().toString());
+			car.setRegistration(regDatePicker.getValue().toString());
 
 			int resultCode;
 			if (mode == Mode.UPDATE_MODE) {
@@ -207,11 +210,21 @@ public class CarController extends Controller implements Initializable {
 			errorMsg.add("Color cannot be left empty and can only contain alphabetic characters.\n");
 		}
 
+		/* TODO: wof and reg expiration date and only be extended. */
+
 		if (wofDatePicker.getValue() == null) {
 			errorMsg.add("WOF expire date cannot be left empty\n");
 		} else {
 			if (wofDatePicker.getValue().isBefore(LocalDate.now())) {
 				errorMsg.add("A car with expired WOF is not allowed to be used in our system.\n");
+			}
+		}
+
+		if (regDatePicker.getValue() == null) {
+			errorMsg.add("Registration expire date cannot be left empty\n");
+		} else {
+			if (wofDatePicker.getValue().isBefore(LocalDate.now())) {
+				errorMsg.add("A car with expired registration is not allowed to be used in our system.\n");
 			}
 		}
 

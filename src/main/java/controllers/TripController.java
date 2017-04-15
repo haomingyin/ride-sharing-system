@@ -1,7 +1,5 @@
 package controllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,79 +11,80 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import models.*;
-import models.database.SQLConnector;
 import models.database.SQLExecutor;
 
 import java.net.URL;
-import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class TripController extends Controller implements Initializable {
 
 	@FXML
-	Parent menuView;
+	private Parent menuView;
 	@FXML
-	MenuController menuController;
+	private MenuController menuController;
 	@FXML
-	RadioButton tripViewModeRbtn, tripAddModeRbtn;
+	private RadioButton updateModeRbtn, addModeRbtn;
 	@FXML
-	Text errorText;
+	private Text errorText;
 	@FXML
-	ListView tripListView;
+	private TextField aliasField, spTimeField;
 	@FXML
-	TextField tripAliasField, tripSPTimeField;
+	private DatePicker startDatePicker, endDatePicker;
 	@FXML
-	DatePicker tripStartDatePicker, tripEndDatePicker;
+	private ComboBox<Trip> tripComboBox;
 	@FXML
-	ComboBox tripCarComboBox, routeComboBox, directionComboBox;
+	private ComboBox<Car> carComboBox;
 	@FXML
-	Button tripSubmitBtn, tripDeleteBtn, setSPTimeBtn;
+	private ComboBox<Route> routeComboBox;
 	@FXML
-	GridPane setTimePane, tripDetailPane;
+	private ComboBox<String> directionComboBox, timeIndicatorComboBox, hourComboBox, minuteComboBox;
 	@FXML
-	TableView<StopPoint> SPTable;
+	private CheckBox mondayCheckBox, tuesdayCheckBox, wednesdayCheckBox, thursdayCheckBox,
+	fridayCheckBox, saturdayCheckBox, sundayCheckBox;
 	@FXML
-	TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
+	private Button submitBtn, deleteBtn, setSPTimeBtn;
+	@FXML
+	private GridPane setTimePane, tripDetailPane, recurrencePane;
+	@FXML
+	private TableView<StopPoint> SPTable;
+	@FXML
+	private TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
 
-	private HashMap<Integer, Trip> trips;
-	private ArrayList<Trip> tripsList;
+	private Map<Integer, Trip> trips;
 	private Map<Integer, StopPoint> stopPoints;
 	private Map<Integer, Route> routes;
-	private Map<Integer, Integer> routeIdtoIndex;
-	private ArrayList<Route> routesList;
-	private ObservableList<StopPoint> stopPointObservableList;
+	private Map<Integer, Car> cars;
+
+	private enum Mode {ADD_MODE, UPDATE_MODE}
+	private Mode mode;
+
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		trips = new HashMap<>();
-		tripsList = new ArrayList<>();
 		stopPoints = new HashMap<>();
 		routes = new HashMap<>();
-		routesList = new ArrayList<>();
-		tripListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-			@Override
-			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-				if (tripListView.getSelectionModel().getSelectedIndex() >= 0) {
-					loadTripDetail();
-					loadStopPoints();
-				}
-			}
-		});
-		tripAddModeRbtn.setOnAction(event -> loadTrips());
-		tripViewModeRbtn.setOnAction(event -> loadTrips());
-		routeComboBox.setOnAction(event ->
-		{
-			if (routeComboBox.getValue() != null) {
-				loadStopPoints();
-			}
-		});
+		cars = new HashMap<>();
+
+		setSPTimeBtn.setOnAction(event -> clickSetSPTimeBtn());
+		submitBtn.setOnAction(event -> clickSubmitBtn());
+		addModeRbtn.setOnAction(event -> {mode = Mode.ADD_MODE; loadTrips();});
+		updateModeRbtn.setOnAction(event -> {mode = Mode.UPDATE_MODE; loadTrips();});
+		routeComboBox.setOnAction(event -> {if (routeComboBox.getValue() != null) loadStopPoints();});
+
 		directionComboBox.getItems().add("To UC");
 		directionComboBox.getItems().add("From UC");
 		directionComboBox.getSelectionModel().selectFirst();
+
+		// set time combo box
+		for (int i = 0; i <= 11; i++) {
+			hourComboBox.getItems().add(String.format("%02d", i));
+		}
+		for (int i =0; i <= 59; i++) {
+			minuteComboBox.getItems().add(String.format("%02d", i));
+		}
+		timeIndicatorComboBox.getItems().addAll("AM", "PM");
 	}
 
 	@Override
@@ -94,241 +93,246 @@ public class TripController extends Controller implements Initializable {
 		loadTrips();
 	}
 
-	public static HashMap<Integer, Trip> fetchTrips(User user, SQLConnector connector) {
-		HashMap<Integer, Trip> tripHashMap = new HashMap<>();
-		try {
-			String sql = String.format("SELECT * " +
-					"FROM trip " +
-					"WHERE username = '%s';", user.getUsername());
-			ResultSet rs = connector.executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				Trip trip = new Trip(rs.getInt("tripId"),
-						rs.getString("alias"),
-						rs.getString("username"),
-						rs.getString("direction"),
-						rs.getInt("carId"));
-				trip.setRouteId(rs.getInt("routeId"));
-				trip.setBeginDate(LocalDate.parse(rs.getString("beginDate")));
-				trip.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
-				// alias must be unique!!!!
-				tripHashMap.put(trip.getTripId(), trip);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return tripHashMap;
+	private void fetchTrips() {
+		trips = SQLExecutor.fetchTripsByUser(rss.getUser());
 	}
 
-	private void loadTrips() {
-		trips = fetchTrips(this.rss.getUser(), this.rss.getSqlConnector());
-		tripsList = new ArrayList<>(trips.values());
-		refreshViewList();
-		loadTripDetail();
+	private void fetchRoutes() {
+		routes = SQLExecutor.fetchRoutesByUser(rss.getUser());
 	}
 
-	private void refreshViewList() {
-		tripListView.getItems().clear();
-		for (Trip trip : tripsList) {
-			tripListView.getItems().add(trip.getAlias());
-		}
-		tripListView.getSelectionModel().selectFirst();
-	}
-
-	private void loadTripDetail() {
-		// no matter which mode, it always needs to load cars, routes, and sp
-		refreshCarComboBox();
-		loadRoutes();
-		loadStopPoints();
-		// no trip to load
-		if (tripListView.getItems().size() == 0 || tripAddModeRbtn.isSelected()) {
-			addTripMode();
-			refreshCarComboBox();
-			refreshRouteComboBox();
-			loadStopPoints();
-		}
-		// there are trips to load
-		else {
-			updateTripMode();
-			Trip trip = tripsList.get(tripListView.getSelectionModel().getSelectedIndex());
-			tripAliasField.setText(trip.getAlias());
-			directionComboBox.setValue(trip.getDirection());
-			// set date picker
-			tripStartDatePicker.setValue(trip.getBeginDate());
-			tripEndDatePicker.setValue(trip.getExpireDate());
-			tripCarComboBox.getSelectionModel().select(trip.getCarId());
-			routeComboBox.getSelectionModel().select((int) routeIdtoIndex.get(trip.getRouteId()));
-		}
-
-
-
-	}
-
-	private void addTripMode() {
-		SPTable.getItems().clear();
-		tripListView.setDisable(true);
-		tripAddModeRbtn.setSelected(true);
-		tripDeleteBtn.setVisible(false);
-		tripSubmitBtn.setText("Add");
-		tripAliasField.clear();
-		tripStartDatePicker.setValue(LocalDate.now());
-		tripEndDatePicker.setValue(LocalDate.now().plusDays(1));
-		routeComboBox.setDisable(false);
-
-		// temporary setting as update and deleting features are postponed
-		setTimePane.setVisible(true);
-		tripDetailPane.setDisable(false);
-	}
-
-	private void updateTripMode() {
-		tripViewModeRbtn.setSelected(true);
-		tripListView.setDisable(false);
-		tripSubmitBtn.setText("Update");
-		tripDeleteBtn.setVisible(true);
-		routeComboBox.setDisable(true);
-
-		// temporary setting as update and deleting features are postponed
-		setTimePane.setVisible(false);
-		tripDetailPane.setDisable(true);
+	private void fetchCars() {
+		cars = SQLExecutor.fetchCarsByUser(rss.getUser());
 	}
 
 	/**
 	 * loads stop points according to current mode. if it is view mode, than lists
 	 * trip_sp. otherwise, list route_sp.
-	 *
-	 * @param tripId
 	 */
-	private void fetchStopPoints(Integer tripId, Integer routeId) {
-		stopPoints = new HashMap<>();
-		String sql;
-		boolean isAddMode = tripAddModeRbtn.isSelected();
-		try {
-
-			if (isAddMode) {
-				sql = String.format("SELECT * " +
-						"FROM stop_point JOIN route_sp ON stop_point.spId = route_sp.spId " +
-						"WHERE routeId = %d;", routeId);
-			} else {
-				sql = String.format("SELECT * " +
-						"FROM stop_point JOIN trip_sp ON stop_point.spId = trip_sp.spId " +
-						"WHERE tripId = %d", tripId);
-			}
-
-			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
-						rs.getString("streetNo"),
-						rs.getString("street"),
-						rs.getString("suburb"),
-						rs.getString("city"));
-
-				if (!isAddMode) stopPoint.setTime(rs.getString("time"));
-
-				stopPoints.put(stopPoint.getSpId(), stopPoint);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+	private void fetchStopPoints() {
+		if (mode == Mode.ADD_MODE && routeComboBox.getValue() != null) {
+			stopPoints = SQLExecutor.fetchStopPointsByRoute(routeComboBox.getValue());
+		} else if (mode == Mode.UPDATE_MODE && tripComboBox.getValue() != null){
+			stopPoints = SQLExecutor.fetchStopPointsByTrip(tripComboBox.getValue());
 		}
 	}
 
-	private void refreshCarComboBox() {
-		tripCarComboBox.getItems().clear();
-		tripCarComboBox.getItems().addAll(SQLExecutor.fetchCarsByUser(rss.getUser()).keySet());
+	private void loadTrips() {
+		fetchTrips();
+		refreshTripsComboBox();
+		loadTripDetail();
+	}
+
+	private void loadTripDetail() {
+		// no matter which mode, it always needs to load cars, routes
+		loadCars();
+		loadRoutes();
+		// no trip to load
+		if (tripComboBox.getValue() == null || mode == Mode.ADD_MODE) {
+			loadStopPoints();
+			addTripMode();
+		}
+		// there are trips to load
+		else {
+			updateTripMode();
+			loadStopPoints();
+			Trip trip = tripComboBox.getValue();
+			directionComboBox.setValue(trip.getDirection());
+			// set date picker
+			startDatePicker.setValue(trip.getBeginDate());
+			endDatePicker.setValue(trip.getExpireDate());
+			carComboBox.getSelectionModel().select(cars.get(trip.getCarId()));
+			routeComboBox.getSelectionModel().select(routes.get(trip.getRouteId()));
+			setRecurrenceCheckBox(trip.getDay());
+		}
 	}
 
 	private void loadRoutes() {
-		routes = SQLExecutor.fetchRoutesByUser(rss.getUser());
-		routesList = new ArrayList<>(routes.values());
-		routeIdtoIndex = new HashMap<>();
+		fetchRoutes();
 		refreshRouteComboBox();
+	}
+
+	private void loadCars() {
+		fetchCars();
+		refreshCarComboBox();
+	}
+
+	private void loadStopPoints() {
+		fetchStopPoints();
+		fillSPTable();
+	}
+
+	private void refreshTripsComboBox() {
+		tripComboBox.getItems().clear();
+		tripComboBox.getItems().addAll(trips.values());
+		tripComboBox.getSelectionModel().selectLast();
 	}
 
 	private void refreshRouteComboBox() {
 		routeComboBox.getItems().clear();
-		for (int i = 0; i < routesList.size(); i++) {
-			routeComboBox.getItems().add(i, routesList.get(i).getAlias());
-			routeIdtoIndex.put(routesList.get(i).getRouteId(), i);
-		}
+		routeComboBox.getItems().addAll(routes.values());
 	}
 
-	private void loadStopPoints() {
-		// add mode and view mode should be different
-		Integer tripId = null;
-		Integer routeId = null;
-		if (routeComboBox.getValue() != null) {
-			routeId = routesList.get(routeComboBox.getSelectionModel().getSelectedIndex()).getRouteId();
-		}
-		// if is adding trip mode, then tripId keeps as null
-		if (!tripAddModeRbtn.isSelected() && tripListView.getSelectionModel().getSelectedItem() != null) {
-			tripId = tripsList.get(tripListView.getSelectionModel().getSelectedIndex()).getTripId();
-		}
-		if (tripId != null || routeId != null) {
-			fetchStopPoints(tripId, routeId);
-			fillSPTable();
-		}
+	private void refreshCarComboBox() {
+		carComboBox.getItems().clear();
+		carComboBox.getItems().addAll(cars.values());
+	}
+
+	private void addTripMode() {
+		mode = Mode.ADD_MODE;
+		addModeRbtn.setSelected(true);
+		deleteBtn.setVisible(false);
+		submitBtn.setDisable(false);
+
+		SPTable.getItems().clear();
+		clearRecurrenceCheckBox();
+
+		tripComboBox.setVisible(false);
+		aliasField.setVisible(true);
+
+		aliasField.clear();
+		startDatePicker.setValue(LocalDate.now());
+		endDatePicker.setValue(LocalDate.now().plusDays(1));
+
+		// temporary setting as update and deleting features are postponed
+		setTimePane.setVisible(true);
+		tripDetailPane.setDisable(false);
+		recurrencePane.setDisable(false);
+
+	}
+
+	private void updateTripMode() {
+		mode = Mode.UPDATE_MODE;
+		updateModeRbtn.setSelected(true);
+		deleteBtn.setVisible(true);
+		submitBtn.setDisable(true);
+
+		tripComboBox.setVisible(true);
+		aliasField.setVisible(false);
+
+		// temporary setting as update and deleting features are postponed
+		setTimePane.setVisible(false);
+		tripDetailPane.setDisable(true);
+		recurrencePane.setDisable(true);
+	}
+
+	private void clearRecurrenceCheckBox() {
+		mondayCheckBox.setSelected(false);
+		tuesdayCheckBox.setSelected(false);
+		wednesdayCheckBox.setSelected(false);
+		thursdayCheckBox.setSelected(false);
+		fridayCheckBox.setSelected(false);
+		saturdayCheckBox.setSelected(false);
+		sundayCheckBox.setSelected(false);
 	}
 
 	private void fillSPTable() {
 		SPTable.getItems().clear();
-		stopPointObservableList = FXCollections.observableList(new ArrayList<StopPoint>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<StopPoint>(stopPoints.values()));
 
-		timeCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("time"));
-		streetNoCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("streetNo"));
-		streetCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("street"));
-		suburbCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("suburb"));
-		cityCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("city"));
+		timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
+		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
+		streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
+		suburbCol.setCellValueFactory(new PropertyValueFactory<>("suburb"));
+		cityCol.setCellValueFactory(new PropertyValueFactory<>("city"));
 		SPTable.setItems(stopPointObservableList);
 	}
 
-	public void clickSetSPTimeBtn() {
+	private void clickSetSPTimeBtn() {
 		if (SPTable.getSelectionModel().getSelectedItem() != null) {
 			StopPoint stopPoint = SPTable.getSelectionModel().getSelectedItem();
-			stopPoint.setTime(tripSPTimeField.getText());
+			String time = String.format("%s:%s %s",
+					hourComboBox.getValue(),
+					minuteComboBox.getValue(),
+					timeIndicatorComboBox.getValue());
+			if (validateArrivingTime(stopPoint)) {
+				stopPoint.setTime(time);
+			} else {
+				rss.showErrorDialog("Failed To Add Arriving Time!",
+						"Arriving time should be differ from each other by at least 5 minutes.");
+			}
 		}
 	}
 
-	public void clickTripSubmitBtn() {
+	/**
+	 * check if the arriving time is differ from each other at least 5 minutes.
+	 * @return true if time is valid.
+	 */
+	private boolean validateArrivingTime(StopPoint sp) {
 		try {
-			String sql;
-			if (isAllFieldsValid()) {
-				sql = String.format("INSERT INTO trip " +
-								"(alias, username, routeId, direction, plate, beginDate, expireDate) " +
-								"VALUES ('%s', '%s', %d, '%s', '%s', '%s', '%s');",
-						tripAliasField.getText(),
-						rss.getUser().getUsername(),
-						routesList.get(routeComboBox.getSelectionModel().getSelectedIndex()).getRouteId(),
-						directionComboBox.getValue(),
-						tripCarComboBox.getValue(),
-						tripStartDatePicker.getValue().toString(),
-						tripEndDatePicker.getValue().toString());
+			int time = Integer.valueOf(hourComboBox.getValue()) * 60;
+			time += Integer.valueOf(minuteComboBox.getValue());
+			time += timeIndicatorComboBox.getValue().equals("PM") ? 12 * 60 : 0;
+			for (StopPoint stopPoint : stopPoints.values()) {
+				if (stopPoint.getTime() != null && !stopPoint.getTime().equals("") && stopPoint != sp) {
+					String[] spTimeString = stopPoint.getTime().split("[ :]+");
+					int spTime = Integer.valueOf(spTimeString[0]) * 60;
+					spTime += Integer.valueOf(spTimeString[1]);
+					spTime += spTimeString[2].equals("PM") ? 12 * 60 : 0;
 
-				int result = rss.getSqlConnector().executeSQLUpdate(sql);
-				if (result == 0) {
-					errorText.setText("Oops, operation failed. Please try it again.");
-					errorText.setVisible(true);
-				} else {
-					sql = "SELECT last_insert_rowid() AS tripId;";
-					ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
-					Integer tripId = rs.getInt("tripId");
-					for (StopPoint stopPoint : stopPoints.values()) {
-						sql = String.format("INSERT INTO trip_sp (tripId, spId, time) " +
-								"VALUES (%d, %d, '%s');",
-								tripId,
-								stopPoint.getSpId(),
-								stopPoint.getTime());
-						rss.getSqlConnector().executeSQLUpdate(sql);
-						errorText.setText("Hooray! Operation succeeded!");
+					if (time <= spTime + 5 && time >= spTime - 5) {
+						return false;
 					}
 				}
-				loadTrips();
-				errorText.setVisible(true);
-			} else {
-				errorText.setText("Something went wrong, check if you filled all fields.");
-				errorText.setVisible(true);
 			}
+			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
-			errorText.setVisible(true);
+			return false;
 		}
+	}
+
+	private void clickSubmitBtn() {
+		if (validateFields() && mode == Mode.ADD_MODE) {
+			int result = 0;
+
+			Trip trip = new Trip();
+			trip.setAlias(aliasField.getText());
+			trip.setUsername(rss.getUser().getUsername());
+			trip.setRouteId(routeComboBox.getValue().getRouteId());
+			trip.setDirection(directionComboBox.getValue());
+			trip.setCarId(carComboBox.getValue().getCarId());
+			trip.setBeginDate(startDatePicker.getValue());
+			trip.setExpireDate(endDatePicker.getValue());
+			trip.setDay(getRecurrence());
+			trip.setStopPointsMap(stopPoints);
+
+			result = SQLExecutor.addTrip(trip);
+
+			if (result == 1) {
+				loadTrips();
+			}
+		}
+	}
+
+	/**
+	 * Using bitmask to flag all recurrence of a week.
+	 * @return bitmask int
+	 */
+	private int getRecurrence() {
+		int recurrence = 0;
+		if (mondayCheckBox.isSelected()) recurrence |= 1;
+		if (tuesdayCheckBox.isSelected()) recurrence |= 1 << 1;
+		if (wednesdayCheckBox.isSelected()) recurrence |= 1 << 2;
+		if (thursdayCheckBox.isSelected()) recurrence |= 1 << 3;
+		if (fridayCheckBox.isSelected()) recurrence |= 1 << 4;
+		if (saturdayCheckBox.isSelected()) recurrence |= 1 << 5;
+		if (sundayCheckBox.isSelected()) recurrence |= 1 << 6;
+
+		return recurrence;
+	}
+
+	/**
+	 * Using recurrence bitmask to set up recurrent check boxes.
+	 * @param recurrence a bitmask represents the recurrence.
+	 */
+	private void setRecurrenceCheckBox(int recurrence) {
+		mondayCheckBox.setSelected((recurrence & 1) != 0);
+		tuesdayCheckBox.setSelected((recurrence & (1 << 1)) != 0);
+		wednesdayCheckBox.setSelected((recurrence & (1 << 2)) != 0);
+		thursdayCheckBox.setSelected((recurrence & (1 << 3)) != 0);
+		fridayCheckBox.setSelected((recurrence & (1 << 4)) != 0);
+		saturdayCheckBox.setSelected((recurrence & (1 << 5)) != 0);
+		sundayCheckBox.setSelected((recurrence & (1 << 6)) != 0);
 	}
 
 	/**
@@ -336,20 +340,54 @@ public class TripController extends Controller implements Initializable {
 	 *
 	 * @return true if all fields are valid
 	 */
-	private boolean isAllFieldsValid() {
-		boolean result = true;
-		if (tripAliasField.getText().equals("") ||
-				tripCarComboBox.getValue() == null ||
-				routeComboBox.getValue() == null) {
-			result = false;
-		}
+	private boolean validateFields() {
+		List<String> errorMsg = new ArrayList<>();
+
+		if (aliasField.getText().equals(""))
+			errorMsg.add("Alias cannot be left empty.\n");
+
+		if (carComboBox.getValue() == null)
+			errorMsg.add("A car should be assigned to the trip.\n");
+
+		if (routeComboBox.getValue() == null)
+			errorMsg.add("A route should be assigned to the trip.\n");
+
 		for (StopPoint stopPoint : stopPoints.values()) {
-			if (stopPoint.getTime().equals("")) {
-				result = false;
-				break;
+			if (stopPoint.getTime().equals(""))
+				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
+		}
+
+		/* TODO: check during the recurring period, if user doesn't select any day. */
+		// consistency check
+		// WOF & registration cannot be expired before the end date of recurring trip
+		Car car = carComboBox.getValue();
+		if (endDatePicker.getValue() != null && startDatePicker.getValue() != null && car != null) {
+			if (endDatePicker.getValue().isBefore(startDatePicker.getValue())) {
+				errorMsg.add("Trip end date should be after start date.\n");
+			}
+			if (LocalDate.parse(car.getWof()).isBefore(endDatePicker.getValue()) ||
+			LocalDate.parse(car.getRegistration()).isBefore(endDatePicker.getValue())) {
+				errorMsg.add(String.format("The expiration date of a recurring trip cannot occur after the expiry date of car's WOF and registration.\n" +
+								"------------------------------------------------\n" +
+								"Details for car [%s]:\n" +
+								"   a. WOF expire date is %s.\n" +
+								"   b. Registration expire date is %s.\n" +
+								"------------------------------------------------\n",
+						car.getPlate(), car.getWof(), car.getRegistration()));
 			}
 		}
-		return result;
+
+		// handle and show error message in dialog
+		if (errorMsg.size() == 0) {
+			return true;
+		} else {
+			String errorString = "Operation failed is caused by: \n";
+			for (Integer i = 1; i <= errorMsg.size(); i++) {
+				errorString += i.toString() + ". " + errorMsg.get(i - 1);
+			}
+			String headMsg = mode == Mode.ADD_MODE ? "Failed to add the trip." : "Failed to update the trip.";
+			rss.showErrorDialog(headMsg, errorString);
+			return false;
+		}
 	}
-// known bug: in list view, alias cannot be the same!
 }

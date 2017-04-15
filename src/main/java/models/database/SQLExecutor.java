@@ -3,7 +3,6 @@ package models.database;
 import models.*;
 import org.sqlite.SQLiteException;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -19,7 +18,6 @@ public class SQLExecutor {
 		connector.connect();
 		enableForeignKeys();
 	}
-
 
 	public static int enableForeignKeys() {
 		try {
@@ -187,9 +185,9 @@ public class SQLExecutor {
 	 * @param user user associated with the cars to be fetched
 	 * @return a hash map containing car's plate as key, Car instance as value
 	 */
-	public static HashMap<String, Car> fetchCarsByUser(User user) {
+	public static Map<Integer, Car> fetchCarsByUser(User user) {
 		connectDB();
-		HashMap<String, Car> carsHashMap = new HashMap<>();
+		Map<Integer, Car> carsHashMap = new HashMap<>();
 		try {
 			String sql = String.format("SELECT * " +
 					"FROM car " +
@@ -207,8 +205,9 @@ public class SQLExecutor {
 				car.setSeatNo(rs.getInt("seatNo"));
 				car.setWof(rs.getString("wof"));
 				car.setPerformance(rs.getDouble("performance"));
+				car.setRegistration(rs.getString("registration"));
 
-				carsHashMap.put(car.getPlate(), car);
+				carsHashMap.put(car.getCarId(), car);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -227,7 +226,7 @@ public class SQLExecutor {
 		try {
 			connectDB();
 			String sql = "UPDATE car " +
-					"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ?, wof = ?, performance = ? " +
+					"SET model = ?, manufacturer = ?, color = ?, year = ?, seatNo = ?, wof = ?, performance = ?, registration = ? " +
 					"WHERE carId = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
@@ -239,6 +238,7 @@ public class SQLExecutor {
 			pstmt.setInt(cnt++, car.getSeatNo());
 			pstmt.setString(cnt++, car.getWof());
 			pstmt.setDouble(cnt++, car.getPerformance());
+			pstmt.setString(cnt++, car.getRegistration());
 			pstmt.setInt(cnt, car.getCarId());
 
 			return pstmt.executeUpdate();
@@ -260,8 +260,8 @@ public class SQLExecutor {
 		try {
 			connectDB();
 			String sql = "INSERT INTO car " +
-					"(plate, username, model, manufacturer, color, year, seatNo, wof, performance) " +
-					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					"(plate, username, model, manufacturer, color, year, seatNo, wof, performance, registration) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
 			int cnt = 1;
@@ -273,7 +273,8 @@ public class SQLExecutor {
 			pstmt.setInt(cnt++, car.getYear());
 			pstmt.setInt(cnt++, car.getSeatNo());
 			pstmt.setString(cnt++, car.getWof());
-			pstmt.setDouble(cnt, car.getPerformance());
+			pstmt.setDouble(cnt++, car.getPerformance());
+			pstmt.setString(cnt, car.getRegistration());
 
 			return pstmt.executeUpdate();
 		} catch (SQLiteException e) {
@@ -318,6 +319,8 @@ public class SQLExecutor {
 		String request = query + "%";
 		// replace one or more non alphanumeric character to %
 		request = request.toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "%");
+		// if request only contains '%', then replace '%' to a empty string
+		request = request.equals("%") ? "" : request;
 		String sql = String.format("SELECT * FROM stop_point " +
 				"WHERE trimmed like '%s' ", request);
 		if (limit >= 0) sql += "LIMIT " + String.valueOf(limit) + ";";
@@ -342,7 +345,7 @@ public class SQLExecutor {
 		return stopPoints;
 	}
 
-	public static Map<Integer, StopPoint> fetchStopPointByRoute(Route route) {
+	public static Map<Integer, StopPoint> fetchStopPointsByRoute(Route route) {
 		Map<Integer, StopPoint> stopPoints = new HashMap<>();
 		try {
 			connectDB();
@@ -465,6 +468,105 @@ public class SQLExecutor {
 			return pstmt.executeUpdate();
 		} catch (SQLiteException e) {
 			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static Map<Integer, Trip> fetchTripsByUser(User user) {
+		Map<Integer, Trip> tripHashMap = new HashMap<>();
+		try {
+			connectDB();
+			String sql = String.format("SELECT * " +
+					"FROM trip " +
+					"WHERE username = '%s';", user.getUsername());
+			ResultSet rs = connector.executeSQLQuery(sql);
+			while (!rs.isClosed() && rs.next()) {
+				Trip trip = new Trip();
+				trip.setTripId(rs.getInt("tripId"));
+				trip.setAlias(rs.getString("alias"));
+				trip.setUsername(rs.getString("username"));
+				trip.setDirection(rs.getString("direction"));
+				trip.setCarId(rs.getInt("carId"));
+				trip.setRouteId(rs.getInt("routeId"));
+				trip.setBeginDate(LocalDate.parse(rs.getString("beginDate")));
+				trip.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
+				trip.setDay(rs.getInt("day"));
+
+				tripHashMap.put(trip.getTripId(), trip);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return tripHashMap;
+	}
+
+	public static Map<Integer, StopPoint> fetchStopPointsByTrip(Trip trip) {
+		Map<Integer, StopPoint> stopPoints = new HashMap<>();
+		String sql;
+		try {
+			connectDB();
+			sql = String.format("SELECT * " +
+						"FROM stop_point JOIN trip_sp ON stop_point.spId = trip_sp.spId " +
+						"WHERE tripId = %d;", trip.getTripId());
+
+			ResultSet rs = connector.executeSQLQuery(sql);
+			while (!rs.isClosed() && rs.next()) {
+				StopPoint stopPoint = new StopPoint();
+				stopPoint.setSpId(rs.getInt("spId"));
+				stopPoint.setStreetNo(rs.getString("streetNo"));
+				stopPoint.setStreet(rs.getString("street"));
+				stopPoint.setSuburb(rs.getString("suburb"));
+				stopPoint.setCity(rs.getString("city"));
+				stopPoint.setTime(rs.getString("time"));
+
+				stopPoints.put(stopPoint.getSpId(), stopPoint);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return stopPoints;
+	}
+
+	public static int addTrip(Trip trip) {
+		try {
+			connectDB();
+			String sql = "INSERT INTO trip " +
+					"(alias, username, routeid, direction, carId, beginDate, expireDate, day) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			int cnt = 1;
+			pstmt.setString(cnt++, trip.getAlias());
+			pstmt.setString(cnt++, trip.getUsername());
+			pstmt.setInt(cnt++, trip.getRouteId());
+			pstmt.setString(cnt++, trip.getDirection());
+			pstmt.setInt(cnt++, trip.getCarId());
+			pstmt.setString(cnt++, trip.getBeginDate().toString());
+			pstmt.setString(cnt++, trip.getExpireDate().toString());
+			pstmt.setInt(cnt, trip.getDay());
+
+			pstmt.executeUpdate();
+			sql = "SELECT last_insert_rowid() AS result;";
+			trip.setTripId(connector.executeSQLQuery(sql).getInt("result"));
+
+			// add stop points into trip_sp table
+			for (StopPoint stopPoint : trip.getStopPointsMap().values()) {
+				sql = String.format("INSERT INTO trip_sp (tripId, spId, time) " +
+								"VALUES (%d, %d, '%s');",
+						trip.getTripId(),
+						stopPoint.getSpId(),
+						stopPoint.getTime());
+				connector.executeSQLUpdate(sql);
+			}
+			return 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

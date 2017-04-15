@@ -5,33 +5,39 @@ import javafx.beans.property.SimpleStringProperty;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Trip {
 
-	private int tripId;
-	private Integer routeId;
+	private Integer tripId, routeId, day;
 	private SimpleStringProperty alias, username, direction;
 	private SimpleIntegerProperty carId;
 	private LocalDate beginDate, expireDate;
-	private HashMap<Integer, StopPoint> stopPointHashMap;
+	private Map<Integer, StopPoint> stopPointsMap;
 
-	public Trip(int tripId, String alias, String username, String direction, Integer carId) {
-		this.tripId = tripId;
-		this.alias = new SimpleStringProperty(alias);
-		this.username = new SimpleStringProperty(username);
-		this.direction = new SimpleStringProperty(direction);
-		this.carId = new SimpleIntegerProperty(carId);
+	public Trip() {
+		this.tripId = null;
+		this.alias = new SimpleStringProperty();
+		this.username = new SimpleStringProperty();
+		this.direction = new SimpleStringProperty();
+		this.carId = new SimpleIntegerProperty();
 		this.routeId = null;
 		this.beginDate = null;
 		this.expireDate = null;
-		this.stopPointHashMap = new HashMap<Integer, StopPoint>();
+		this.day = null;
+		this.stopPointsMap = new HashMap<>();
 	}
 
-	public int getTripId() {
+	@Override
+	public String toString() {
+		return getAlias();
+	}
+
+	public Integer getTripId() {
 		return tripId;
 	}
 
-	public void setTripId(int tripId) {
+	public void setTripId(Integer tripId) {
 		this.tripId = tripId;
 	}
 
@@ -107,11 +113,19 @@ public class Trip {
 		this.expireDate = expireDate;
 	}
 
-	public HashMap<Integer, StopPoint> getStopPointHashMap() {
-		return stopPointHashMap;
+	public Map<Integer, StopPoint> getStopPointsMap() {
+		return stopPointsMap;
 	}
 
-	public void setStopPointHashMap(HashMap<Integer, StopPoint> stopPointHashMap) {
-		this.stopPointHashMap = stopPointHashMap;
+	public void setStopPointsMap(Map<Integer, StopPoint> stopPointsMap) {
+		this.stopPointsMap = stopPointsMap;
+	}
+
+	public Integer getDay() {
+		return day;
+	}
+
+	public void setDay(Integer day) {
+		this.day = day;
 	}
 }

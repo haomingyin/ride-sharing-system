@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class Car {
 
-	private SimpleStringProperty plate, username, model, manufacturer, color, wof;
+	private SimpleStringProperty plate, username, model, manufacturer, color, wof, registration;
 	private SimpleIntegerProperty carId, year, seatNo;
 	private SimpleDoubleProperty performance;
 
@@ -22,6 +22,7 @@ public class Car {
 		this.seatNo = new SimpleIntegerProperty();
 		this.wof = new SimpleStringProperty();
 		this.performance = new SimpleDoubleProperty();
+		this.registration = new SimpleStringProperty();
 	}
 
 	@Override
@@ -147,5 +148,17 @@ public class Car {
 
 	public void setPerformance(double performance) {
 		this.performance.set(performance);
+	}
+
+	public String getRegistration() {
+		return registration.get();
+	}
+
+	public SimpleStringProperty registrationProperty() {
+		return registration;
+	}
+
+	public void setRegistration(String registration) {
+		this.registration.set(registration);
 	}
 }

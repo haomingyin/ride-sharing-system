@@ -12,13 +12,11 @@ import javafx.scene.text.Text;
 import javafx.util.Callback;
 import models.*;
 import models.database.SQLExecutor;
-import org.apache.commons.lang3.text.WordUtils;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.sqlite.SQLiteException;
 
 import java.net.URL;
-import java.sql.ResultSet;
 import java.util.*;
 
 public class RouteController extends Controller implements Initializable {
@@ -163,12 +161,13 @@ public class RouteController extends Controller implements Initializable {
 	}
 
 	private void fetchStopPoints() {
-		stopPoints = SQLExecutor.fetchStopPointByRoute(routeComboBox.getValue());
+		stopPoints = SQLExecutor.fetchStopPointsByRoute(routeComboBox.getValue());
 	}
 
 	private void clickAddRouteBtn() {
 		Route route = mode == Mode.ADD_MODE ? new Route() : routeComboBox.getValue();
 		route.setAlias(aliasField.getText());
+
 		int result;
 		String infoMsg = "";
 		if (mode == Mode.ADD_MODE) {
@@ -194,6 +193,7 @@ public class RouteController extends Controller implements Initializable {
 	private void clickAddSPBtn() {
 		String address = addressField.getText().toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "");
 		List<StopPoint> sp = new ArrayList<>(SQLExecutor.fetchStopPointsByString(address, 2).values());
+
 		int result = 0;
 		String errorMsg;
 		if (sp.size() == 1) {

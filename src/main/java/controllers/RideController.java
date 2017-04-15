@@ -19,6 +19,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RideController extends Controller implements Initializable {
@@ -52,9 +53,9 @@ public class RideController extends Controller implements Initializable {
 	@FXML
 	TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
 
-	private HashMap<Integer, StopPoint> stopPoints;
-	private HashMap<Integer, Ride> rides;
-	private HashMap<Integer, Trip> trips;
+	private Map<Integer, StopPoint> stopPoints;
+	private Map<Integer, Ride> rides;
+	private Map<Integer, Trip> trips;
 	private ObservableList<Ride> rideObservableList;
 
 	@Override
@@ -120,7 +121,7 @@ public class RideController extends Controller implements Initializable {
 	}
 
 	private void loadTrips() {
-		trips = TripController.fetchTrips(rss.getUser(), rss.getSqlConnector());
+		trips = SQLExecutor.fetchTripsByUser(rss.getUser());
 		refreshTripComboBox();
 	}
 
