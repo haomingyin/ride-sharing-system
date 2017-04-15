@@ -6,11 +6,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
-import models.*;
+import models.Car;
+import models.Route;
+import models.StopPoint;
+import models.Trip;
 import models.database.SQLExecutor;
 
 import java.net.URL;
@@ -26,9 +27,7 @@ public class TripController extends Controller implements Initializable {
 	@FXML
 	private RadioButton updateModeRbtn, addModeRbtn;
 	@FXML
-	private Text errorText;
-	@FXML
-	private TextField aliasField, spTimeField;
+	private TextField aliasField;
 	@FXML
 	private DatePicker startDatePicker, endDatePicker;
 	@FXML
@@ -228,7 +227,7 @@ public class TripController extends Controller implements Initializable {
 
 	private void fillSPTable() {
 		SPTable.getItems().clear();
-		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<StopPoint>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<>(stopPoints.values()));
 
 		timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
 		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
@@ -283,7 +282,7 @@ public class TripController extends Controller implements Initializable {
 
 	private void clickSubmitBtn() {
 		if (validateFields() && mode == Mode.ADD_MODE) {
-			int result = 0;
+			int result;
 
 			Trip trip = new Trip();
 			trip.setAlias(aliasField.getText());
