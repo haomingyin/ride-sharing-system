@@ -1,9 +1,6 @@
 package models;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-
-import java.sql.Time;
 
 public class StopPoint {
 
@@ -17,15 +14,6 @@ public class StopPoint {
 		this.suburb = new SimpleStringProperty(suburb);
 		this.city = new SimpleStringProperty(city);
 		this.time = new SimpleStringProperty("");
-	}
-
-	public StopPoint(int spId, String streetNo, String street, String suburb, String city, String time) {
-		this.spId = spId;
-		this.streetNo = new SimpleStringProperty(streetNo);
-		this.street = new SimpleStringProperty(street);
-		this.suburb = new SimpleStringProperty(suburb);
-		this.city = new SimpleStringProperty(city);
-		this.time = new SimpleStringProperty(time);
 	}
 
 	public StopPoint() {

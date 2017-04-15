@@ -3,11 +3,12 @@ package controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.text.Text;
-import models.*;
-import models.database.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextField;
+import models.Car;
+import models.database.SQLExecutor;
 import org.apache.commons.lang3.text.WordUtils;
 import org.sqlite.SQLiteException;
 
@@ -35,7 +36,7 @@ public class CarController extends Controller implements Initializable {
 	@FXML
 	private Button submitBtn, deleteBtn, addBtn;
 
-	private enum Mode {ADD_MODE, UPDATE_MODE};
+	private enum Mode {ADD_MODE, UPDATE_MODE}
 	private Mode mode;
 
 	@Override
@@ -78,7 +79,7 @@ public class CarController extends Controller implements Initializable {
 		cars = SQLExecutor.fetchCarsByUser(this.rss.getUser());
 	}
 
-	public void loadCars() {
+	private void loadCars() {
 		fetchCars();
 		refreshCarComboBox();
 		loadTextFields();
@@ -133,10 +134,8 @@ public class CarController extends Controller implements Initializable {
 	}
 
 	/* TODO: check if the performance is changed, then notify the price changes to related passengers. 4/14/2017*/
-	public void clickSubmitBtn() {
+	private void clickSubmitBtn() {
 		if (validateFields()) {
-			String sql;
-
 			Car car = mode == Mode.ADD_MODE ? new Car() : carComboBox.getValue();
 			car.setPlate(plateField.getText().toUpperCase());
 			car.setUsername(rss.getUser().getUsername());
@@ -151,7 +150,7 @@ public class CarController extends Controller implements Initializable {
 
 			int resultCode;
 			if (mode == Mode.UPDATE_MODE) {
-				if ((resultCode = SQLExecutor.updateCar(car)) == 1) {
+				if (SQLExecutor.updateCar(car) == 1) {
 					rss.showInformationDialog("Update Succeeded!", "The car has been updated.");
 				}
 			} else {
@@ -166,9 +165,9 @@ public class CarController extends Controller implements Initializable {
 		}
 	}
 
-	public void clickDeleteBtn() {
+	private void clickDeleteBtn() {
 
-		int result = 0;
+		int result;
 		String errorMsg;
 		try {
 			result = SQLExecutor.deleteCar(carComboBox.getValue());
