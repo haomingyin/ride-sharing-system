@@ -134,12 +134,12 @@
                   <ComboBox fx:id="timeIndicatorComboBox" prefHeight="27.0" prefWidth="137.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
                </children>
             </GridPane>
-            <Button fx:id="deleteBtn" layoutX="256.0" layoutY="707.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="187.0" text="Delete">
+            <Button fx:id="deleteBtn" layoutX="256.0" layoutY="707.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="180.0" text="Delete">
                <font>
                   <Font size="15.0" />
                </font>
             </Button>
-            <Button fx:id="submitBtn" layoutX="51.0" layoutY="707.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="179.0" text="Add">
+            <Button fx:id="submitBtn" layoutX="51.0" layoutY="707.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="180.0" text="Add">
                <font>
                   <Font size="15.0" />
                </font>

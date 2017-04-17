@@ -152,15 +152,7 @@ public class BookRideController implements Initializable{
 						"GROUP BY sp.spId;", rss.getUser().getUsername(), likeClause);
 			}
 			ResultSet rs = rss.getSqlConnector().executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				StopPoint stopPoint = new StopPoint(rs.getInt("spId"),
-						rs.getString("streetNo"),
-						rs.getString("street"),
-						rs.getString("suburb"),
-						rs.getString("city"));
 
-				stopPoints.add(stopPoint);
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

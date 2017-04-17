@@ -1,5 +1,7 @@
 package models;
 
+import javafx.beans.property.SimpleStringProperty;
+
 import java.time.LocalDate;
 
 public class User {
@@ -8,7 +10,28 @@ public class User {
 	private LocalDate issueDate, expireDate;
 	private byte[] photo;
 
-	public User() {};
+	// properties don't belong to database schema
+	private SimpleStringProperty name;
+
+	public User() {
+		this.name = new SimpleStringProperty();
+	};
+
+	public void setUser(User user) {
+		this.username = user.getUsername();
+		this.password = user.getPassword();
+		this.email = user.getEmail();
+		this.fName = user.getfName();
+		this.lName = user.getlName();
+		this.hPhone = user.gethPhone();
+		this.mPhone = user.getmPhone();
+		this.address = user.getAddress();
+		this.licenceNo = user.getLicenceNo();
+		this.licenceType = user.getLicenceType();
+		this.issueDate = user.getIssueDate();
+		this.expireDate = user.getExpireDate();
+		this.photo = user.getPhoto();
+	}
 
 	public String getUsername() {
 		return username;
@@ -123,5 +146,19 @@ public class User {
 
 	public void setPhoto(byte[] photo) {
 		this.photo = photo;
+	}
+
+	public String getName() {
+		setName(getfName() + " " + getlName());
+		return name.get();
+	}
+
+	public SimpleStringProperty nameProperty() {
+		setName(getfName() + " " + getlName());
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name.set(name);
 	}
 }

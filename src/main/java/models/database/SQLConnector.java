@@ -1,17 +1,22 @@
 package models.database;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
-import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class SQLConnector {
 
 	protected Connection conn;
+	// when keepConnect set true, connection will be kept open.
+	private boolean keepConnect;
 
 	/**
 	 * Sets up a new connection to local SQLite database.
@@ -23,10 +28,11 @@ public class SQLConnector {
 			String url = "jdbc:sqlite:rss.db";
 			// create a connection to the database
 			conn = DriverManager.getConnection(url);
+			keepConnect = false;
+			return conn;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-		} finally {
-			return conn;
+			return null;
 		}
 	}
 
@@ -55,7 +61,7 @@ public class SQLConnector {
 	 */
 	public void closeConnection() {
 		try {
-			if (conn != null && !conn.isClosed()) {
+			if (conn != null && !conn.isClosed() && !keepConnect) {
 				conn.close();
 			} else {
 				System.out.println("No connection has been established.");
@@ -69,7 +75,7 @@ public class SQLConnector {
 	/**
 	 * Executes a given sql query
 	 *
-	 * @param sql
+	 * @param sql executes the given sql
 	 * @return a result set
 	 */
 	public ResultSet executeSQLQuery(String sql) throws Exception {
@@ -81,7 +87,7 @@ public class SQLConnector {
 	/**
 	 * Update or insert a given sql query
 	 *
-	 * @param sql
+	 * @param sql executes the given sql
 	 * @return a int number showing how many rows affected
 	 */
 	public int executeSQLUpdate(String sql) throws Exception{
@@ -103,6 +109,14 @@ public class SQLConnector {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public boolean isKeepOpen() {
+		return keepConnect;
+	}
+
+	public void setKeepOpen(boolean keepConnect) {
+		this.keepConnect = keepConnect;
 	}
 }
 

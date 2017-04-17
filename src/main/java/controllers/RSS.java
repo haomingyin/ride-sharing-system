@@ -13,13 +13,10 @@ public class RSS {
 
 	private User user;
 	private Stage pStage;
-	private MenuController menuController;
-	private CarController carController;
-	private TripController tripController;
-	private RideController rideController;
-	private RouteController routeController;
+	private Controller menuController, carController, tripController,
+			giveRideController, routeController, bookRideController;
+
 	private SQLConnector sqlConnector;
-	private BookRideController bookRideController;
 
 	public void initialize() {
 		user = new User();
@@ -31,12 +28,12 @@ public class RSS {
 		showLoginView();
 	}
 
-	public void showLoginView() {
+	 void showLoginView() {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/LoginView.fxml"));
 			Parent root = loader.load();
 			Scene scene = new Scene(root, 1200, 800);
-			LoginController loginController = loader.getController();
+			Controller loginController = loader.getController();
 			loginController.setRSS(this);
 			pStage.setScene(scene);
 			pStage.show();
@@ -45,7 +42,7 @@ public class RSS {
 		}
 	}
 
-	public void showSignUpView() {
+	 void showSignUpView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/SignupView.fxml"));
 			Parent root = fxmlLoader.load();
@@ -60,7 +57,7 @@ public class RSS {
 		}
 	}
 
-	public void showProfile() {
+	 void showProfile() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/SignupView.fxml"));
 			Parent root = fxmlLoader.load();
@@ -76,12 +73,12 @@ public class RSS {
 		}
 	}
 
-	public void showCarView() {
+	 void showCarView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CarView.fxml"));
 			Parent carView = fxmlLoader.load();
 			Scene scene = new Scene(carView);
-			CarController carController = fxmlLoader.getController();
+			Controller carController = fxmlLoader.getController();
 			setCarController(carController);
 			carController.setRSS(this);
 			pStage.setScene(scene);
@@ -91,12 +88,12 @@ public class RSS {
 		}
 	}
 
-	public void showRouteView() {
+	 void showRouteView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/RouteView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
-			RouteController Controller = fxmlLoader.getController();
+			Controller Controller = fxmlLoader.getController();
 			setRouteController(Controller);
 			Controller.setRSS(this);
 			pStage.setScene(scene);
@@ -106,12 +103,12 @@ public class RSS {
 		}
 	}
 
-	public void showTripView() {
+	 void showTripView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/TripView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
-			TripController controller = fxmlLoader.getController();
+			Controller controller = fxmlLoader.getController();
 			setTripController(controller);
 			controller.setRSS(this);
 			pStage.setScene(scene);
@@ -121,13 +118,13 @@ public class RSS {
 		}
 	}
 
-	public void showRideView() {
+	 void showRideView() {
 		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/RideView.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GiveRideView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
-			RideController controller = fxmlLoader.getController();
-			setRideController(controller);
+			Controller controller = fxmlLoader.getController();
+			setGiveRideController(controller);
 			controller.setRSS(this);
 			pStage.setScene(scene);
 			pStage.show();
@@ -136,12 +133,12 @@ public class RSS {
 		}
 	}
 
-	public void showBookRideView() {
+	 void showBookRideView() {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/BookRideView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
-			BookRideController controller = fxmlLoader.getController();
+			Controller controller = fxmlLoader.getController();
 			setBookRideController(controller);
 			controller.setRSS(this);
 			pStage.setScene(scene);
@@ -151,7 +148,7 @@ public class RSS {
 		}
 	}
 
-	public void showErrorDialog(String headMsg, String errorMsg) {
+	void showErrorDialog(String headMsg, String errorMsg) {
 		Alert alert = new Alert(Alert.AlertType.ERROR);
 		alert.setTitle("RSS Error Dialog");
 		alert.setHeaderText(headMsg);
@@ -160,7 +157,7 @@ public class RSS {
 		alert.showAndWait();
 	}
 
-	public void showInformationDialog(String headMsg, String infoMsg) {
+	 void showInformationDialog(String headMsg, String infoMsg) {
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		alert.setTitle("RSS Information Dialog");
 		alert.setHeaderText(headMsg);
@@ -169,7 +166,7 @@ public class RSS {
 		alert.showAndWait();
 	}
 
-	public void showWarningDialog(String headMsg, String warnMsg) {
+	protected void showWarningDialog(String headMsg, String warnMsg) {
 		Alert alert = new Alert(Alert.AlertType.WARNING);
 		alert.setTitle("RSS Warning Dialog");
 		alert.setHeaderText(headMsg);
@@ -194,59 +191,59 @@ public class RSS {
 		this.pStage = pStage;
 	}
 
-	public MenuController getMenuController() {
-		return menuController;
-	}
-
-	public void setMenuController(MenuController menuController) {
-		this.menuController = menuController;
-	}
-
-	public CarController getCarController() {
-		return carController;
-	}
-
-	public void setCarController(CarController carController) {
-		this.carController = carController;
-	}
-
-	public SQLConnector getSqlConnector() {
+	 SQLConnector getSqlConnector() {
 		return sqlConnector;
 	}
 
-	public void setSqlConnector(SQLConnector sqlConnector) {
+	protected void setSqlConnector(SQLConnector sqlConnector) {
 		this.sqlConnector = sqlConnector;
 	}
 
-	public TripController getTripController() {
+	protected Controller getMenuController() {
+		return menuController;
+	}
+
+	protected void setMenuController(Controller menuController) {
+		this.menuController = menuController;
+	}
+
+	protected Controller getCarController() {
+		return carController;
+	}
+
+	 void setCarController(Controller carController) {
+		this.carController = carController;
+	}
+
+	protected Controller getTripController() {
 		return tripController;
 	}
 
-	public void setTripController(TripController tripController) {
+	 void setTripController(Controller tripController) {
 		this.tripController = tripController;
 	}
 
-	public RideController getRideController() {
-		return rideController;
+	protected Controller getGiveRideController() {
+		return giveRideController;
 	}
 
-	public void setRideController(RideController rideController) {
-		this.rideController = rideController;
+	 void setGiveRideController(Controller giveRideController) {
+		this.giveRideController = giveRideController;
 	}
 
-	public RouteController getRouteController() {
+	protected Controller getRouteController() {
 		return routeController;
 	}
 
-	public void setRouteController(RouteController routeController) {
+	 void setRouteController(Controller routeController) {
 		this.routeController = routeController;
 	}
 
-	public BookRideController getBookRideController() {
+	protected Controller getBookRideController() {
 		return bookRideController;
 	}
 
-	public void setBookRideController(BookRideController bookRideController) {
+	 void setBookRideController(Controller bookRideController) {
 		this.bookRideController = bookRideController;
 	}
 }

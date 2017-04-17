@@ -4,7 +4,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Trip {
@@ -13,7 +12,7 @@ public class Trip {
 	private SimpleStringProperty alias, username, direction;
 	private SimpleIntegerProperty carId;
 	private LocalDate beginDate, expireDate;
-	private Map<Integer, StopPoint> stopPointsMap;
+	private Map<Integer, StopPoint> stopPoints;
 
 	public Trip() {
 		this.tripId = null;
@@ -25,7 +24,6 @@ public class Trip {
 		this.beginDate = null;
 		this.expireDate = null;
 		this.day = null;
-		this.stopPointsMap = new HashMap<>();
 	}
 
 	@Override
@@ -113,12 +111,12 @@ public class Trip {
 		this.expireDate = expireDate;
 	}
 
-	public Map<Integer, StopPoint> getStopPointsMap() {
-		return stopPointsMap;
+	public Map<Integer, StopPoint> getStopPoints() {
+		return stopPoints;
 	}
 
-	public void setStopPointsMap(Map<Integer, StopPoint> stopPointsMap) {
-		this.stopPointsMap = stopPointsMap;
+	public void setStopPoints(Map<Integer, StopPoint> stopPoints) {
+		this.stopPoints = stopPoints;
 	}
 
 	public Integer getDay() {

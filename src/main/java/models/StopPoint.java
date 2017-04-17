@@ -5,16 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 public class StopPoint {
 
 	private int spId;
-	private SimpleStringProperty streetNo, street, suburb, city, time;
-
-	public StopPoint(int spId, String streetNo, String street, String suburb, String city) {
-		this.spId = spId;
-		this.streetNo = new SimpleStringProperty(streetNo);
-		this.street = new SimpleStringProperty(street);
-		this.suburb = new SimpleStringProperty(suburb);
-		this.city = new SimpleStringProperty(city);
-		this.time = new SimpleStringProperty("");
-	}
+	private SimpleStringProperty streetNo, street, suburb, city, time, full;
 
 	public StopPoint() {
 		this.spId = -1;
@@ -23,6 +14,7 @@ public class StopPoint {
 		this.suburb = new SimpleStringProperty();
 		this.city = new SimpleStringProperty();
 		this.time = new SimpleStringProperty();
+		this.full = new SimpleStringProperty();
 	}
 	@Override
 	public String toString() {
@@ -95,5 +87,19 @@ public class StopPoint {
 
 	public void setTime(String time) {
 		this.time.set(time);
+	}
+
+	public String getFull() {
+		setFull();
+		return full.get();
+	}
+
+	public SimpleStringProperty fullProperty() {
+		setFull();
+		return full;
+	}
+
+	private void setFull() {
+		this.full.set(toString());
 	}
 }

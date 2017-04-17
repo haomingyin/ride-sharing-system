@@ -4,12 +4,13 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Route {
 
 	private SimpleIntegerProperty routeId;
 	private SimpleStringProperty alias, username;
-	private HashMap<Integer, StopPoint> stopPoints;
+	private Map<Integer, StopPoint> stopPoints;
 
 	public Route(Integer routeId, String alias) {
 		this.routeId = new SimpleIntegerProperty(routeId);
@@ -27,7 +28,7 @@ public class Route {
 
 	@Override
 	public String toString() {
-		return getAlias().toString();
+		return getAlias();
 	}
 
 	public String getAlias() {
@@ -42,11 +43,11 @@ public class Route {
 		this.alias.set(alias);
 	}
 
-	public HashMap<Integer, StopPoint> getStopPoints() {
+	public Map<Integer, StopPoint> getStopPoints() {
 		return stopPoints;
 	}
 
-	public void setStopPoints(HashMap<Integer, StopPoint> stopPoints) {
+	public void setStopPoints(Map<Integer, StopPoint> stopPoints) {
 		this.stopPoints = stopPoints;
 	}
 

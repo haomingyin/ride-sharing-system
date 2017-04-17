@@ -2,7 +2,6 @@ package controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -11,7 +10,6 @@ import models.User;
 import models.database.SQLExecutor;
 
 import java.net.URL;
-import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 /**

@@ -12,6 +12,7 @@ import javafx.scene.text.Text;
 import javafx.util.Callback;
 import models.*;
 import models.database.SQLExecutor;
+import models.StopPoint;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.sqlite.SQLiteException;
@@ -151,12 +152,12 @@ public class RouteController extends Controller implements Initializable {
 	private void fillSPTable() {
 		fetchStopPoints();
 		SPTable.getItems().clear();
-		stopPointObservableList = FXCollections.observableList(new ArrayList<StopPoint>(stopPoints.values()));
+		stopPointObservableList = FXCollections.observableList(new ArrayList<>(stopPoints.values()));
 
-		streetNoCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("streetNo"));
-		streetCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("street"));
-		suburbCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("suburb"));
-		cityCol.setCellValueFactory(new PropertyValueFactory<StopPoint, String>("city"));
+		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
+		streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
+		suburbCol.setCellValueFactory(new PropertyValueFactory<>("suburb"));
+		cityCol.setCellValueFactory(new PropertyValueFactory<>("city"));
 		SPTable.setItems(stopPointObservableList);
 	}
 
@@ -194,15 +195,21 @@ public class RouteController extends Controller implements Initializable {
 		String address = addressField.getText().toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "");
 		List<StopPoint> sp = new ArrayList<>(SQLExecutor.fetchStopPointsByString(address, 2).values());
 
-		int result = 0;
+		int result;
 		String errorMsg;
 		if (sp.size() == 1) {
 			try {
 				if ((result = SQLExecutor.addStopPointIntoRoute(routeComboBox.getValue(), sp.get(0))) == 1) {
 					fillSPTable();
 				} else {
-					errorMsg = "Your stop point address is an invalid Christchurch address.\n";
-					if (sp.size() > 1) errorMsg = "The entered address is not precise enough.\n";
+					// if a route has been used for a trip sql executor will return -1.
+					if (result == -1) {
+						errorMsg = "A route that has been used for trips cannot add any new stop point.\n";
+					} else {
+						errorMsg = "Your stop point address is an invalid Christchurch address.\n";
+						if (sp.size() > 1)
+							errorMsg = "The entered address is not precise enough.\n";
+					}
 					rss.showErrorDialog("Operation Failed!", errorMsg);
 				}
 			} catch (SQLiteException e) {
@@ -215,7 +222,7 @@ public class RouteController extends Controller implements Initializable {
 	}
 
 	private void clickDeleteBtn () {
-		int result = 0;
+		int result;
 		String errorMsg;
 		try {
 			result = SQLExecutor.deleteRoute(routeComboBox.getValue());

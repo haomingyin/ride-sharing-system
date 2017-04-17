@@ -1,12 +1,17 @@
 package models.database;
 
 import models.*;
+import models.ride.Ride;
+import models.ride.RideInstance;
+import models.User;
 import org.sqlite.SQLiteException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SQLExecutor {
@@ -72,12 +77,35 @@ public class SQLExecutor {
 	public static User fetchUser(String username, String password) {
 		try {
 			connectDB();
+			String sql = "SELECT count(username) as cnt " +
+					"FROM user " +
+					"WHERE username = ? AND password = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, username);
+			pstmt.setString(2, password);
+
+			if(pstmt.executeQuery().getInt("cnt") == 1) {
+				disconnectDB();
+				return fetchUser(username);
+			}
+
+			disconnectDB();
+		} catch (Exception e) {
+			e.printStackTrace();
+			disconnectDB();
+		}
+		return null;
+	}
+
+
+	private static User fetchUser(String username) {
+		try {
+			connectDB();
 			User user = new User();
-			String sql = String.format("SELECT * " +
-							"FROM user " +
-							"WHERE username = '%s' AND password = '%s';",
-					username, password);
-			ResultSet rs = connector.executeSQLQuery(sql);
+			String sql = "SELECT * FROM user WHERE username = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
 			if (!rs.isClosed()) {
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
@@ -96,13 +124,12 @@ public class SQLExecutor {
 				user.setPhoto(rs.getBytes("photo"));
 				return user;
 			}
-			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		} finally {
 			disconnectDB();
 		}
+		return null;
 	}
 
 	/**
@@ -186,9 +213,9 @@ public class SQLExecutor {
 	 * @return a hash map containing car's plate as key, Car instance as value
 	 */
 	public static Map<Integer, Car> fetchCarsByUser(User user) {
-		connectDB();
 		Map<Integer, Car> carsHashMap = new HashMap<>();
 		try {
+			connectDB();
 			String sql = String.format("SELECT * " +
 					"FROM car " +
 					"WHERE username = '%s';", user.getUsername());
@@ -215,6 +242,38 @@ public class SQLExecutor {
 			disconnectDB();
 		}
 		return carsHashMap;
+	}
+
+	public static Car fetchCarByCarId(Integer carId) {
+		try {
+			connectDB();
+			String sql = "SELECT * FROM car WHERE carId = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, carId);
+
+			ResultSet rs = pstmt.executeQuery();
+			if (!rs.isClosed() && rs.next()) {
+				Car car = new Car();
+				car.setCarId(rs.getInt("carId"));
+				car.setPlate(rs.getString("plate"));
+				car.setUsername(rs.getString("username"));
+				car.setModel(rs.getString("model"));
+				car.setManufacturer(rs.getString("manufacturer"));
+				car.setColor(rs.getString("color"));
+				car.setYear(rs.getInt("year"));
+				car.setSeatNo(rs.getInt("seatNo"));
+				car.setWof(rs.getString("wof"));
+				car.setPerformance(rs.getDouble("performance"));
+				car.setRegistration(rs.getString("registration"));
+
+				return car;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
 	}
 
 	/**
@@ -358,11 +417,13 @@ public class SQLExecutor {
 
 			ResultSet rs = pstmt.executeQuery();
 			while (!rs.isClosed() && rs.next()) {
-				StopPoint sp = new StopPoint(rs.getInt("spId"),
-						rs.getString("streetNo"),
-						rs.getString("street"),
-						rs.getString("suburb"),
-						rs.getString("city"));
+				StopPoint sp = new StopPoint();
+				sp.setSpId(rs.getInt("spId"));
+				sp.setStreetNo(rs.getString("streetNo"));
+				sp.setStreet(rs.getString("street"));
+				sp.setSuburb(rs.getString("suburb"));
+				sp.setCity(rs.getString("city"));
+
 				stopPoints.put(sp.getSpId(), sp);
 			}
 		} catch (Exception e) {
@@ -398,6 +459,36 @@ public class SQLExecutor {
 			disconnectDB();
 		}
 		return routeHashMap;
+	}
+
+	public static Trip fetchTripByTripId(Integer tripId) {
+		try {
+			connectDB();
+			String sql = "SELECT * FROM trip WHERE tripId = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, tripId);
+			ResultSet rs = pstmt.executeQuery();
+
+			if (!rs.isClosed() && rs.next()) {
+				Trip trip = new Trip();
+				trip.setTripId(rs.getInt("tripId"));
+				trip.setAlias(rs.getString("alias"));
+				trip.setUsername(rs.getString("username"));
+				trip.setDirection(rs.getString("direction"));
+				trip.setCarId(rs.getInt("carId"));
+				trip.setRouteId(rs.getInt("routeId"));
+				trip.setBeginDate(LocalDate.parse(rs.getString("beginDate")));
+				trip.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
+				trip.setDay(rs.getInt("day"));
+
+				return trip;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
 	}
 
 	public static int addRoute(Route route) {
@@ -458,10 +549,19 @@ public class SQLExecutor {
 	public static int addStopPointIntoRoute(Route route, StopPoint stopPoint) throws SQLiteException{
 		try {
 			connectDB();
-			String sql = "INSERT INTO route_sp (routeId, spId) " +
-					"VALUES " +
-					"(?, ?);";
+			// if a route has been instantiate as trips, then can't add more sp
+			String sql = "SELECT count(*) AS cnt " +
+					"FROM trip WHERE trip.routeid = ?";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, route.getRouteId());
+			// if a route has been used for a trip sql executor will return -1.
+			if (pstmt.executeQuery().getInt("cnt") != 0) {
+				return -1;
+			}
+			// add stop point into route
+			sql = "INSERT INTO route_sp (routeId, spId) " +
+					"VALUES (?, ?);";
+			pstmt = connector.conn.prepareStatement(sql);
 			pstmt.setInt(1, route.getRouteId());
 			pstmt.setInt(2, stopPoint.getSpId());
 
@@ -538,7 +638,9 @@ public class SQLExecutor {
 	public static int addTrip(Trip trip) {
 		try {
 			connectDB();
-			String sql = "INSERT INTO trip " +
+			String sql = "BEGIN TRANSACTION;";
+			connector.executeSQLUpdate(sql);
+			sql = "INSERT INTO trip " +
 					"(alias, username, routeid, direction, carId, beginDate, expireDate, day) " +
 					"VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
@@ -558,7 +660,7 @@ public class SQLExecutor {
 			trip.setTripId(connector.executeSQLQuery(sql).getInt("result"));
 
 			// add stop points into trip_sp table
-			for (StopPoint stopPoint : trip.getStopPointsMap().values()) {
+			for (StopPoint stopPoint : trip.getStopPoints().values()) {
 				sql = String.format("INSERT INTO trip_sp (tripId, spId, time) " +
 								"VALUES (%d, %d, '%s');",
 						trip.getTripId(),
@@ -566,6 +668,8 @@ public class SQLExecutor {
 						stopPoint.getTime());
 				connector.executeSQLUpdate(sql);
 			}
+			sql = "COMMIT;";
+			connector.executeSQLUpdate(sql);
 			return 1;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -593,33 +697,115 @@ public class SQLExecutor {
 		return 0;
 	}
 
-	/**
-	 * Fetches rides which are owned by the given user
-	 * @param user a user associated with rides to be fetched
-	 * @return a HashMap of rides containing rideId as keys, ride as values
-	 */
-	public static HashMap<Integer, Ride> fetchRidesByUser(User user) {
-		HashMap<Integer, Ride> rideHashMap = new HashMap<>();
+	public static int addRides(List<Ride> rides) {
 		try {
 			connectDB();
-			String sql = String.format("SELECT * " +
-					"FROM ride " +
-					"WHERE username = '%s';", user.getUsername());
-			ResultSet rs = connector.executeSQLQuery(sql);
-			while (!rs.isClosed() && rs.next()) {
-				Ride ride = new Ride(rs.getInt("rideId"),
-						rs.getInt("tripId"),
-						rs.getString("alias"),
-						rs.getInt("seatNo"));
+			String sql = "BEGIN TRANSACTION;";
+			connector.executeSQLUpdate(sql);
+			int result = 0;
 
-				// alias must be unique!!!!
-				rideHashMap.put(ride.getRideId(), ride);
+			for (Ride ride : rides) {
+				sql = "INSERT INTO ride" +
+						"(alias, tripId, rideDate, seatNo, username) " +
+						"VALUES (?, ?, ?, ?, ?);";
+				PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+				int cnt = 1;
+				pstmt.setString(cnt++, ride.getAlias());
+				pstmt.setInt(cnt++, ride.getTripId());
+				pstmt.setString(cnt++, ride.getDate());
+				pstmt.setInt(cnt++, ride.getSeatNo());
+				pstmt.setString(cnt, ride.getUsername());
+
+				result += pstmt.executeUpdate();
 			}
+
+			sql = "COMMIT;";
+			connector.executeSQLUpdate(sql);
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			disconnectDB();
 		}
-		return rideHashMap;
+		return -1;
+	}
+
+	/**
+	 * Fetches rides which are owned by the given user
+	 * @param user a user associated with rides to be fetched
+	 * @return a HashMap of rides containing rideId as keys, ride as values
+	 */
+	public static Map<Integer, Ride> fetchRidesByUser(User user) {
+		try {
+			connectDB();
+			Map<Integer, Ride> rides = new HashMap<>();
+
+			String sql = "SELECT r.rideId, r.alias, r.tripId, r.rideDate, r.seatNo, seatBooked.cnt AS cnt, t.direction " +
+					"FROM ride r " +
+					"LEFT JOIN " +
+					"(SELECT r.rideId, count(rp.username) AS cnt " +
+					"FROM ride r " +
+					"LEFT JOIN ride_passenger rp ON r.rideId = rp.rideId " +
+					"GROUP BY r.rideId) " +
+					"AS seatBooked ON r.rideId = seatBooked.rideId " +
+					"LEFT JOIN trip t ON r.tripId = t.tripid " +
+					"WHERE r.username = ? ";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, user.getUsername());
+
+			ResultSet rs = pstmt.executeQuery();
+			while (!rs.isClosed() && rs.next()) {
+				Ride ride = new Ride();
+				ride.setRideId(rs.getInt("rideId"));
+				ride.setAlias(rs.getString("alias"));
+				ride.setTripId(rs.getInt("tripId"));
+				ride.setDate(rs.getString("rideDate"));
+				ride.setSeatNo(rs.getInt("seatNo"));
+				ride.setDirection(rs.getString("direction"));
+				ride.setSeatBooked(rs.getInt("cnt"));
+
+				rides.put(ride.getRideId(), ride);
+			}
+			return rides;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
+	}
+
+	public static List<RideInstance> fetchRideInstancesByRide(Ride ride) {
+		try {
+			connectDB();
+			List<RideInstance> instances = new ArrayList<>();
+			String sql = "SELECT * FROM ride_passenger WHERE rideId = ?";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, ride.getRideId());
+
+			ResultSet rs = pstmt.executeQuery();
+			while (!rs.isClosed() && rs.next()) {
+				RideInstance ri = new RideInstance();
+				ri.setPassengerId(rs.getString("username"));
+				ri.setRideId(rs.getInt("rideId"));
+				ri.setSpId(rs.getInt("spId"));
+				ri.setStatus(rs.getString("status"));
+				ri.setPrice(rs.getDouble("price"));
+				instances.add(ri);
+			}
+			disconnectDB();
+
+			for (RideInstance ri : instances) {
+				ri.setPassenger(fetchUser(ri.getPassengerId()));
+			}
+			return instances;
+		} catch (Exception e) {
+			e.printStackTrace();
+			disconnectDB();
+		}
+		return null;
 	}
 }

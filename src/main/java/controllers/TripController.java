@@ -10,9 +10,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import models.Car;
 import models.Route;
-import models.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
+import models.StopPoint;
 import org.sqlite.SQLiteException;
 
 import java.net.URL;
@@ -45,7 +45,7 @@ public class TripController extends Controller implements Initializable {
 	@FXML
 	private Button submitBtn, deleteBtn, setSPTimeBtn;
 	@FXML
-	private GridPane setTimePane, tripDetailPane, recurrencePane;
+	private GridPane setTimePane, recurrencePane;
 	@FXML
 	private TableView<StopPoint> SPTable;
 	@FXML
@@ -249,7 +249,7 @@ public class TripController extends Controller implements Initializable {
 
 	private void clickSetSPTimeBtn() {
 		if (SPTable.getSelectionModel().getSelectedItem() != null) {
-			StopPoint stopPoint = SPTable.getSelectionModel().getSelectedItem();
+			StopPoint stopPoint = (StopPoint) SPTable.getSelectionModel().getSelectedItem();
 			String time = String.format("%s:%s %s",
 					hourComboBox.getValue(),
 					minuteComboBox.getValue(),
@@ -267,13 +267,14 @@ public class TripController extends Controller implements Initializable {
 	 * check if the arriving time is differ from each other at least 5 minutes.
 	 * @return true if time is valid.
 	 */
-	private boolean validateArrivingTime(StopPoint sp) {
+	private boolean validateArrivingTime(StopPoint currentSP) {
 		try {
 			int time = Integer.valueOf(hourComboBox.getValue()) * 60;
 			time += Integer.valueOf(minuteComboBox.getValue());
 			time += timeIndicatorComboBox.getValue().equals("PM") ? 12 * 60 : 0;
-			for (StopPoint stopPoint : stopPoints.values()) {
-				if (stopPoint.getTime() != null && !stopPoint.getTime().equals("") && stopPoint != sp) {
+			for (StopPoint sp : stopPoints.values()) {
+				StopPoint stopPoint = (StopPoint) sp; // cast stop point to trip sp
+				if (stopPoint.getTime() != null && !stopPoint.getTime().equals("") && stopPoint != currentSP) {
 					String[] spTimeString = stopPoint.getTime().split("[ :]+");
 					int spTime = Integer.valueOf(spTimeString[0]) * 60;
 					spTime += Integer.valueOf(spTimeString[1]);
@@ -303,7 +304,7 @@ public class TripController extends Controller implements Initializable {
 			trip.setBeginDate(startDatePicker.getValue());
 			trip.setExpireDate(endDatePicker.getValue());
 			trip.setDay(getRecurrence());
-			trip.setStopPointsMap(stopPoints);
+			trip.setStopPoints(stopPoints);
 
 			result = SQLExecutor.addTrip(trip);
 
@@ -315,7 +316,7 @@ public class TripController extends Controller implements Initializable {
 	}
 
 	private void clickDeleteBtn() {
-		int result = 0;
+		int result;
 		String errorMsg;
 		try {
 			result = SQLExecutor.deleteTrip(tripComboBox.getValue());
@@ -386,7 +387,8 @@ public class TripController extends Controller implements Initializable {
 		if (routeComboBox.getValue() == null)
 			errorMsg.add("A route should be assigned to the trip.\n");
 
-		for (StopPoint stopPoint : stopPoints.values()) {
+		for (StopPoint sp : stopPoints.values()) {
+			StopPoint stopPoint = (StopPoint) sp;
 			if (stopPoint.getTime().equals(""))
 				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
 		}
@@ -412,9 +414,7 @@ public class TripController extends Controller implements Initializable {
 		}
 
 		// handle and show error message in dialog
-		if (errorMsg.size() == 0) {
-			return true;
-		} else {
+		if (errorMsg.size() != 0) {
 			String errorString = "Operation failed is caused by: \n";
 			for (Integer i = 1; i <= errorMsg.size(); i++) {
 				errorString += i.toString() + ". " + errorMsg.get(i - 1);
@@ -423,5 +423,6 @@ public class TripController extends Controller implements Initializable {
 			rss.showErrorDialog(headMsg, errorString);
 			return false;
 		}
+		return true;
 	}
 }
