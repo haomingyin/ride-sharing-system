@@ -8,11 +8,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.util.Callback;
-import models.*;
-import models.database.SQLExecutor;
+import models.Route;
 import models.StopPoint;
+import models.database.SQLExecutor;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.sqlite.SQLiteException;
@@ -25,10 +24,6 @@ public class RouteController extends Controller implements Initializable {
 
 	@FXML
 	private MenuController menuController;
-	@FXML
-	private Parent menuView;
-	@FXML
-	private Text routeErrorText;
 	@FXML
 	private TextField aliasField, addressField;
 	@FXML
@@ -48,7 +43,6 @@ public class RouteController extends Controller implements Initializable {
 	private Mode mode;
 
 	private Map<Integer, StopPoint> stopPoints;
-	private ObservableList<StopPoint> stopPointObservableList;
 	private Map<Integer, Route> routes;
 
 	@Override
@@ -152,7 +146,8 @@ public class RouteController extends Controller implements Initializable {
 	private void fillSPTable() {
 		fetchStopPoints();
 		SPTable.getItems().clear();
-		stopPointObservableList = FXCollections.observableList(new ArrayList<>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList =
+				FXCollections.observableList(new ArrayList<>(stopPoints.values()));
 
 		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
 		streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));

@@ -4,9 +4,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import models.Trip;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Ride {
 
 	private Integer rideId, tripId;

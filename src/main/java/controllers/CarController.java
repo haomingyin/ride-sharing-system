@@ -2,7 +2,6 @@ package controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -20,8 +19,6 @@ public class CarController extends Controller implements Initializable {
 
 	private Map<Integer, Car> cars;
 
-	@FXML
-	private Parent menuView;
 	@FXML
 	private MenuController menuController;
 

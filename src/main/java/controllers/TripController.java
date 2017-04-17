@@ -4,15 +4,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import models.Car;
 import models.Route;
+import models.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
-import models.StopPoint;
 import org.sqlite.SQLiteException;
 
 import java.net.URL;
@@ -21,8 +20,6 @@ import java.util.*;
 
 public class TripController extends Controller implements Initializable {
 
-	@FXML
-	private Parent menuView;
 	@FXML
 	private MenuController menuController;
 	@FXML
@@ -249,7 +246,7 @@ public class TripController extends Controller implements Initializable {
 
 	private void clickSetSPTimeBtn() {
 		if (SPTable.getSelectionModel().getSelectedItem() != null) {
-			StopPoint stopPoint = (StopPoint) SPTable.getSelectionModel().getSelectedItem();
+			StopPoint stopPoint = SPTable.getSelectionModel().getSelectedItem();
 			String time = String.format("%s:%s %s",
 					hourComboBox.getValue(),
 					minuteComboBox.getValue(),
@@ -272,8 +269,7 @@ public class TripController extends Controller implements Initializable {
 			int time = Integer.valueOf(hourComboBox.getValue()) * 60;
 			time += Integer.valueOf(minuteComboBox.getValue());
 			time += timeIndicatorComboBox.getValue().equals("PM") ? 12 * 60 : 0;
-			for (StopPoint sp : stopPoints.values()) {
-				StopPoint stopPoint = (StopPoint) sp; // cast stop point to trip sp
+			for (StopPoint stopPoint : stopPoints.values()) {
 				if (stopPoint.getTime() != null && !stopPoint.getTime().equals("") && stopPoint != currentSP) {
 					String[] spTimeString = stopPoint.getTime().split("[ :]+");
 					int spTime = Integer.valueOf(spTimeString[0]) * 60;
@@ -387,8 +383,7 @@ public class TripController extends Controller implements Initializable {
 		if (routeComboBox.getValue() == null)
 			errorMsg.add("A route should be assigned to the trip.\n");
 
-		for (StopPoint sp : stopPoints.values()) {
-			StopPoint stopPoint = (StopPoint) sp;
+		for (StopPoint stopPoint : stopPoints.values()) {
 			if (stopPoint.getTime().equals(""))
 				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
 		}

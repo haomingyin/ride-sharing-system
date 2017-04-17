@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import models.User;
 import models.database.SQLExecutor;
@@ -13,20 +12,18 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
+ * Controller for login view.
  * Created by Haoming on 15/03/17.
  */
 
 public class LoginController extends Controller implements Initializable {
 
 	@FXML
-	private PasswordField passwordField, rePasswordField;
+	private PasswordField passwordField;
 	@FXML
 	private TextField usernameField;
 	@FXML
 	private Text loginPromptText;
-	@FXML
-	private GridPane signupPane, loginBtnPane;
-
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -58,12 +55,6 @@ public class LoginController extends Controller implements Initializable {
 			return true;
 		}
 		return false;
-	}
-
-	private void cleanTextFields() {
-		usernameField.setText("");
-		passwordField.setText("");
-		rePasswordField.setText("");
 	}
 
 	@Override

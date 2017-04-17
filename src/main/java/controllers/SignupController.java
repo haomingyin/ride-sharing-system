@@ -45,7 +45,7 @@ public class SignupController extends Controller implements Initializable {
 	@FXML
 	private Button submitBtn, uploadPhotoBtn;
 
-	private enum Mode {SIGNUP, UPDATE_PROFILE};
+	private enum Mode {SIGNUP, UPDATE_PROFILE}
 	private Mode mode = Mode.SIGNUP;
 	private File photoFile;
 	private String[] emailSuffix = {"@uclive.ac.nz", "@canterbury.ac.nz"};
@@ -87,7 +87,7 @@ public class SignupController extends Controller implements Initializable {
 	@Override
 	protected void afterSetRSS() {}
 
-	public void myProfileMode() {
+	void myProfileMode() {
 		mode = Mode.UPDATE_PROFILE;
 		titleText.setText("My Profile");
 		usernameField.setEditable(false);

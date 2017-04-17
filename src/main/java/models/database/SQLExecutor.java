@@ -24,20 +24,10 @@ public class SQLExecutor {
 		enableForeignKeys();
 	}
 
-	public static int enableForeignKeys() {
+	private static int enableForeignKeys() {
 		try {
 			if (connector != null)
 				return connector.executeSQLUpdate("PRAGMA foreign_keys = 1;");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	public static int disableForeignKeys() {
-		try {
-			if (connector != null)
-				return connector.executeSQLUpdate("PRAGMA foreign_keys = 0;");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -747,6 +737,7 @@ public class SQLExecutor {
 					"(SELECT r.rideId, count(rp.username) AS cnt " +
 					"FROM ride r " +
 					"LEFT JOIN ride_passenger rp ON r.rideId = rp.rideId " +
+					"WHERE rp.status = 'Booked' " +
 					"GROUP BY r.rideId) " +
 					"AS seatBooked ON r.rideId = seatBooked.rideId " +
 					"LEFT JOIN trip t ON r.tripId = t.tripid " +
@@ -807,5 +798,59 @@ public class SQLExecutor {
 			disconnectDB();
 		}
 		return null;
+	}
+
+	/**
+	 * Updates a give ride instance
+	 * @param rideInstance the instance should be updated
+	 * @param type the update type, 0 for done, 1 for driver cancel, 2 for passenger cancel
+	 * @return 1 for success, 0 for fail
+	 */
+	public static int updateRideByRideInstance(RideInstance rideInstance, int type) {
+		try {
+			connectDB();
+			String sql = "UPDATE ride_passenger " +
+					"SET status = ? " +
+					"WHERE rideId = ? AND username = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			switch (type) {
+				case 0: pstmt.setString(1, "Done");
+					break;
+				case 1: pstmt.setString(1, "Driver Cancelled");
+					break;
+				case 2: pstmt.setString(1, "Passenger Cancelled");
+					break;
+				default: return 0;
+			}
+			pstmt.setInt(2, rideInstance.getRideId());
+			pstmt.setString(3, rideInstance.getPassengerId());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static int deleteRide(Ride ride) throws SQLiteException {
+		try {
+			connectDB();
+			String sql = "DELETE FROM ride WHERE rideId = ?";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setInt(1, ride.getRideId());
+
+			return pstmt.executeUpdate();
+		} catch (SQLiteException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
 	}
 }

@@ -12,8 +12,6 @@ import java.util.ResourceBundle;
 public class GiveRideController extends Controller implements Initializable {
 
 	@FXML
-	private Parent menuView, createRideView, viewRideView;
-	@FXML
 	private Controller menuController, createRideController;
 	@FXML
 	private ViewRideController viewRideController;
@@ -27,7 +25,7 @@ public class GiveRideController extends Controller implements Initializable {
 		createTab.setOnSelectionChanged(event -> titleText.setText("Create Rides"));
 		viewTab.setOnSelectionChanged(event -> {
 			titleText.setText("Manage Rides");
-			viewRideController.loadTrips();
+			viewRideController.afterSetRSS();
 		});
 	}
 

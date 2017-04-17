@@ -3,8 +3,6 @@ package controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.GridPane;
-import models.database.SQLConnector;
-import models.database.SQLExecutor;
 
 import java.net.URL;
 import java.util.ResourceBundle;

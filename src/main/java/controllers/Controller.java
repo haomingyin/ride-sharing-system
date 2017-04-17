@@ -5,18 +5,18 @@ import javafx.stage.Stage;
 public abstract class Controller {
 
 	protected RSS rss;
-	protected Stage stage;
+	Stage stage;
 
 	public RSS getRSS() {
 		return rss;
 	}
 
-	public void setRSS(RSS rss) {
+	void setRSS(RSS rss) {
 		this.rss = rss;
 		afterSetRSS();
 	}
 
-	public void setStage(Stage stage) {
+	void setStage(Stage stage) {
 		this.stage = stage;
 	}
 

@@ -14,7 +14,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class SQLConnector {
 
-	protected Connection conn;
+	Connection conn;
 	// when keepConnect set true, connection will be kept open.
 	private boolean keepConnect;
 
@@ -22,7 +22,7 @@ public class SQLConnector {
 	 * Sets up a new connection to local SQLite database.
 	 * @return a Connection object
 	 */
-	public Connection connect() {
+	Connection connect() {
 		try {
 			// db parameters
 			String url = "jdbc:sqlite:rss.db";
@@ -59,7 +59,7 @@ public class SQLConnector {
 	/**
 	 * Closes current database connection
 	 */
-	public void closeConnection() {
+	void closeConnection() {
 		try {
 			if (conn != null && !conn.isClosed() && !keepConnect) {
 				conn.close();
@@ -78,7 +78,7 @@ public class SQLConnector {
 	 * @param sql executes the given sql
 	 * @return a result set
 	 */
-	public ResultSet executeSQLQuery(String sql) throws Exception {
+	ResultSet executeSQLQuery(String sql) throws Exception {
 		if (conn.isClosed()) connect();
 		Statement stmt = conn.createStatement();
 		return stmt.executeQuery(sql);
@@ -90,7 +90,7 @@ public class SQLConnector {
 	 * @param sql executes the given sql
 	 * @return a int number showing how many rows affected
 	 */
-	public int executeSQLUpdate(String sql) throws Exception{
+	int executeSQLUpdate(String sql) throws Exception{
 		if (conn.isClosed()) connect();
 		Statement stmt = conn.createStatement();
 		return stmt.executeUpdate(sql);

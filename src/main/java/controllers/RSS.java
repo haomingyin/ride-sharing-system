@@ -16,14 +16,12 @@ public class RSS {
 	private Controller menuController, carController, tripController,
 			giveRideController, routeController, bookRideController;
 
-	private SQLConnector sqlConnector;
-
 	public void initialize() {
 		user = new User();
 		// close all other windows when primary stage is closed
 		pStage.setOnCloseRequest(e -> Platform.exit());
 		pStage.setTitle("UC RSS");
-		sqlConnector = new SQLConnector();
+		SQLConnector sqlConnector = new SQLConnector();
 		sqlConnector.initializeDatabase();
 		showLoginView();
 	}
@@ -191,14 +189,6 @@ public class RSS {
 		this.pStage = pStage;
 	}
 
-	 SQLConnector getSqlConnector() {
-		return sqlConnector;
-	}
-
-	protected void setSqlConnector(SQLConnector sqlConnector) {
-		this.sqlConnector = sqlConnector;
-	}
-
 	protected Controller getMenuController() {
 		return menuController;
 	}
@@ -211,7 +201,7 @@ public class RSS {
 		return carController;
 	}
 
-	 void setCarController(Controller carController) {
+	private void setCarController(Controller carController) {
 		this.carController = carController;
 	}
 
@@ -219,7 +209,7 @@ public class RSS {
 		return tripController;
 	}
 
-	 void setTripController(Controller tripController) {
+	private void setTripController(Controller tripController) {
 		this.tripController = tripController;
 	}
 
@@ -227,7 +217,7 @@ public class RSS {
 		return giveRideController;
 	}
 
-	 void setGiveRideController(Controller giveRideController) {
+	private void setGiveRideController(Controller giveRideController) {
 		this.giveRideController = giveRideController;
 	}
 
@@ -235,7 +225,7 @@ public class RSS {
 		return routeController;
 	}
 
-	 void setRouteController(Controller routeController) {
+	private void setRouteController(Controller routeController) {
 		this.routeController = routeController;
 	}
 
@@ -243,7 +233,8 @@ public class RSS {
 		return bookRideController;
 	}
 
-	 void setBookRideController(Controller bookRideController) {
+
+	private void setBookRideController(Controller bookRideController) {
 		this.bookRideController = bookRideController;
 	}
 }
