@@ -9,15 +9,19 @@ import javafx.stage.Stage;
 import models.database.SQLConnector;
 import models.User;
 
+import java.net.URL;
+
 public class RSS {
 
 	private User user;
 	private Stage pStage;
 	private Controller menuController, carController, tripController,
 			giveRideController, routeController, bookRideController;
+	private String style;
 
 	public void initialize() {
 		user = new User();
+		style = getClass().getResource("/views/style.css").toExternalForm();
 		// close all other windows when primary stage is closed
 		pStage.setOnCloseRequest(e -> Platform.exit());
 		pStage.setTitle("UC RSS");
@@ -91,6 +95,7 @@ public class RSS {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/RouteView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
+			scene.getStylesheets().add(style);
 			Controller Controller = fxmlLoader.getController();
 			setRouteController(Controller);
 			Controller.setRSS(this);
@@ -106,6 +111,7 @@ public class RSS {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/TripView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
+			scene.getStylesheets().add(style);
 			Controller controller = fxmlLoader.getController();
 			setTripController(controller);
 			controller.setRSS(this);
@@ -121,6 +127,7 @@ public class RSS {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GiveRideView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
+			scene.getStylesheets().add(style);
 			Controller controller = fxmlLoader.getController();
 			setGiveRideController(controller);
 			controller.setRSS(this);
@@ -136,6 +143,7 @@ public class RSS {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/BookRideView.fxml"));
 			Parent View = fxmlLoader.load();
 			Scene scene = new Scene(View);
+			scene.getStylesheets().add(style);
 			Controller controller = fxmlLoader.getController();
 			setBookRideController(controller);
 			controller.setRSS(this);

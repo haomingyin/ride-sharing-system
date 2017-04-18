@@ -12,6 +12,9 @@ public class Trip {
 	private SimpleStringProperty alias, username, direction;
 	private SimpleIntegerProperty carId;
 	private LocalDate beginDate, expireDate;
+
+	// properties not existed in database schema
+	private Car car;
 	private Map<Integer, StopPoint> stopPoints;
 
 	public Trip() {
@@ -125,5 +128,13 @@ public class Trip {
 
 	public void setDay(Integer day) {
 		this.day = day;
+	}
+
+	public Car getCar() {
+		return car;
+	}
+
+	public void setCar(Car car) {
+		this.car = car;
 	}
 }

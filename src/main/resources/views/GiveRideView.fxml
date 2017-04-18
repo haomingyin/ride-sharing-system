@@ -16,7 +16,7 @@
                         <Font size="34.0" />
                     </font>
                 </Text>
-            <TabPane layoutX="51.0" layoutY="87.0" prefHeight="700.0" prefWidth="820.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane layoutX="51.0" layoutY="87.0" prefHeight="700.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab fx:id="createTab" text="Create Rides">
                   <content>

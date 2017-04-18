@@ -11,28 +11,28 @@ import java.util.ResourceBundle;
 public class BookRideController extends Controller implements Initializable {
 
 	@FXML
-	private Controller menuController, createRideController;
+	private Controller menuController, searchRideController;
 	@FXML
-	private ViewRideController viewRideController;
+	private BookedRideController bookedRideController;
 	@FXML
 	private Text titleText;
 	@FXML
-	private Tab createTab, viewTab;
+	private Tab bookedTab, searchTab;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		createTab.setOnSelectionChanged(event -> titleText.setText("Create Rides"));
-		viewTab.setOnSelectionChanged(event -> {
-			titleText.setText("Manage Rides");
-			viewRideController.afterSetRSS();
+		searchTab.setOnSelectionChanged(event -> titleText.setText("Search Rides"));
+		bookedTab.setOnSelectionChanged(event -> {
+			titleText.setText("My Rides");
+			bookedRideController.afterSetRSS();
 		});
 	}
 
 	@Override
 	protected void afterSetRSS() {
 		menuController.setRSS(rss);
-		createRideController.setRSS(rss);
-		viewRideController.setRSS(rss);
+		searchRideController.setRSS(rss);
+		bookedRideController.setRSS(rss);
 	}
 
 }

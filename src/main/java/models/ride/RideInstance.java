@@ -10,18 +10,20 @@ public class RideInstance extends Ride {
 	private Integer spId;
 	private StopPoint stopPoint;
 	private User passenger;
-	private SimpleStringProperty status, passengerId, fullAddress, passengerName, time;
+	private SimpleStringProperty status, passengerId, fullAddress, passengerName, time, comment;
 	private SimpleDoubleProperty price;
 
 	public RideInstance() {
 		super();
 		this.status = new SimpleStringProperty();
 		this.passengerId = new SimpleStringProperty();
-		this.price = new SimpleDoubleProperty();
+		this.price = new SimpleDoubleProperty(0);
 		this.fullAddress = new SimpleStringProperty();
 		this.passengerName = new SimpleStringProperty();
 		this.time = new SimpleStringProperty();
+		this.comment = new SimpleStringProperty();
 	}
+
 	public Integer getSpId() {
 		return spId;
 	}
@@ -122,5 +124,17 @@ public class RideInstance extends Ride {
 
 	public void setTime(String time) {
 		this.time.set(time);
+	}
+
+	public String getComment() {
+		return comment.get();
+	}
+
+	public SimpleStringProperty commentProperty() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment.set(comment);
 	}
 }

@@ -6,57 +6,55 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.SearchRideController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BookedRideController">
     <children>
         <AnchorPane prefHeight="660.0" prefWidth="820.0">
             <children>
-                <TableView fx:id="table" layoutX="20.0" layoutY="335.0" prefHeight="312.0" prefWidth="788.0">
+                <TableView fx:id="table" layoutX="20.0" layoutY="304.0" prefHeight="343.0" prefWidth="788.0">
                     <columns>
-                        <TableColumn fx:id="addressCol" prefWidth="260.0" text="Stop Point" />
-                        <TableColumn fx:id="directionCol" prefWidth="97.0" text="Direction" />
-                        <TableColumn fx:id="dateCol" prefWidth="98.0" text="Date" />
-                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="98.0" text="Time" />
-                        <TableColumn fx:id="seatCol" prefWidth="78.0" text="Seats Left" />
-                  <TableColumn fx:id="actionCol" prefWidth="138.0" text="Action" />
+                        <TableColumn fx:id="addressCol" prefWidth="262.0" text="Stop Point" />
+                        <TableColumn fx:id="directionCol" prefWidth="87.0" text="Direction" />
+                        <TableColumn fx:id="dateCol" prefWidth="84.0" text="Date" />
+                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="77.0" text="Time" />
+                        <TableColumn fx:id="statusCol" prefWidth="139.0" text="Status" />
+                  <TableColumn fx:id="actionCol" prefWidth="120.0" text="Action" />
                     </columns>
                 </TableView>
-            <GridPane layoutX="32.0" layoutY="14.0" prefHeight="312.0" prefWidth="344.0">
+            <GridPane layoutX="32.0" layoutY="14.0" prefHeight="287.0" prefWidth="336.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Begin Date" GridPane.rowIndex="3">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Begin Date" GridPane.rowIndex="2">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Direction" GridPane.rowIndex="1">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Direction">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <DatePicker fx:id="beginDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <DatePicker fx:id="endDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <CheckBox fx:id="toUCCheckBox" mnemonicParsing="false" selected="true" text="To UC" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="fromUCCheckBox" mnemonicParsing="false" selected="true" text="From UC" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Stop Point">
+                  <DatePicker fx:id="beginDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <DatePicker fx:id="endDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <CheckBox fx:id="toUCCheckBox" mnemonicParsing="false" selected="true" text="To UC" GridPane.columnIndex="1" />
+                  <CheckBox fx:id="fromUCCheckBox" mnemonicParsing="false" selected="true" text="From UC" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="End Date" GridPane.rowIndex="3">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <TextField maxWidth="260.0" GridPane.columnIndex="1" GridPane.columnSpan="3" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="End Date" GridPane.rowIndex="4">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Status" GridPane.rowIndex="4">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Text>
-                  <Button fx:id="searchBtn" mnemonicParsing="false" prefHeight="27.0" prefWidth="99.0" text="Search" GridPane.rowIndex="5">
-                     <font>
-                        <Font size="15.0" />
-                     </font>
-                  </Button>
+                  <CheckBox fx:id="bookedCheckBox" mnemonicParsing="false" selected="true" text="Booked" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <CheckBox fx:id="cancelledCheckBox" mnemonicParsing="false" selected="true" text="Cancelled" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <CheckBox fx:id="doneCheckBox" mnemonicParsing="false" selected="true" text="Done" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                </children>
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.0" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="204.0" minWidth="10.0" prefWidth="146.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.0" minWidth="10.0" prefWidth="90.0" />
+                  <ColumnConstraints />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -65,9 +63,9 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
             </GridPane>
-            <WebView fx:id="mapWebView" layoutX="398.0" layoutY="23.0" prefHeight="294.0" prefWidth="407.0" />
             </children>
         </AnchorPane>
     </children>

@@ -11,34 +11,27 @@ public class Ride {
 	private SimpleIntegerProperty seatNo;
 
 	// properties don't belong to ride database schema
-	private SimpleIntegerProperty seatBooked;
-	private SimpleStringProperty direction;
+	private SimpleIntegerProperty seatBooked, seatLeft;
 	private Trip trip;
 
 	public Ride() {
-		this.rideId = null;
-		this.tripId = null;
 		this.alias = new SimpleStringProperty();
-		this.seatNo = new SimpleIntegerProperty();
+		this.seatNo = new SimpleIntegerProperty(0);
 		this.date = new SimpleStringProperty();
 		this.username = new SimpleStringProperty();
 
-		this.trip = null;
-		this.direction = new SimpleStringProperty();
-		this.seatBooked = new SimpleIntegerProperty();
+		this.seatBooked = new SimpleIntegerProperty(0);
+		this.seatLeft = new SimpleIntegerProperty(0);
 	}
 
 	public void setRide(Ride ride) {
+		// only properties in ride database schema will be overwritten
 		this.rideId = ride.getRideId();
 		this.tripId = ride.getTripId();
 		setAlias(ride.getAlias());
 		setSeatNo(ride.getSeatNo());
 		setDate(ride.getDate());
 		setUsername(ride.getUsername());
-
-		this.trip = ride.getTrip();
-		setDirection(ride.getDirection());
-		setSeatBooked(ride.getSeatBooked());
 	}
 
 	@Override
@@ -130,15 +123,17 @@ public class Ride {
 		this.seatBooked.set(seatBooked);
 	}
 
-	public String getDirection() {
-		return direction.get();
+	public int getSeatLeft() {
+		setSeatLeft(getSeatNo() - getSeatBooked());
+		return seatLeft.get();
 	}
 
-	public SimpleStringProperty directionProperty() {
-		return direction;
+	public SimpleIntegerProperty seatLeftProperty() {
+		setSeatLeft(getSeatNo() - getSeatBooked());
+		return seatLeft;
 	}
 
-	public void setDirection(String direction) {
-		this.direction.set(direction);
+	public void setSeatLeft(int seatLeft) {
+		this.seatLeft.set(seatLeft);
 	}
 }

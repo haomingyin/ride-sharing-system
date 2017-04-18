@@ -2,51 +2,100 @@ package models.ride;
 
 import models.Trip;
 
+import javax.swing.text.html.ListView;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RideFilter {
 
 	private LocalDate beginDate, endDate;
 	private Boolean toUC, fromUC;
-	private String spRequest;
+	private String spRequest, username;
 
-	public LocalDate getBeginDate() {
-		return beginDate;
+	public RideFilter() {
+		toUC = false;
+		fromUC = false;
+	}
+
+	public String getQuery() {
+		List<String> rawList = new ArrayList<>();
+		rawList.add(getBeginDate());
+		rawList.add(getEndDate());
+		rawList.add(getDirection());
+		rawList.add(getSpRequest());
+		rawList.add(getUsername());
+
+		List<String> noNullList = new ArrayList<>();
+
+		for (String string : rawList) {
+			if (string != null) {
+				noNullList.add(string);
+			}
+		}
+		if (noNullList.isEmpty()) return null;
+
+		return String.join(" AND ", noNullList);
+	}
+
+	public Boolean isValid() {
+		// if both toUC and fromUC are false, then no need to query
+		return (toUC || fromUC);
+	}
+
+	private String getUsername() {
+		return username != null ? "username != '" + username + "'" : null;
+	}
+	private String getBeginDate() {
+		return beginDate != null ? "rideDate >= '" + beginDate.toString() + "'" : null;
+	}
+
+	private String getEndDate() {
+		return endDate != null ? "rideDate <= '" + endDate.toString() + "'": null;
+	}
+
+	private String getDirection() {
+		if (toUC && fromUC) {
+			return null;
+		} else if (toUC) {
+			return "direction = 'To UC'";
+		} else if (fromUC) {
+			return "direction = 'From UC'";
+		}
+		return null;
+	}
+
+	private String getSpRequest() {
+		if (spRequest == null) {
+			return "trimmed LIKE '%'";
+		} else {
+			String request = "%" + spRequest + "%";
+			request = request.toLowerCase().replaceAll("[^a-z0-9+]", "%");
+			return "trimmed LIKE '" + request + "'";
+		}
 	}
 
 	public void setBeginDate(LocalDate beginDate) {
 		this.beginDate = beginDate;
 	}
 
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-
 	public void setEndDate(LocalDate endDate) {
 		this.endDate = endDate;
-	}
-
-	public Boolean getToUC() {
-		return toUC;
 	}
 
 	public void setToUC(Boolean toUC) {
 		this.toUC = toUC;
 	}
 
-	public Boolean getFromUC() {
-		return fromUC;
-	}
-
 	public void setFromUC(Boolean fromUC) {
 		this.fromUC = fromUC;
 	}
 
-	public String getSpRequest() {
-		return spRequest;
-	}
-
 	public void setSpRequest(String spRequest) {
 		this.spRequest = spRequest;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }

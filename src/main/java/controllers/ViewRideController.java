@@ -1,5 +1,6 @@
 package controllers;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -96,7 +97,26 @@ public class ViewRideController extends Controller implements Initializable {
 
 			tripCol.setCellValueFactory(new PropertyValueFactory<>("alias"));
 			dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
-			directionCol.setCellValueFactory(new PropertyValueFactory<>("direction"));
+			directionCol.setCellFactory(new Callback<TableColumn<Ride, String>, TableCell<Ride, String>>() {
+				@Override
+				public TableCell<Ride, String> call(TableColumn<Ride, String> param) {
+					return new TableCell<Ride, String>(){
+
+						@Override
+						public void updateItem(String item, boolean empty) {
+							super.updateItem(item, empty);
+
+							setText(null);
+							setGraphic(null);
+							if (!empty) {
+								Ride ride = getTableView().getItems().get(getIndex());
+								setText(ride.getTrip().getDirection());
+							}
+
+						}
+					};
+				}
+			});
 			seatNoCol.setCellValueFactory(new PropertyValueFactory<>("seatNo"));
 			seatBookedCol.setCellValueFactory(new PropertyValueFactory<>("seatBooked"));
 			actionRideCol.setCellFactory(new Callback<TableColumn<Ride, String>, TableCell<Ride, String>>() {
@@ -177,8 +197,6 @@ public class ViewRideController extends Controller implements Initializable {
 				});
 				passengerTable.setItems(rideInstanceObservableList);
 			}
-		} else {
-			passengerPane.setVisible(false);
 		}
 	}
 
@@ -224,7 +242,6 @@ public class ViewRideController extends Controller implements Initializable {
 		if (trip.getStopPoints() == null)
 			trip.setStopPoints(SQLExecutor.fetchStopPointsByTrip(trip));
 		for (RideInstance rs : rideInstances) {
-			rs.setRide(ride);
 			rs.setStopPoint(trip.getStopPoints().get(rs.getSpId()));
 		}
 	}
@@ -268,16 +285,4 @@ public class ViewRideController extends Controller implements Initializable {
 		return filteredRides;
 	}
 
-//	private RideFilter getRideFilter() {
-//		RideFilter rideFilter = new RideFilter();
-//		rideFilter.setAllTrips(allTripsToggle.isSelected());
-//		rideFilter.setTrip(tripComboBox.getValue());
-//		rideFilter.setBeginDate(beginDatePicker.getValue());
-//		rideFilter.setEndDate(endDatePicker.getValue());
-//		rideFilter.setToUC(toUCCheckBox.isSelected());
-//		rideFilter.setFromUC(fromUCCheckBox.isSelected());
-//		rideFilter.setPassenger(passengerCheckBox.isSelected());
-//		rideFilter.setPassenger(noPassengerCheckBox.isSelected());
-//		return rideFilter;
-//	}
 }

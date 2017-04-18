@@ -16,14 +16,14 @@
                         <Font size="34.0" />
                     </font>
                 </Text>
-            <TabPane layoutX="51.0" layoutY="87.0" prefHeight="700.0" prefWidth="820.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane layoutX="51.0" layoutY="87.0" prefHeight="700.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                <Tab fx:id="createTab" text="Search Rides">
+                <Tab fx:id="searchTab" text="Search Rides">
                   <content>
                       <fx:include fx:id="searchRide" source="SearchRideView.fxml" />
                   </content>
                 </Tab>
-                <Tab fx:id="viewTab" text="Booked Rides">
+                <Tab fx:id="bookedTab" text="Booked Rides">
                     <content>
                         <fx:include fx:id="bookedRide" source="BookedRideView.fxml" />
                     </content>
