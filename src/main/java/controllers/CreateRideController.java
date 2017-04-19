@@ -7,7 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import models.Car;
-import models.StopPoint;
+import models.position.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
 import models.ride.Ride;

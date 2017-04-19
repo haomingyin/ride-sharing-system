@@ -1,13 +1,13 @@
 package models.database;
 
 import models.*;
+import models.position.StopPoint;
 import models.ride.Ride;
 import models.ride.RideFilter;
 import models.ride.RideInstance;
 import models.User;
 import org.sqlite.SQLiteException;
 
-import javax.xml.transform.Result;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -858,30 +858,38 @@ public class SQLExecutor {
 	/**
 	 * Updates a give ride instance
 	 * @param rideInstance the instance should be updated
-	 * @param type the update type, 0 for done, 1 for driver cancel, 2 for passenger cancel
+	 * @param type the update type, 0 for done, 1 for driver cancel, 2 for
+	 *             passenger cancel, 3 for re-book the ride
 	 * @return 1 for success, 0 for fail
 	 */
 	public static int updateRideByRideInstance(RideInstance rideInstance, int type) {
 		try {
 			connectDB();
 			String sql = "UPDATE ride_passenger " +
-					"SET status = ?, comment = ? " +
+					"SET status = ?, comment = ?, spId = ? " +
 					"WHERE rideId = ? AND username = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
+			pstmt.setString(2, rideInstance.getComment());
+			pstmt.setInt(3, rideInstance.getSpId());
+			pstmt.setInt(4, rideInstance.getRideId());
+			pstmt.setString(5, rideInstance.getPassengerId());
+
 			switch (type) {
-				case 0: pstmt.setString(1, "Done");
+				case 0:
+					pstmt.setString(1, "Done");
 					break;
-				case 1: pstmt.setString(1, "Driver Cancelled");
+				case 1:
+					pstmt.setString(1, "Driver Cancelled");
 					break;
-				case 2: pstmt.setString(1, "Passenger Cancelled");
+				case 2:
+					pstmt.setString(1, "Passenger Cancelled");
+					break;
+				case 3:
+					pstmt.setString(1, "Booked");
 					break;
 				default: return 0;
 			}
-
-			pstmt.setString(2, rideInstance.getComment());
-			pstmt.setInt(3, rideInstance.getRideId());
-			pstmt.setString(4, rideInstance.getPassengerId());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -919,8 +927,6 @@ public class SQLExecutor {
 
 			if (rideFilter.isValid()) {
 				sql += "WHERE " + rideFilter.getQuery();
-
-				System.out.println("Print sql query for analysis and performance improvement:\n     " + sql);
 			} else {
 				return null;
 			}
@@ -933,6 +939,7 @@ public class SQLExecutor {
 				ri.setRideId(rs.getInt("rideId"));
 				ri.setTripId(rs.getInt("tripId"));
 				ri.setSpId(rs.getInt("spId"));
+				ri.setSeatBooked(rs.getInt("seatBooked"));
 
 				StopPoint sp = new StopPoint();
 				sp.setSpId(rs.getInt("spId"));

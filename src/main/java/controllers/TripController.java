@@ -9,7 +9,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import models.Car;
 import models.Route;
-import models.StopPoint;
+import models.position.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
 import org.sqlite.SQLiteException;

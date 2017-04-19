@@ -2,7 +2,7 @@ package models.ride;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import models.StopPoint;
+import models.position.StopPoint;
 import models.User;
 
 public class RideInstance extends Ride {

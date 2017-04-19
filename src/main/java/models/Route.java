@@ -2,6 +2,7 @@ package models;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import models.position.StopPoint;
 
 import java.util.HashMap;
 import java.util.Map;

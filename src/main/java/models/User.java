@@ -15,7 +15,7 @@ public class User {
 
 	public User() {
 		this.name = new SimpleStringProperty();
-	};
+	}
 
 	public void setUser(User user) {
 		this.username = user.getUsername();
@@ -158,7 +158,7 @@ public class User {
 		return name;
 	}
 
-	public void setName(String name) {
+	private void setName(String name) {
 		this.name.set(name);
 	}
 }

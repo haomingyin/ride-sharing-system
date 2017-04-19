@@ -11,7 +11,9 @@ import java.util.ResourceBundle;
 public class BookRideController extends Controller implements Initializable {
 
 	@FXML
-	private Controller menuController, searchRideController;
+	private Controller menuController;
+	@FXML
+	private SearchRideController searchRideController;
 	@FXML
 	private BookedRideController bookedRideController;
 	@FXML
@@ -21,7 +23,10 @@ public class BookRideController extends Controller implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		searchTab.setOnSelectionChanged(event -> titleText.setText("Search Rides"));
+		searchTab.setOnSelectionChanged(event -> {
+			titleText.setText("Search Rides");
+			searchRideController.afterSetRSS();
+		});
 		bookedTab.setOnSelectionChanged(event -> {
 			titleText.setText("My Rides");
 			bookedRideController.afterSetRSS();

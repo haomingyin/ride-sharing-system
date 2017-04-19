@@ -6,6 +6,7 @@ import controllers.RSS;
 
 
 /**
+ * RSS system app entry point.
  * Created by Haoming Yin on 7/03/17.
  */
 public class App extends Application {

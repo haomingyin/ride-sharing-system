@@ -6,21 +6,21 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BookedRideController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BookedRideController">
     <children>
-        <AnchorPane prefHeight="660.0" prefWidth="820.0">
+        <AnchorPane prefHeight="660.0" prefWidth="880.0">
             <children>
-                <TableView fx:id="table" layoutX="20.0" layoutY="304.0" prefHeight="343.0" prefWidth="788.0">
+                <TableView fx:id="table" layoutX="14.0" layoutY="303.0" prefHeight="343.0" prefWidth="851.0">
                     <columns>
-                        <TableColumn fx:id="addressCol" prefWidth="262.0" text="Stop Point" />
-                        <TableColumn fx:id="directionCol" prefWidth="87.0" text="Direction" />
-                        <TableColumn fx:id="dateCol" prefWidth="84.0" text="Date" />
-                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="77.0" text="Time" />
-                        <TableColumn fx:id="statusCol" prefWidth="139.0" text="Status" />
-                  <TableColumn fx:id="actionCol" prefWidth="120.0" text="Action" />
+                        <TableColumn fx:id="addressCol" prefWidth="315.0" text="Stop Point" />
+                        <TableColumn fx:id="directionCol" prefWidth="83.0" text="Direction" />
+                        <TableColumn fx:id="dateCol" prefWidth="86.0" text="Date" />
+                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="92.0" text="Time" />
+                        <TableColumn fx:id="statusCol" prefWidth="148.0" text="Status" />
+                  <TableColumn fx:id="actionCol" prefWidth="109.0" text="Action" />
                     </columns>
                 </TableView>
-            <GridPane layoutX="32.0" layoutY="14.0" prefHeight="287.0" prefWidth="336.0">
+            <GridPane layoutX="14.0" prefHeight="287.0" prefWidth="336.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Begin Date" GridPane.rowIndex="2">
                      <font>

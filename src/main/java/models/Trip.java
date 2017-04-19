@@ -2,6 +2,7 @@ package models;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import models.position.StopPoint;
 
 import java.time.LocalDate;
 import java.util.Map;

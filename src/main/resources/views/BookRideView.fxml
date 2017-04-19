@@ -11,12 +11,12 @@
     <children>
         <AnchorPane layoutX="282.0" prefHeight="800.0" prefWidth="918.0">
             <children>
-                <Text fx:id="titleText" layoutX="51.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides">
+                <Text fx:id="titleText" layoutX="23.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Book Rides">
                     <font>
                         <Font size="34.0" />
                     </font>
                 </Text>
-            <TabPane layoutX="51.0" layoutY="87.0" prefHeight="700.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane layoutX="23.0" layoutY="86.0" prefHeight="700.0" prefWidth="880.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab fx:id="searchTab" text="Search Rides">
                   <content>
