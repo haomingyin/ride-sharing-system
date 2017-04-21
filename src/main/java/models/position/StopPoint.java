@@ -2,6 +2,9 @@ package models.position;
 
 import javafx.beans.property.SimpleStringProperty;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class StopPoint extends Position {
 
 	private int spId;
@@ -19,6 +22,12 @@ public class StopPoint extends Position {
 	@Override
 	public String toString() {
 		return String.format("%s %s, %s, %s", streetNo.get(), street.get(), suburb.get(), city.get());
+	}
+
+	public LocalTime getLocalTime() {
+		if (!time.get().equals("null"))
+			return LocalTime.parse(time.get(), DateTimeFormatter.ofPattern("KK:mm a"));
+		return null;
 	}
 
 	public int getSpId() {

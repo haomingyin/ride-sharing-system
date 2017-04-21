@@ -1,14 +1,20 @@
 package models.position;
 
+import javafx.beans.property.SimpleDoubleProperty;
+
 public class Position {
 
-	private Double lat, lng, distance;
+	private Double lat, lng;
+	private SimpleDoubleProperty distance;
 
-	public Position(){};
+	public Position(){
+		this.distance = new SimpleDoubleProperty();
+	}
 
 	public Position(double lat, double lng) {
 		this.lat = lat;
 		this.lng = lng;
+		this.distance = new SimpleDoubleProperty();
 	}
 
 	public static Position getUniPosition() {
@@ -33,11 +39,15 @@ public class Position {
 		this.lng = lng;
 	}
 
-	public Double getDistance() {
+	public double getDistance() {
+		return distance.get();
+	}
+
+	public SimpleDoubleProperty distanceProperty() {
 		return distance;
 	}
 
-	public void setDistance(Double distance) {
-		this.distance = distance;
+	public void setDistance(double distance) {
+		this.distance.set(distance);
 	}
 }

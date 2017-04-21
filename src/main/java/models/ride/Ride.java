@@ -3,6 +3,9 @@ package models.ride;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import models.Trip;
+import models.User;
+
+import java.time.LocalDate;
 
 public class Ride {
 
@@ -13,13 +16,14 @@ public class Ride {
 	// properties don't belong to ride database schema
 	private SimpleIntegerProperty seatBooked, seatLeft;
 	private Trip trip;
+	private User driver;
 
 	public Ride() {
 		this.alias = new SimpleStringProperty();
 		this.seatNo = new SimpleIntegerProperty(0);
 		this.date = new SimpleStringProperty();
 		this.username = new SimpleStringProperty();
-		this.rideStatus = new SimpleStringProperty();
+		this.rideStatus = new SimpleStringProperty(Status.NULL.toString());
 
 		this.seatBooked = new SimpleIntegerProperty(0);
 		this.seatLeft = new SimpleIntegerProperty(0);
@@ -89,6 +93,10 @@ public class Ride {
 		this.tripId = tripId;
 	}
 
+	public LocalDate getLocalDate() {
+		return LocalDate.parse(date.get());
+	}
+
 	public String getDate() {
 		return date.get();
 	}
@@ -149,5 +157,13 @@ public class Ride {
 
 	public void setRideStatus(String rideStatus) {
 		this.rideStatus.set(rideStatus);
+	}
+
+	public User getDriver() {
+		return driver;
+	}
+
+	public void setDriver(User driver) {
+		this.driver = driver;
 	}
 }

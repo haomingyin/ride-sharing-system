@@ -7,10 +7,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.web.WebView;
 import javafx.util.Callback;
 import models.Route;
-import models.position.StopPoint;
 import models.database.SQLExecutor;
+import models.position.StopPoint;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.sqlite.SQLiteException;
@@ -34,18 +35,24 @@ public class RouteController extends Controller implements Initializable {
 	@FXML
 	private GridPane addRoutePane, addSPPane, routesPane;
 	@FXML
+	private WebView webView;
+	@FXML
 	private TableView<StopPoint> SPTable;
+	@FXML
+	private TableColumn<StopPoint, Double> distanceCol;
 	@FXML
 	private TableColumn<StopPoint, String> streetNoCol, streetCol, suburbCol, cityCol;
 
 	private enum Mode {UPDATE_MODE, ADD_MODE}
 	private Mode mode;
+	private MapHandler mapHandler;
 
 	private Map<Integer, StopPoint> stopPoints;
 	private Map<Integer, Route> routes;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		mapHandler = new MapHandler(webView.getEngine());
 		stopPoints = new HashMap<>();
 		routes = new HashMap<>();
 
@@ -58,8 +65,8 @@ public class RouteController extends Controller implements Initializable {
 		addRouteBtn.setOnAction(event -> clickAddRouteBtn());
 		addSPBtn.setOnAction(event -> clickAddSPBtn());
 		deleteBtn.setOnAction(event -> clickDeleteBtn());
-		updateModeRbtn.setOnAction(event -> {mode = Mode.UPDATE_MODE; loadRouteDetail();});
-		addModeRbtn.setOnAction(event -> {mode = Mode.ADD_MODE; loadRouteDetail();});
+		updateModeRbtn.setOnAction(event -> {mode = Mode.UPDATE_MODE; loadRouteDetail(); mapHandler.clearMarkers();});
+		addModeRbtn.setOnAction(event -> {mode = Mode.ADD_MODE; loadRouteDetail(); mapHandler.clearMarkers();});
 
 		// autocomplete address finder
 		TextFields.bindAutoCompletion(addressField, new Callback<AutoCompletionBinding.ISuggestionRequest, Collection<StopPoint>>() {
@@ -67,6 +74,7 @@ public class RouteController extends Controller implements Initializable {
 				return SQLExecutor.fetchStopPointsByString(param.getUserText(), 6).values();
 			}
 		}).setPrefWidth(315);
+
 	}
 
 	@Override
@@ -92,7 +100,6 @@ public class RouteController extends Controller implements Initializable {
 		routeComboBox.getItems().clear();
 		ObservableList<Route> routeObservableList = FXCollections.observableList(new ArrayList<>(routes.values()));
 		routeComboBox.setItems(routeObservableList);
-		routeComboBox.getSelectionModel().selectLast();
 	}
 
 	/**
@@ -103,7 +110,7 @@ public class RouteController extends Controller implements Initializable {
 			addRouteMode();
 		} else {
 			updateRouteMode();
-			fillSPTable();
+			fillALlFields();
 		}
 	}
 
@@ -115,6 +122,7 @@ public class RouteController extends Controller implements Initializable {
 		SPTable.getItems().clear();
 		aliasField.clear();
 
+		addRoutePane.setVisible(true);
 		routesPane.setDisable(true);
 		addSPPane.setVisible(false);
 		addRouteBtn.setText("Create");
@@ -130,33 +138,44 @@ public class RouteController extends Controller implements Initializable {
 		addSPPane.setVisible(true);
 		addRouteBtn.setText("Rename Alias");
 
-		fillALlFields();
+		if (routeComboBox.getValue() == null) {
+			addSPPane.setVisible(false);
+			addRoutePane.setVisible(false);
+			deleteBtn.setDisable(true);
+		} else {
+			addSPPane.setVisible(true);
+			addRoutePane.setVisible(true);
+			deleteBtn.setDisable(false);
+		}
+		SPTable.getItems().clear();
 	}
 
 	private void fillALlFields() {
 		Route route = routeComboBox.getValue();
-		aliasField.setText(route.getAlias());
-		fillSPTable();
+		if (route != null) {
+			aliasField.setText(route.getAlias());
+			fillSPTable();
+		}
 	}
 
 	/**
 	 * IMPORTANT!! add sp details into table view
 	 */
 	private void fillSPTable() {
-		fetchStopPoints();
-		SPTable.getItems().clear();
-		ObservableList<StopPoint> stopPointObservableList =
-				FXCollections.observableList(new ArrayList<>(stopPoints.values()));
-
-		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
-		streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
-		suburbCol.setCellValueFactory(new PropertyValueFactory<>("suburb"));
-		cityCol.setCellValueFactory(new PropertyValueFactory<>("city"));
-		SPTable.setItems(stopPointObservableList);
-	}
-
-	private void fetchStopPoints() {
 		stopPoints = SQLExecutor.fetchStopPointsByRoute(routeComboBox.getValue());
+		if (stopPoints != null) {
+			mapHandler.drawMarkers(new ArrayList<>(stopPoints.values()));
+			SPTable.getItems().clear();
+			ObservableList<StopPoint> stopPointObservableList =
+					FXCollections.observableList(new ArrayList<>(stopPoints.values()));
+
+			streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
+			streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
+			suburbCol.setCellValueFactory(new PropertyValueFactory<>("suburb"));
+			cityCol.setCellValueFactory(new PropertyValueFactory<>("city"));
+			distanceCol.setCellValueFactory(new PropertyValueFactory<>("distance"));
+			SPTable.setItems(stopPointObservableList);
+		}
 	}
 
 	private void clickAddRouteBtn() {
@@ -189,22 +208,32 @@ public class RouteController extends Controller implements Initializable {
 		String address = addressField.getText().toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "");
 		List<StopPoint> sp = new ArrayList<>(SQLExecutor.fetchStopPointsByString(address, 2).values());
 
-		int result;
+		int result = 0;
 		String errorMsg;
 		if (sp.size() == 1) {
 			try {
-				if ((result = SQLExecutor.addStopPointIntoRoute(routeComboBox.getValue(), sp.get(0))) == 1) {
-					fillSPTable();
+				Double distance = mapHandler.getDistance(sp.get(0));
+				if (distance != null) {
+					sp.get(0).setDistance(distance);
+					result = SQLExecutor.updateStopPointDistance(sp.get(0));
+				}
+
+				if (result != 1) {
+					errorMsg = "Failed to connect to Google server for retrieving distance. Please try again.";
+					rss.showWarningDialog("Operation Failed!", errorMsg);
 				} else {
-					// if a route has been used for a trip sql executor will return -1.
-					if (result == -1) {
-						errorMsg = "A route that has been used for trips cannot add any new stop point.\n";
+
+					if ((result = SQLExecutor.addStopPointIntoRoute(routeComboBox.getValue(), sp.get(0))) == 1) {
+						fillSPTable();
 					} else {
-						errorMsg = "Your stop point address is an invalid Christchurch address.\n";
-						if (sp.size() > 1)
-							errorMsg = "The entered address is not precise enough.\n";
+						// if a route has been used for a trip sql executor will return -1.
+						if (result == -1) {
+							errorMsg = "A route that has been used for trips cannot add any new stop point.\n";
+						} else {
+							errorMsg = "Your stop point address is an invalid Christchurch address.\n";
+						}
+						rss.showErrorDialog("Operation Failed!", errorMsg);
 					}
-					rss.showErrorDialog("Operation Failed!", errorMsg);
 				}
 			} catch (SQLiteException e) {
 				if (e.getResultCode().code == 1555) {
@@ -212,6 +241,9 @@ public class RouteController extends Controller implements Initializable {
 					rss.showErrorDialog("Operation Failed!", errorMsg);
 				}
 			}
+		} else {
+			errorMsg = "The entered address is not precise enough.\n";
+			rss.showErrorDialog("Operation Failed!", errorMsg);
 		}
 	}
 
@@ -237,7 +269,6 @@ public class RouteController extends Controller implements Initializable {
 			}
 			rss.showErrorDialog("Deletion Failed!", errorMsg);
 		}
-
 	}
 }
 

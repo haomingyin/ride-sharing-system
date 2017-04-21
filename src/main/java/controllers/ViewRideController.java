@@ -20,6 +20,7 @@ import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 public class ViewRideController extends Controller implements Initializable {
@@ -93,26 +94,7 @@ public class ViewRideController extends Controller implements Initializable {
 
 			tripCol.setCellValueFactory(new PropertyValueFactory<>("alias"));
 			dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
-			directionCol.setCellFactory(new Callback<TableColumn<Ride, String>, TableCell<Ride, String>>() {
-				@Override
-				public TableCell<Ride, String> call(TableColumn<Ride, String> param) {
-					return new TableCell<Ride, String>() {
-
-						@Override
-						public void updateItem(String item, boolean empty) {
-							super.updateItem(item, empty);
-
-							setText(null);
-							setGraphic(null);
-							if (!empty) {
-								Ride ride = getTableView().getItems().get(getIndex());
-								setText(ride.getTrip().getDirection());
-							}
-
-						}
-					};
-				}
-			});
+			directionCol.setCellValueFactory(cell -> cell.getValue().getTrip().directionProperty());
 			seatNoCol.setCellValueFactory(new PropertyValueFactory<>("seatNo"));
 			seatBookedCol.setCellValueFactory(new PropertyValueFactory<>("seatBooked"));
 			rideStatusCol.setCellValueFactory(new PropertyValueFactory<>("rideStatus"));
@@ -159,7 +141,7 @@ public class ViewRideController extends Controller implements Initializable {
 
 				addressCol.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
 				timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
-				passengerCol.setCellValueFactory(new PropertyValueFactory<>("passengerName"));
+				passengerCol.setCellValueFactory(cell -> cell.getValue().getPassenger().nameProperty());
 				statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 				actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 					@Override
@@ -180,7 +162,6 @@ public class ViewRideController extends Controller implements Initializable {
 
 									RideInstance rideInstance = getTableView().getItems().get(getIndex());
 									if (!Status.BOOKED.equals(rideInstance.getStatus())) {
-										cancelBtn.setText("Cancelled");
 										cancelBtn.setDisable(true);
 									}
 
@@ -230,53 +211,81 @@ public class ViewRideController extends Controller implements Initializable {
 //	}
 
 	private void clickCancelRideBtn(Ride ride, Button btn) {
-		String comment = showInputDialog();
-
-		if (comment != null && comment.length() <= 20) {
-			rss.showErrorDialog("Cancellation Failed!",
-					"Please enter at least 20 characters for your reason.");
-		} else {
-			List<RideInstance> rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
-			if (rideInstances != null) {
-				for (RideInstance ri : rideInstances) {
-					if (!Status.CANCELLED.equals(ri.getStatus())) {
-						ri.setComment(comment);
-						SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER);
-						sendNotification(ri);
-					}
+		List<RideInstance> rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
+		boolean confirmed = true;
+		// if there is a single ride going to be cancelled less than 2 hours,
+		// then need to show confirmation dialog
+		if (rideInstances != null) {
+			for (RideInstance ri : rideInstances) {
+				if ((LocalDate.now().isEqual(ri.getLocalDate())
+						&& LocalTime.now().isAfter(ri.getStopPoint().getLocalTime().minusHours(2)))
+						|| LocalDate.now().isAfter(ri.getLocalDate())) {
+					confirmed = false;
 				}
-			}
-			if (SQLExecutor.updateRide(ride, Status.CANCELLED) == 1) {
-				btn.setDisable(true);
-				loadPassengerTable();
-				rss.showInformationDialog("Cancellation Succeeded!",
-						"You have cancelled this ride.");
-				ride.setRideStatus(Status.CANCELLED.toString());
-			} else {
-				rss.showErrorDialog("Cancellation Failed!",
-						"Please try again or contact the administrator.");
 			}
 		}
 
+		if (!confirmed) confirmed = showConfirmationDialog();
+
+		if (confirmed) {
+			String comment = showInputDialog();
+
+			if (comment != null && comment.length() <= 20) {
+				rss.showErrorDialog("Cancellation Failed!",
+						"Please enter at least 20 characters for your reason.");
+			} else if (comment != null){
+
+				if (rideInstances != null) {
+					for (RideInstance ri : rideInstances) {
+						if (!Status.CANCELLED.equals(ri.getStatus())) {
+							ri.setComment(comment);
+							SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER);
+							sendNotification(ri);
+						}
+					}
+				}
+				if (SQLExecutor.updateRide(ride, Status.CANCELLED) == 1) {
+					btn.setDisable(true);
+					rss.showInformationDialog("Cancellation Succeeded!",
+							"You have cancelled this ride.");
+					ride.setRideStatus(Status.CANCELLED.toString());
+					loadPassengerTable();
+				} else {
+					rss.showErrorDialog("Cancellation Failed!",
+							"Please try again or contact the administrator.");
+				}
+			}
+		}
 	}
 
 	private void clickCancelRIBtn(RideInstance ri, Button btn) {
-		String comment = showInputDialog();
 
-		if (comment != null && comment.length() <= 20) {
-			rss.showErrorDialog("Cancellation Failed!",
-					"Please enter at least 20 characters for your reason.");
-		} else {
-			ri.setComment(comment);
-			if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER) == 1) {
-				btn.setDisable(true);
-				sendNotification(ri);
-				rss.showInformationDialog("Cancellation Succeeded!",
-						"You have cancelled this ride.");
-				ri.setRideStatus(Status.CANCELLED_BY_DRIVER.toString());
-			} else {
+		boolean confirmed = true;
+		// check if now is 2 hours before the ride scheduled time
+		if ((LocalDate.now().isEqual(ri.getLocalDate())
+				&& LocalTime.now().isAfter(ri.getStopPoint().getLocalTime().minusHours(2)))
+				|| LocalDate.now().isAfter(ri.getLocalDate())) {
+			confirmed = showConfirmationDialog();
+		}
+
+		if (confirmed) {
+			String comment = showInputDialog();
+
+			if (comment != null && comment.length() <= 20) {
 				rss.showErrorDialog("Cancellation Failed!",
-						"Please try again or contact the administrator.");
+						"Please enter at least 20 characters for your reason.");
+			} else if (comment != null) {
+				ri.setComment(comment);
+				if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER) == 1) {
+					btn.setDisable(true);
+					sendNotification(ri);
+					rss.showInformationDialog("Cancellation Succeeded!",
+							"You have cancelled this ride.");
+					ri.setRideStatus(Status.CANCELLED_BY_DRIVER.toString());
+				} else {
+					rss.showErrorDialog("Cancellation Failed!",
+							"Please try again or contact the administrator.");
+				}
 			}
 		}
 	}
@@ -335,8 +344,16 @@ public class ViewRideController extends Controller implements Initializable {
 		dialog.setHeaderText("Please enter the reason for cancelling this ride.");
 
 		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()) return result.get();
-		return null;
+		return result.isPresent() ? result.get() : null;
+	}
+
+	private boolean showConfirmationDialog() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation of Cancelling Ride");
+		alert.setHeaderText("Are you sure to cancel this ride?");
+		alert.setContentText("Cancelling a ride less than 2 hours before the ride time will lower your evaluation.");
+
+		return alert.showAndWait().get() == ButtonType.OK;
 	}
 
 	private void sendNotification(RideInstance ri) {

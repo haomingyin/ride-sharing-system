@@ -1,8 +1,5 @@
 package models.ride;
 
-import models.Trip;
-
-import javax.swing.text.html.ListView;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +22,7 @@ public class RideFilter {
 		rawList.add(getDirection());
 		rawList.add(getSpRequest());
 		rawList.add(getUsername());
+		rawList.add(getRideStatus());
 
 		List<String> noNullList = new ArrayList<>();
 
@@ -73,6 +71,10 @@ public class RideFilter {
 			request = request.toLowerCase().replaceAll("[^a-z0-9+]", "%");
 			return "trimmed LIKE '" + request + "'";
 		}
+	}
+
+	private String getRideStatus() {
+		return "status = 'Active'";
 	}
 
 	public void setBeginDate(LocalDate beginDate) {

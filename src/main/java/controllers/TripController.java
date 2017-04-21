@@ -384,7 +384,7 @@ public class TripController extends Controller implements Initializable {
 			errorMsg.add("A route should be assigned to the trip.\n");
 
 		for (StopPoint stopPoint : stopPoints.values()) {
-			if (stopPoint.getTime().equals(""))
+			if (stopPoint.getTime() == null || stopPoint.getTime().equals(""))
 				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
 		}
 
@@ -410,12 +410,14 @@ public class TripController extends Controller implements Initializable {
 
 		// handle and show error message in dialog
 		if (errorMsg.size() != 0) {
-			String errorString = "Operation failed is caused by: \n";
+			StringBuilder errorString = new StringBuilder("Operation failed is caused by: \n");
 			for (Integer i = 1; i <= errorMsg.size(); i++) {
-				errorString += i.toString() + ". " + errorMsg.get(i - 1);
+				errorString.append(i.toString());
+				errorString.append(". ");
+				errorString.append(errorMsg.get(i - 1));
 			}
 			String headMsg = mode == Mode.ADD_MODE ? "Failed to add the trip." : "Failed to update the trip.";
-			rss.showErrorDialog(headMsg, errorString);
+			rss.showErrorDialog(headMsg, errorString.toString());
 			return false;
 		}
 		return true;

@@ -360,6 +360,25 @@ public class SQLExecutor {
 		return 0;
 	}
 
+	public static int updateStopPointDistance(StopPoint stopPoint) {
+		try {
+			if (stopPoint.getDistance() == -1) return 0;
+
+			connectDB();
+			String sql = "UPDATE stop_point SET distance = ? WHERE spId = ?";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setDouble(1, stopPoint.getDistance());
+			pstmt.setInt(2, stopPoint.getSpId());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
 	/**
 	 * Fetches all stop points whose trimmed address matches the give string
 	 * @param query a query string of the address
@@ -387,6 +406,7 @@ public class SQLExecutor {
 				stopPoint.setStreetNo(rs.getString("streetNo"));
 				stopPoint.setSuburb(rs.getString("suburb"));
 				stopPoint.setCity(rs.getString("city"));
+				stopPoint.setDistance(rs.getDouble("distance"));
 				stopPoints.put(stopPoint.getSpId(), stopPoint);
 			}
 		} catch (Exception e) {
@@ -416,7 +436,7 @@ public class SQLExecutor {
 				sp.setStreet(rs.getString("street"));
 				sp.setSuburb(rs.getString("suburb"));
 				sp.setCity(rs.getString("city"));
-
+				sp.setDistance(rs.getDouble("distance"));
 				stopPoints.put(sp.getSpId(), sp);
 			}
 		} catch (Exception e) {
@@ -648,7 +668,7 @@ public class SQLExecutor {
 				stopPoint.setSuburb(rs.getString("suburb"));
 				stopPoint.setCity(rs.getString("city"));
 				stopPoint.setTime(rs.getString("time"));
-
+				stopPoint.setDistance(rs.getDouble("distance"));
 				return stopPoint;
 			}
 		} catch (Exception e) {
@@ -954,6 +974,7 @@ public class SQLExecutor {
 				sp.setSuburb(rs.getString("suburb"));
 				sp.setCity(rs.getString("city"));
 				sp.setTime(rs.getString("time"));
+				sp.setDistance(rs.getDouble("distance"));
 
 				ri.setStopPoint(sp);
 				rideInstances.add(ri);

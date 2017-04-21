@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebView;
 import javafx.util.Callback;
 import models.database.SQLExecutor;
 import models.position.StopPoint;
@@ -26,9 +27,6 @@ import java.util.ResourceBundle;
 public class SearchRideController extends Controller implements Initializable {
 
 	@FXML
-	private MapController mapController;
-
-	@FXML
 	private GridPane filterPane;
 	@FXML
 	private DatePicker beginDatePicker;
@@ -40,6 +38,8 @@ public class SearchRideController extends Controller implements Initializable {
 	private CheckBox fromUCCheckBox;
 	@FXML
 	private Button searchBtn;
+	@FXML
+	private WebView webView;
 	@FXML
 	private TableView<RideInstance> table;
 	@FXML
@@ -57,6 +57,7 @@ public class SearchRideController extends Controller implements Initializable {
 
 	private TextField addressField;
 	private List<RideInstance> rideInstances;
+	private MapHandler mapHandler;
 
 	@Override
 
@@ -71,6 +72,7 @@ public class SearchRideController extends Controller implements Initializable {
 		TextFields.bindAutoCompletion(addressField,
 				event -> SQLExecutor.fetchStopPointsByString(addressField.getText(), 6).values()
 		).setPrefWidth(350);
+		mapHandler = new MapHandler(webView.getEngine());
 	}
 
 	@Override
@@ -88,9 +90,9 @@ public class SearchRideController extends Controller implements Initializable {
 		if (rideInstances != null && rideInstances.size() != 0) {
 			List<StopPoint> stopPoints = new ArrayList<>();
 			rideInstances.forEach(ri -> stopPoints.add(ri.getStopPoint()));
-			mapController.drawMarkers(stopPoints);
+			mapHandler.drawMarkers(stopPoints);
 		} else {
-			mapController.drawMarkers(null);
+			mapHandler.drawMarkers(null);
 		}
 	}
 
@@ -113,7 +115,7 @@ public class SearchRideController extends Controller implements Initializable {
 			addressCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().fullProperty());
 			directionCol.setCellValueFactory(cell -> cell.getValue().getTrip().directionProperty());
 			dateCol.setCellValueFactory(cell -> cell.getValue().dateProperty());
-			timeCol.setCellValueFactory(cell -> cell.getValue().timeProperty());
+			timeCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().timeProperty());
 			seatCol.setCellValueFactory(cell -> cell.getValue().seatLeftProperty());
 			actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 				@Override

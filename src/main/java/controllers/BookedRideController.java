@@ -16,6 +16,7 @@ import models.ride.Status;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -87,7 +88,7 @@ public class BookedRideController extends Controller implements Initializable {
 			addressCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().fullProperty());
 			directionCol.setCellValueFactory(cell -> cell.getValue().getTrip().directionProperty());
 			dateCol.setCellValueFactory(cell -> cell.getValue().dateProperty());
-			timeCol.setCellValueFactory(cell -> cell.getValue().timeProperty());
+			timeCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().timeProperty());
 			statusCol.setCellValueFactory(cell -> cell.getValue().statusProperty());
 			actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 				@Override
@@ -108,7 +109,6 @@ public class BookedRideController extends Controller implements Initializable {
 
 								RideInstance rideInstance = getTableView().getItems().get(getIndex());
 								if (!Status.BOOKED.equals(rideInstance.getStatus())) {
-									cancelBtn.setText("Cancelled");
 									cancelBtn.setDisable(true);
 								}
 
@@ -131,31 +131,41 @@ public class BookedRideController extends Controller implements Initializable {
 		}
 	}
 
-	private void clickCancelBtn(RideInstance rideInstance, Button btn) {
+	private void clickCancelBtn(RideInstance ri, Button btn) {
 		String errorMsg;
-		String comment = showInputDialog();
 
-		if (comment != null && comment.length() <= 20) {
-			rss.showErrorDialog("Cancellation Failed!",
-					"Please enter at least 20 characters for your reason.");
-		} else {
-			rideInstance.setPassengerId(rss.getUser().getUsername());
+		boolean confirmed = true;
+		// check if now is 2 hours before the ride scheduled time
+		if ((LocalDate.now().isEqual(ri.getLocalDate())
+				&& LocalTime.now().isAfter(ri.getStopPoint().getLocalTime().minusHours(2)))
+				|| LocalDate.now().isAfter(ri.getLocalDate())) {
+			confirmed = showConfirmationDialog();
+		}
 
-			if (SQLExecutor.updateRideByRideInstance(rideInstance, Status.CANCELLED_BY_PASSENGER) == 1) {
-				sendNotification(rideInstance);
-				rss.showInformationDialog("Cancellation Succeeded!", "You have successfully cancelled this ride.");
-				rideInstance.setStatus(Status.CANCELLED_BY_PASSENGER.toString());
-				btn.setText("Cancelled");
-				btn.setDisable(true);
-			} else {
-				errorMsg = "Cancellation failed with unknown reason, please contact administrator.\n";
-				rss.showErrorDialog("Cancellation Failed!", errorMsg);
+		if (confirmed) {
+			String comment = showInputDialog();
+			if (comment != null && comment.length() <= 20) {
+				rss.showErrorDialog("Cancellation Failed!",
+						"Please enter at least 20 characters for your reason.");
+			} else if (comment != null){
+				ri.setPassengerId(rss.getUser().getUsername());
+
+				if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_PASSENGER) == 1) {
+					sendNotification(ri);
+					rss.showInformationDialog("Cancellation Succeeded!", "You have successfully cancelled this ride.");
+					ri.setStatus(Status.CANCELLED_BY_PASSENGER.toString());
+					btn.setDisable(true);
+				} else {
+					errorMsg = "Cancellation failed with unknown reason, please contact administrator.\n";
+					rss.showErrorDialog("Cancellation Failed!", errorMsg);
+				}
 			}
 		}
 	}
 
 	/**
 	 * Filters ride instances according to users' option
+	 *
 	 * @return a filtered ride instances list
 	 */
 	private List<RideInstance> getFilteredRideInstances() {
@@ -204,6 +214,15 @@ public class BookedRideController extends Controller implements Initializable {
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) return result.get();
 		return null;
+	}
+
+	private boolean showConfirmationDialog() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation of Cancelling Ride");
+		alert.setHeaderText("Are you sure to cancel this ride?");
+		alert.setContentText("Cancelling a ride less than 2 hours before the ride time will lower your evaluation.");
+
+		return alert.showAndWait().get() == ButtonType.OK;
 	}
 
 	private void sendNotification(RideInstance ri) {

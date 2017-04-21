@@ -10,17 +10,14 @@ public class RideInstance extends Ride {
 	private Integer spId;
 	private StopPoint stopPoint;
 	private User passenger;
-	private SimpleStringProperty status, passengerId, fullAddress, passengerName, time, comment;
+	private SimpleStringProperty status, passengerId, comment;
 	private SimpleDoubleProperty price;
 
 	public RideInstance() {
 		super();
-		this.status = new SimpleStringProperty();
+		this.status = new SimpleStringProperty(Status.NULL.toString());
 		this.passengerId = new SimpleStringProperty();
 		this.price = new SimpleDoubleProperty(0);
-		this.fullAddress = new SimpleStringProperty();
-		this.passengerName = new SimpleStringProperty();
-		this.time = new SimpleStringProperty();
 		this.comment = new SimpleStringProperty();
 	}
 
@@ -70,48 +67,6 @@ public class RideInstance extends Ride {
 
 	public void setPrice(double price) {
 		this.price.set(price);
-	}
-
-	public String getFullAddress() {
-		setFullAddress(stopPoint.getFull());
-		return fullAddress.get();
-	}
-
-	public SimpleStringProperty fullAddressProperty() {
-		setFullAddress(stopPoint.getFull());
-		return fullAddress;
-	}
-
-	public String getPassengerName() {
-		setPassengerName(passenger.getName());
-		return passengerName.get();
-	}
-
-	public SimpleStringProperty passengerNameProperty() {
-		setPassengerName(passenger.getName());
-		return passengerName;
-	}
-
-	public void setFullAddress(String fullAddress) {
-		this.fullAddress.set(fullAddress);
-	}
-
-	public void setPassengerName(String passengerName) {
-		this.passengerName.set(passengerName);
-	}
-
-	public String getTime() {
-		setTime(stopPoint.getTime());
-		return time.get();
-	}
-
-	public SimpleStringProperty timeProperty() {
-		setTime(stopPoint.getTime());
-		return time;
-	}
-
-	public void setTime(String time) {
-		this.time.set(time);
 	}
 
 	public String getComment() {

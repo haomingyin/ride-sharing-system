@@ -69,7 +69,7 @@
             </GridPane>
             <Pane fx:id="mapPane" layoutX="310.0" layoutY="5.0" prefHeight="330.0" prefWidth="560.0">
                <children>
-                   <fx:include fx:id="map" source="MapView.fxml" />
+                  <WebView fx:id="webView" prefHeight="330.0" prefWidth="560.0" />
                </children>
             </Pane>
             </children>

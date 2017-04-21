@@ -5,6 +5,7 @@ package models.ride;
  */
 public enum Status {
 
+	NULL("Null"),
 	BOOKED("Booked"),
 	CANCELLED_BY_DRIVER("Driver Cancelled"),
 	CANCELLED_BY_PASSENGER("Passenger Cancelled"),
