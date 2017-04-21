@@ -10,12 +10,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
 import models.database.SQLExecutor;
+import models.notification.Notification;
 import models.ride.RideInstance;
+import models.ride.Status;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class BookedRideController extends Controller implements Initializable {
@@ -104,7 +107,7 @@ public class BookedRideController extends Controller implements Initializable {
 								Button cancelBtn = new Button("Cancel");
 
 								RideInstance rideInstance = getTableView().getItems().get(getIndex());
-								if (!rideInstance.getStatus().equals("Booked")) {
+								if (!Status.BOOKED.equals(rideInstance.getStatus())) {
 									cancelBtn.setText("Cancelled");
 									cancelBtn.setDisable(true);
 								}
@@ -130,16 +133,24 @@ public class BookedRideController extends Controller implements Initializable {
 
 	private void clickCancelBtn(RideInstance rideInstance, Button btn) {
 		String errorMsg;
-		rideInstance.setPassengerId(rss.getUser().getUsername());
+		String comment = showInputDialog();
 
-		if (SQLExecutor.updateRideByRideInstance(rideInstance, 2) == 1) {
-			rss.showInformationDialog("Cancellation Succeeded!", "You have successfully cancelled this ride.");
-			rideInstance.setStatus("Passenger Cancelled");
-			btn.setText("Cancelled");
-			btn.setDisable(true);
+		if (comment != null && comment.length() <= 20) {
+			rss.showErrorDialog("Cancellation Failed!",
+					"Please enter at least 20 characters for your reason.");
 		} else {
-			errorMsg = "Cancellation failed with unknown reason, please contact administrator.\n";
-			rss.showErrorDialog("Cancellation Failed!", errorMsg);
+			rideInstance.setPassengerId(rss.getUser().getUsername());
+
+			if (SQLExecutor.updateRideByRideInstance(rideInstance, Status.CANCELLED_BY_PASSENGER) == 1) {
+				sendNotification(rideInstance);
+				rss.showInformationDialog("Cancellation Succeeded!", "You have successfully cancelled this ride.");
+				rideInstance.setStatus(Status.CANCELLED_BY_PASSENGER.toString());
+				btn.setText("Cancelled");
+				btn.setDisable(true);
+			} else {
+				errorMsg = "Cancellation failed with unknown reason, please contact administrator.\n";
+				rss.showErrorDialog("Cancellation Failed!", errorMsg);
+			}
 		}
 	}
 
@@ -149,7 +160,7 @@ public class BookedRideController extends Controller implements Initializable {
 	 */
 	private List<RideInstance> getFilteredRideInstances() {
 		if ((!toUCCheckBox.isSelected() && !fromUCCheckBox.isSelected()) ||
-				(!bookedCheckBox.isSelected() && !cancelledCheckBox.isSelected() || !doneCheckBox.isSelected())) {
+				(!bookedCheckBox.isSelected() && !cancelledCheckBox.isSelected() && !doneCheckBox.isSelected())) {
 			return null;
 		}
 
@@ -173,14 +184,33 @@ public class BookedRideController extends Controller implements Initializable {
 			}
 
 			String status = ri.getStatus();
-			if (!(bookedCheckBox.isSelected() && status.equals("Booked")) &&
-					!(doneCheckBox.isSelected() && status.equals("Done")) &&
-					!(cancelledCheckBox.isSelected() && (status.equals("Driver Cancelled") || status.equals("Passenger Cancelled")))) {
+			if (!(bookedCheckBox.isSelected() && Status.BOOKED.equals(status))
+					&& !(cancelledCheckBox.isSelected() && Status.CANCELLED.equals(status))
+					&& !(doneCheckBox.isSelected() && Status.DONE.equals(status))) {
 				continue;
 			}
+
 			filteredRideInstances.add(ri);
 		}
 
 		return filteredRideInstances;
+	}
+
+	private String showInputDialog() {
+		TextInputDialog dialog = new TextInputDialog("");
+		dialog.setTitle("Cancel Ride");
+		dialog.setHeaderText("Please enter the reason for cancelling this ride.");
+
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()) return result.get();
+		return null;
+	}
+
+	private void sendNotification(RideInstance ri) {
+		Notification no = new Notification();
+		no.setRecipient(ri.getUsername());
+		no.setMessage(String.format("A passenger has cancelled the ride on %s %s.",
+				ri.getDate(), ri.getStopPoint().getTime()));
+		SQLExecutor.addNotification(no);
 	}
 }

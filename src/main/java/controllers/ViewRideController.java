@@ -1,6 +1,5 @@
 package controllers;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,21 +7,20 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
 import models.Trip;
 import models.database.SQLExecutor;
+import models.notification.Notification;
 import models.ride.Ride;
 import models.ride.RideInstance;
+import models.ride.Status;
 import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ViewRideController extends Controller implements Initializable {
 
@@ -37,15 +35,13 @@ public class ViewRideController extends Controller implements Initializable {
 	@FXML
 	private TableView<Ride> rideTable;
 	@FXML
-	private TableColumn<Ride, String> tripCol, dateCol, directionCol, actionRideCol;
+	private TableColumn<Ride, String> tripCol, dateCol, directionCol, rideStatusCol, actionRideCol;
 	@FXML
 	private TableColumn<Ride, Integer> seatNoCol, seatBookedCol;
 	@FXML
 	private DatePicker beginDatePicker, endDatePicker;
 	@FXML
 	private CheckBox toUCCheckBox, fromUCCheckBox, passengerCheckBox, noPassengerCheckBox;
-	@FXML
-	private GridPane passengerPane;
 
 	private Map<Integer, Ride> rides;
 	private Map<Integer, Trip> trips;
@@ -100,7 +96,7 @@ public class ViewRideController extends Controller implements Initializable {
 			directionCol.setCellFactory(new Callback<TableColumn<Ride, String>, TableCell<Ride, String>>() {
 				@Override
 				public TableCell<Ride, String> call(TableColumn<Ride, String> param) {
-					return new TableCell<Ride, String>(){
+					return new TableCell<Ride, String>() {
 
 						@Override
 						public void updateItem(String item, boolean empty) {
@@ -119,11 +115,12 @@ public class ViewRideController extends Controller implements Initializable {
 			});
 			seatNoCol.setCellValueFactory(new PropertyValueFactory<>("seatNo"));
 			seatBookedCol.setCellValueFactory(new PropertyValueFactory<>("seatBooked"));
+			rideStatusCol.setCellValueFactory(new PropertyValueFactory<>("rideStatus"));
 			actionRideCol.setCellFactory(new Callback<TableColumn<Ride, String>, TableCell<Ride, String>>() {
 				@Override
 				public TableCell<Ride, String> call(TableColumn<Ride, String> param) {
-					TableCell<Ride, String> cell =  new TableCell<Ride, String>(){
-						Button btn = new Button("Delete");
+					TableCell<Ride, String> cell = new TableCell<Ride, String>() {
+						Button btn = new Button("Cancel");
 
 						@Override
 						public void updateItem(String item, boolean empty) {
@@ -134,7 +131,7 @@ public class ViewRideController extends Controller implements Initializable {
 								setGraphic(null);
 							} else {
 								Ride ride = getTableView().getItems().get(getIndex());
-								btn.setOnAction(e -> deleteRide(ride, btn));
+								btn.setOnAction(e -> clickCancelRideBtn(ride, btn));
 								btn.setFont(Font.font(9));
 
 								setGraphic(btn);
@@ -167,27 +164,35 @@ public class ViewRideController extends Controller implements Initializable {
 				actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 					@Override
 					public TableCell<RideInstance, String> call(TableColumn<RideInstance, String> param) {
-						TableCell<RideInstance, String > cell =  new TableCell<RideInstance, String>(){
-							Button btn = new Button("Cancel");
+						TableCell<RideInstance, String> cell = new TableCell<RideInstance, String>() {
 
 							@Override
 							public void updateItem(String item, boolean empty) {
 								super.updateItem(item, empty);
 
-								if (empty) {
-									setGraphic(null);
-									setText(null);
-								} else {
-									RideInstance ri = getTableView().getItems().get(getIndex());
-									btn.setOnAction(e -> cancelRideInstance(ri, btn));
-									btn.setFont(Font.font(9));
-									if (!ri.getStatus().equals("Booked")) {
-										btn.setDisable(true);
-										btn.setText("Cancelled");
-									}
-									setGraphic(btn);
+								setGraphic(null);
+								setText(null);
 
-									setText(null);
+								if (!empty) {
+									HBox hbox = new HBox();
+									Button detailBtn = new Button("Detail");
+									Button cancelBtn = new Button("Cancel");
+
+									RideInstance rideInstance = getTableView().getItems().get(getIndex());
+									if (!Status.BOOKED.equals(rideInstance.getStatus())) {
+										cancelBtn.setText("Cancelled");
+										cancelBtn.setDisable(true);
+									}
+
+									cancelBtn.setOnAction(event -> clickCancelRIBtn(rideInstance, cancelBtn));
+
+									detailBtn.setFont(Font.font(9));
+									cancelBtn.setFont(Font.font(9));
+									hbox.getChildren().addAll(detailBtn, cancelBtn);
+									hbox.setSpacing(10);
+									hbox.setAlignment(Pos.CENTER);
+
+									setGraphic(hbox);
 								}
 							}
 						};
@@ -200,41 +205,80 @@ public class ViewRideController extends Controller implements Initializable {
 		}
 	}
 
-	private void deleteRide(Ride ride, Button btn) {
-		try {
-			if (SQLExecutor.deleteRide(ride) == 1) {
-				rss.showInformationDialog("Deletion Succeeded!",
-						"You have deleted this ride.");
-				btn.setText("Deleted");
+//	private void deleteRide(Ride ride, Button btn) {
+//		try {
+//			if (SQLExecutor.deleteRide(ride) == 1) {
+//				rss.showInformationDialog("Deletion Succeeded!",
+//						"You have deleted this ride.");
+//				btn.setText("Deleted");
+//				btn.setDisable(true);
+//			} else {
+//				rss.showErrorDialog("Cancellation Failed!",
+//						"Please try again or contact the administrator.");
+//			}
+//		} catch (SQLiteException e) {
+//			// if error code is 1811, which means sql foreign key constraint is violated.
+//			String errorMsg;
+//			if (e.getResultCode().code == 1811) {
+//				errorMsg = "You can only delete a ride if it DOES NOT have any booked or cancelled record.\n" +
+//						"(Error code: 1811. Database foreign key constraint has been violated.)\n";
+//			} else {
+//				errorMsg = "Deletion failed with unknown reasons, please contact administrator.\n";
+//			}
+//			rss.showErrorDialog("Deletion Failed!", errorMsg);
+//		}
+//	}
+
+	private void clickCancelRideBtn(Ride ride, Button btn) {
+		String comment = showInputDialog();
+
+		if (comment != null && comment.length() <= 20) {
+			rss.showErrorDialog("Cancellation Failed!",
+					"Please enter at least 20 characters for your reason.");
+		} else {
+			List<RideInstance> rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
+			if (rideInstances != null) {
+				for (RideInstance ri : rideInstances) {
+					if (!Status.CANCELLED.equals(ri.getStatus())) {
+						ri.setComment(comment);
+						SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER);
+						sendNotification(ri);
+					}
+				}
+			}
+			if (SQLExecutor.updateRide(ride, Status.CANCELLED) == 1) {
 				btn.setDisable(true);
+				loadPassengerTable();
+				rss.showInformationDialog("Cancellation Succeeded!",
+						"You have cancelled this ride.");
+				ride.setRideStatus(Status.CANCELLED.toString());
 			} else {
 				rss.showErrorDialog("Cancellation Failed!",
 						"Please try again or contact the administrator.");
 			}
-		} catch (SQLiteException e) {
-			// if error code is 1811, which means sql foreign key constraint is violated.
-			String errorMsg;
-			if (e.getResultCode().code == 1811) {
-				errorMsg = "You can only delete a ride if it DOES NOT have any booked or cancelled record.\n" +
-						"(Error code: 1811. Database foreign key constraint has been violated.)\n";
-			} else {
-				errorMsg = "Deletion failed with unknown reasons, please contact administrator.\n";
-			}
-			rss.showErrorDialog("Deletion Failed!", errorMsg);
 		}
+
 	}
 
-	private void cancelRideInstance(RideInstance ri, Button btn) {
-		if (SQLExecutor.updateRideByRideInstance(ri, 1) == 1) {
-			rss.showInformationDialog("Cancellation Succeeded!",
-					"You have cancelled this ride.");
-			ri.setStatus("Driver Cancelled");
-			btn.setDisable(true);
-		} else {
-			rss.showErrorDialog("Cancellation Failed!",
-					"Please try again or contact the administrator.");
-		}
+	private void clickCancelRIBtn(RideInstance ri, Button btn) {
+		String comment = showInputDialog();
 
+		if (comment != null && comment.length() <= 20) {
+			rss.showErrorDialog("Cancellation Failed!",
+					"Please enter at least 20 characters for your reason.");
+		} else {
+			ri.setComment(comment);
+			if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER) == 1) {
+				btn.setDisable(true);
+				sendNotification(ri);
+				rss.showInformationDialog("Cancellation Succeeded!",
+						"You have cancelled this ride.");
+				ri.setRideStatus(Status.CANCELLED_BY_DRIVER.toString());
+			} else {
+				rss.showErrorDialog("Cancellation Failed!",
+						"Please try again or contact the administrator.");
+			}
+		}
 	}
 
 	private void bindRideToInstances(Ride ride) {
@@ -283,6 +327,24 @@ public class ViewRideController extends Controller implements Initializable {
 		}
 
 		return filteredRides;
+	}
+
+	private String showInputDialog() {
+		TextInputDialog dialog = new TextInputDialog("");
+		dialog.setTitle("Cancel Ride");
+		dialog.setHeaderText("Please enter the reason for cancelling this ride.");
+
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()) return result.get();
+		return null;
+	}
+
+	private void sendNotification(RideInstance ri) {
+		Notification no = new Notification();
+		no.setRecipient(ri.getPassengerId());
+		no.setMessage(String.format("Your ride on %s %s has been cancelled by the driver.",
+				ri.getDate(), ri.getStopPoint().getTime()));
+		SQLExecutor.addNotification(no);
 	}
 
 }

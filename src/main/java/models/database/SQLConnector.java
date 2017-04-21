@@ -111,12 +111,5 @@ public class SQLConnector {
 		}
 	}
 
-	public boolean isKeepOpen() {
-		return keepConnect;
-	}
-
-	public void setKeepOpen(boolean keepConnect) {
-		this.keepConnect = keepConnect;
-	}
 }
 

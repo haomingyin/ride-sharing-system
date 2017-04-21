@@ -28,7 +28,8 @@ function geocodeCallback(address) {
         if (status === 'OK') {
             var marker = new google.maps.Marker({
                 map: map,
-                position: results[0].geometry.location
+                position: results[0].geometry.location,
+                animation: google.maps.Animation.BOUNCE
             });
             markers.push(marker);
 

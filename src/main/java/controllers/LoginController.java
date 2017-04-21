@@ -32,14 +32,13 @@ public class LoginController extends Controller implements Initializable {
 	public void pressLoginBtn() {
 		try {
 			loginPromptText.setVisible(true);
-			if (validLogin()) {
-				loginPromptText.setText("Welcome!");
-				this.rss.showCarView();
-			} else {
+			if (!validLogin()) {
 				loginPromptText.setText("Oops! Our system cannot match this username and password.");
 			}
 		} catch (Exception e) {
+			System.out.println("Error occurred when log the user in.");
 			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -51,7 +50,8 @@ public class LoginController extends Controller implements Initializable {
 	private boolean validLogin() {
 		User user = SQLExecutor.fetchUser(usernameField.getText(), passwordField.getText());
 		if (user != null) {
-			this.rss.setUser(user);
+			rss.setUser(user);
+			rss.login();
 			return true;
 		}
 		return false;

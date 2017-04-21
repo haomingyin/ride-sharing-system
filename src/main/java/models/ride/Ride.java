@@ -7,7 +7,7 @@ import models.Trip;
 public class Ride {
 
 	private Integer rideId, tripId;
-	private SimpleStringProperty alias, date, username;
+	private SimpleStringProperty alias, date, username, rideStatus;
 	private SimpleIntegerProperty seatNo;
 
 	// properties don't belong to ride database schema
@@ -19,6 +19,7 @@ public class Ride {
 		this.seatNo = new SimpleIntegerProperty(0);
 		this.date = new SimpleStringProperty();
 		this.username = new SimpleStringProperty();
+		this.rideStatus = new SimpleStringProperty();
 
 		this.seatBooked = new SimpleIntegerProperty(0);
 		this.seatLeft = new SimpleIntegerProperty(0);
@@ -32,6 +33,7 @@ public class Ride {
 		setSeatNo(ride.getSeatNo());
 		setDate(ride.getDate());
 		setUsername(ride.getUsername());
+		setRideStatus(ride.getRideStatus());
 	}
 
 	@Override
@@ -135,5 +137,17 @@ public class Ride {
 
 	public void setSeatLeft(int seatLeft) {
 		this.seatLeft.set(seatLeft);
+	}
+
+	public String getRideStatus() {
+		return rideStatus.get();
+	}
+
+	public SimpleStringProperty rideStatusProperty() {
+		return rideStatus;
+	}
+
+	public void setRideStatus(String rideStatus) {
+		this.rideStatus.set(rideStatus);
 	}
 }

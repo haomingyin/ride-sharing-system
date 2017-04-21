@@ -48,18 +48,6 @@ public class RideInstance extends Ride {
 		this.passenger = passenger;
 	}
 
-	public String getStatus() {
-		return status.get();
-	}
-
-	public SimpleStringProperty statusProperty() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status.set(status);
-	}
-
 	public String getPassengerId() {
 		return passengerId.get();
 	}
@@ -136,5 +124,17 @@ public class RideInstance extends Ride {
 
 	public void setComment(String comment) {
 		this.comment.set(comment);
+	}
+
+	public String getStatus() {
+		return status.get();
+	}
+
+	public SimpleStringProperty statusProperty() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status.set(status);
 	}
 }

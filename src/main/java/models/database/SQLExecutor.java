@@ -1,20 +1,21 @@
 package models.database;
 
 import models.*;
+import models.notification.Notification;
 import models.position.StopPoint;
 import models.ride.Ride;
 import models.ride.RideFilter;
 import models.ride.RideInstance;
 import models.User;
+import models.ride.Status;
 import org.sqlite.SQLiteException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class SQLExecutor {
 
@@ -820,6 +821,7 @@ public class SQLExecutor {
 				ri.setRide(fetchRideByRideId(ri.getRideId()));
 				ri.setTrip(fetchTripByTripId(ri.getTripId()));
 				ri.setPassenger(fetchUser(ri.getPassengerId()));
+				ri.setStopPoint(fetchStopPointByRideIdAndSPId(ri.getTripId(), ri.getSpId()));
 			}
 			return instances;
 		} catch (Exception e) {
@@ -844,7 +846,8 @@ public class SQLExecutor {
 				ride.setTripId(rs.getInt("tripId"));
 				ride.setDate(rs.getString("rideDate"));
 				ride.setSeatNo(rs.getInt("seatNo"));
-
+				ride.setUsername(rs.getString("username"));
+				ride.setRideStatus(rs.getString("status"));
 				return ride;
 			}
 		} catch (Exception e) {
@@ -858,11 +861,11 @@ public class SQLExecutor {
 	/**
 	 * Updates a give ride instance
 	 * @param rideInstance the instance should be updated
-	 * @param type the update type, 0 for done, 1 for driver cancel, 2 for
+	 * @param status the update type, 0 for done, 1 for driver cancel, 2 for
 	 *             passenger cancel, 3 for re-book the ride
 	 * @return 1 for success, 0 for fail
 	 */
-	public static int updateRideByRideInstance(RideInstance rideInstance, int type) {
+	public static int updateRideByRideInstance(RideInstance rideInstance, Status status) {
 		try {
 			connectDB();
 			String sql = "UPDATE ride_passenger " +
@@ -870,26 +873,29 @@ public class SQLExecutor {
 					"WHERE rideId = ? AND username = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
+			pstmt.setString(1, status.toString());
 			pstmt.setString(2, rideInstance.getComment());
 			pstmt.setInt(3, rideInstance.getSpId());
 			pstmt.setInt(4, rideInstance.getRideId());
 			pstmt.setString(5, rideInstance.getPassengerId());
 
-			switch (type) {
-				case 0:
-					pstmt.setString(1, "Done");
-					break;
-				case 1:
-					pstmt.setString(1, "Driver Cancelled");
-					break;
-				case 2:
-					pstmt.setString(1, "Passenger Cancelled");
-					break;
-				case 3:
-					pstmt.setString(1, "Booked");
-					break;
-				default: return 0;
-			}
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static int updateRide(Ride ride, Status status) {
+		try {
+			connectDB();
+			String sql = "UPDATE ride SET status = ? WHERE rideId = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+
+			pstmt.setString(1, status.toString());
+			pstmt.setInt(2, ride.getRideId());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -1033,5 +1039,66 @@ public class SQLExecutor {
 			disconnectDB();
 		}
 		return null;
+	}
+
+	public static List<Notification> fetchNotificationsByUser(User user) {
+		try {
+			connectDB();
+			List<Notification> notifications = new ArrayList<>();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			String sql = "SELECT * FROM notification WHERE recipient = ?;";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, user.getUsername());
+
+			ResultSet rs = pstmt.executeQuery();
+			while (!rs.isClosed() && rs.next()) {
+				Notification notification = new Notification();
+
+				notification.setnId(rs.getInt("nId"));
+				notification.setMessage(rs.getString("message"));
+				notification.setRecipient(rs.getString("recipient"));
+				notification.setTimeStamp(LocalDateTime.parse(rs.getString("timeStamp"), formatter));
+
+				notifications.add(notification);
+			}
+			return notifications;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
+	}
+
+	public static int deleteNotification(Notification notification) {
+		try {
+			connectDB();
+			String sql = "DELETE FROM notification WHERE nId = ?";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, notification.getnId());
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	 public static int addNotification(Notification notification) {
+		try {
+			connectDB();
+			String sql = "INSERT INTO notification (recipient, message) " +
+					"VALUES (?, ?);";
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, notification.getRecipient());
+			pstmt.setString(2, notification.getMessage());
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
 	}
 }

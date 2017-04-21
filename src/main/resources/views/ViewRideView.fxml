@@ -60,12 +60,13 @@
                 </GridPane>
                 <TableView fx:id="rideTable" layoutX="14.0" layoutY="169.0" prefHeight="201.0" prefWidth="806.0">
                     <columns>
-                        <TableColumn fx:id="tripCol" prefWidth="266.0" text="Trip" />
-                        <TableColumn fx:id="dateCol" minWidth="0.0" prefWidth="128.0" text="Date" />
-                        <TableColumn fx:id="directionCol" prefWidth="115.0" text="Direction" />
-                        <TableColumn fx:id="seatNoCol" prefWidth="91.0" text="Total Seat" />
-                        <TableColumn fx:id="seatBookedCol" prefWidth="94.0" text="Seats Booked" />
-                  <TableColumn fx:id="actionRideCol" prefWidth="93.0" text="Action" />
+                        <TableColumn fx:id="tripCol" prefWidth="219.0" text="Trip" />
+                        <TableColumn fx:id="dateCol" minWidth="0.0" prefWidth="92.0" text="Date" />
+                        <TableColumn fx:id="directionCol" prefWidth="84.0" text="Direction" />
+                        <TableColumn fx:id="seatNoCol" prefWidth="78.0" text="Total Seat" />
+                        <TableColumn fx:id="seatBookedCol" prefWidth="104.0" text="Seats Booked" />
+                  <TableColumn fx:id="rideStatusCol" prefWidth="85.0" text="Status" />
+                  <TableColumn fx:id="actionRideCol" prefWidth="124.0" text="Action" />
                     </columns>
                 </TableView>
                 <GridPane fx:id="passengerPane" layoutX="14.0" layoutY="385.0" prefHeight="264.0" prefWidth="806.0">
@@ -84,11 +85,11 @@
                         </Text>
                         <TableView fx:id="passengerTable" prefHeight="228.0" prefWidth="798.0" GridPane.rowIndex="1">
                             <columns>
-                                <TableColumn fx:id="addressCol" prefWidth="349.0" text="Stop Point" />
-                                <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="105.0" text="Time" />
+                                <TableColumn fx:id="addressCol" prefWidth="326.0" text="Stop Point" />
+                                <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="91.0" text="Time" />
                                 <TableColumn fx:id="passengerCol" prefWidth="114.0" text="Passenger" />
-                                <TableColumn fx:id="statusCol" prefWidth="127.0" text="Status" />
-                                <TableColumn fx:id="actionCol" prefWidth="94.0" text="Action" />
+                                <TableColumn fx:id="statusCol" prefWidth="130.0" text="Status" />
+                                <TableColumn fx:id="actionCol" prefWidth="128.0" text="Action" />
                             </columns>
                         </TableView>
                     </children>
