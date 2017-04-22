@@ -7,18 +7,14 @@ public class Position {
 	private Double lat, lng;
 	private SimpleDoubleProperty distance;
 
-	public Position(){
-		this.distance = new SimpleDoubleProperty();
-	}
-
-	public Position(double lat, double lng) {
-		this.lat = lat;
-		this.lng = lng;
+	public Position() {
 		this.distance = new SimpleDoubleProperty();
 	}
 
 	public static Position getUniPosition() {
-		Position uni = new Position(-43.5235375d, 172.5839233d);
+		Position uni = new Position();
+		uni.setLat(-43.5235375d);
+		uni.setLng(172.5839233d);
 		uni.setDistance(0d);
 		return uni;
 	}

@@ -54,24 +54,5 @@ function clearMarkers() {
     markers = [];
 }
 
-function getDistance(origin, destination) {
-    var service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix({
-        origins: [origin],
-        destinations: [destination],
-        travelMode: 'DRIVING'
-    }, function (response, status) {
-        if (status === 'OK') {
-            var result = response.rows[0].elements[0];
-            if (result['status'] === 'OK') {
-                window.alert(result.distance.value);
-            } else {
-                window.alert(-1);
-            }
-        } else {
-            window.alert(-1);
-        }
-    });
-}
 
 
