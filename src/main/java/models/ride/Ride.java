@@ -33,6 +33,7 @@ public class Ride {
 		// only properties in ride database schema will be overwritten
 		this.rideId = ride.getRideId();
 		this.tripId = ride.getTripId();
+		setTrip(ride.getTrip());
 		setAlias(ride.getAlias());
 		setSeatNo(ride.getSeatNo());
 		setDate(ride.getDate());

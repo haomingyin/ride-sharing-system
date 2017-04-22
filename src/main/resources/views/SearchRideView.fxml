@@ -12,12 +12,13 @@
             <children>
                 <TableView fx:id="table" layoutX="8.0" layoutY="348.0" prefHeight="294.0" prefWidth="862.0">
                     <columns>
-                        <TableColumn fx:id="addressCol" prefWidth="338.0" text="Stop Point" />
-                        <TableColumn fx:id="directionCol" prefWidth="95.0" text="Direction" />
-                        <TableColumn fx:id="dateCol" prefWidth="97.0" text="Date" />
-                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="98.0" text="Time" />
-                        <TableColumn fx:id="seatCol" prefWidth="86.0" text="Seats Left" />
-                  <TableColumn fx:id="actionCol" prefWidth="118.0" text="Action" />
+                        <TableColumn fx:id="addressCol" prefWidth="281.0" text="Stop Point" />
+                        <TableColumn fx:id="directionCol" prefWidth="99.0" text="Direction" />
+                        <TableColumn fx:id="dateCol" prefWidth="95.0" text="Date" />
+                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="84.0" text="Time" />
+                        <TableColumn fx:id="seatCol" prefWidth="83.0" text="Seats Left" />
+                  <TableColumn fx:id="priceCol" prefWidth="86.0" text="Price(NZD)" />
+                  <TableColumn fx:id="actionCol" prefWidth="107.0" text="Action" />
                     </columns>
                 </TableView>
             <GridPane fx:id="filterPane" layoutX="8.0" layoutY="14.0" prefHeight="312.0" prefWidth="293.0">

@@ -5,6 +5,9 @@ import javafx.beans.property.SimpleStringProperty;
 import models.position.StopPoint;
 import models.User;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 public class RideInstance extends Ride {
 
 	private Integer spId;
@@ -15,9 +18,9 @@ public class RideInstance extends Ride {
 
 	public RideInstance() {
 		super();
-		this.status = new SimpleStringProperty(Status.NULL.toString());
+		this.status = new SimpleStringProperty(Status.BOOKED.toString());
 		this.passengerId = new SimpleStringProperty();
-		this.price = new SimpleDoubleProperty(0);
+		this.price = new SimpleDoubleProperty(-1.0);
 		this.comment = new SimpleStringProperty();
 	}
 
@@ -58,10 +61,16 @@ public class RideInstance extends Ride {
 	}
 
 	public double getPrice() {
+		if (Status.BOOKED.equals(status.get())) {
+			DecimalFormat df = new DecimalFormat(".00");
+			df.setRoundingMode(RoundingMode.HALF_UP);
+			setPrice(Double.valueOf(df.format(2.05 * stopPoint.getDistance() / getTrip().getCar().getPerformance())));
+		}
 		return price.get();
 	}
 
 	public SimpleDoubleProperty priceProperty() {
+		setPrice(getPrice());
 		return price;
 	}
 

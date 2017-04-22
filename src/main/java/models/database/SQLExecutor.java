@@ -494,11 +494,13 @@ public class SQLExecutor {
 				trip.setExpireDate(LocalDate.parse(rs.getString("expireDate")));
 				trip.setDay(rs.getInt("day"));
 
+				disconnectDB();
+
+				trip.setCar(fetchCarByCarId(trip.getCarId()));
 				return trip;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
 			disconnectDB();
 		}
 		return null;
@@ -611,9 +613,13 @@ public class SQLExecutor {
 
 				tripHashMap.put(trip.getTripId(), trip);
 			}
+
+			disconnectDB();
+			for (Trip trip : tripHashMap.values()) {
+				trip.setCar(fetchCarByCarId(trip.getCarId()));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
 			disconnectDB();
 		}
 		return tripHashMap;
@@ -806,7 +812,6 @@ public class SQLExecutor {
 			// fill ride and trip detail for each ride
 			for (Ride ride : rides.values()) {
 				ride.setRide(fetchRideByRideId(ride.getRideId()));
-				ride.setTrip(fetchTripByTripId(ride.getTripId()));
 			}
 			return rides;
 
@@ -839,7 +844,6 @@ public class SQLExecutor {
 
 			for (RideInstance ri : instances) {
 				ri.setRide(fetchRideByRideId(ri.getRideId()));
-				ri.setTrip(fetchTripByTripId(ri.getTripId()));
 				ri.setPassenger(fetchUser(ri.getPassengerId()));
 				ri.setStopPoint(fetchStopPointByRideIdAndSPId(ri.getTripId(), ri.getSpId()));
 			}
@@ -868,11 +872,14 @@ public class SQLExecutor {
 				ride.setSeatNo(rs.getInt("seatNo"));
 				ride.setUsername(rs.getString("username"));
 				ride.setRideStatus(rs.getString("status"));
+
+				disconnectDB();
+
+				ride.setTrip(fetchTripByTripId(ride.getTripId()));
 				return ride;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
 			disconnectDB();
 		}
 		return null;
@@ -984,8 +991,6 @@ public class SQLExecutor {
 			// fill trip and route detail into each ride instance
 			for (RideInstance ri : rideInstances) {
 				ri.setRide(fetchRideByRideId(ri.getRideId()));
-				ri.setTrip(fetchTripByTripId(ri.getTripId()));
-				ri.getTrip().setCar(fetchCarByCarId(ri.getTrip().getCarId()));
 			}
 
 			return rideInstances;
@@ -1049,9 +1054,7 @@ public class SQLExecutor {
 
 			for (RideInstance ri : rideInstances) {
 				ri.setRide(fetchRideByRideId(ri.getRideId()));
-				ri.setTrip(fetchTripByTripId(ri.getTripId()));
 				ri.setStopPoint(fetchStopPointByRideIdAndSPId(ri.getTripId(), ri.getSpId()));
-				ri.getTrip().setCar(fetchCarByCarId(ri.getTrip().getCarId()));
 			}
 
 			return rideInstances;

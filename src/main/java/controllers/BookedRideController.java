@@ -52,6 +52,8 @@ public class BookedRideController extends Controller implements Initializable {
 	private TableColumn<RideInstance, String> actionCol;
 	@FXML
 	private TableColumn<RideInstance, String> statusCol;
+	@FXML
+	private TableColumn<RideInstance, Number> priceCol;
 
 	private List<RideInstance> rideInstances;
 
@@ -90,6 +92,7 @@ public class BookedRideController extends Controller implements Initializable {
 			dateCol.setCellValueFactory(cell -> cell.getValue().dateProperty());
 			timeCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().timeProperty());
 			statusCol.setCellValueFactory(cell -> cell.getValue().statusProperty());
+			priceCol.setCellValueFactory(cell -> cell.getValue().priceProperty());
 			actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 				@Override
 				public TableCell<RideInstance, String> call(TableColumn<RideInstance, String> param) {

@@ -8,7 +8,7 @@ public class Position {
 	private SimpleDoubleProperty distance;
 
 	public Position() {
-		this.distance = new SimpleDoubleProperty();
+		this.distance = new SimpleDoubleProperty(-1);
 	}
 
 	public static Position getUniPosition() {

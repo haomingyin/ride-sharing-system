@@ -34,6 +34,8 @@ public class ViewRideController extends Controller implements Initializable {
 	@FXML
 	private TableColumn<RideInstance, String> addressCol, timeCol, passengerCol, statusCol, actionCol;
 	@FXML
+	private TableColumn<RideInstance, Number> priceCol;
+	@FXML
 	private TableView<Ride> rideTable;
 	@FXML
 	private TableColumn<Ride, String> tripCol, dateCol, directionCol, rideStatusCol, actionRideCol;
@@ -134,15 +136,15 @@ public class ViewRideController extends Controller implements Initializable {
 		Ride ride = rideTable.getSelectionModel().getSelectedItem();
 		if (ride != null) {
 			rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
-			bindRideToInstances(ride);
 
 			if (rideInstances != null) {
 				ObservableList<RideInstance> rideInstanceObservableList = FXCollections.observableList(rideInstances);
 
-				addressCol.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
-				timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
+				addressCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().fullProperty());
+				timeCol.setCellValueFactory(cell -> cell.getValue().getStopPoint().timeProperty());
 				passengerCol.setCellValueFactory(cell -> cell.getValue().getPassenger().nameProperty());
 				statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+				priceCol.setCellValueFactory(cell -> cell.getValue().priceProperty());
 				actionCol.setCellFactory(new Callback<TableColumn<RideInstance, String>, TableCell<RideInstance, String>>() {
 					@Override
 					public TableCell<RideInstance, String> call(TableColumn<RideInstance, String> param) {
@@ -287,15 +289,6 @@ public class ViewRideController extends Controller implements Initializable {
 							"Please try again or contact the administrator.");
 				}
 			}
-		}
-	}
-
-	private void bindRideToInstances(Ride ride) {
-		Trip trip = trips.get(ride.getTripId());
-		if (trip.getStopPoints() == null)
-			trip.setStopPoints(SQLExecutor.fetchStopPointsByTrip(trip));
-		for (RideInstance rs : rideInstances) {
-			rs.setStopPoint(trip.getStopPoints().get(rs.getSpId()));
 		}
 	}
 

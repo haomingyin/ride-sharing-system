@@ -12,12 +12,13 @@
             <children>
                 <TableView fx:id="table" layoutX="14.0" layoutY="303.0" prefHeight="343.0" prefWidth="851.0">
                     <columns>
-                        <TableColumn fx:id="addressCol" prefWidth="315.0" text="Stop Point" />
-                        <TableColumn fx:id="directionCol" prefWidth="83.0" text="Direction" />
-                        <TableColumn fx:id="dateCol" prefWidth="86.0" text="Date" />
-                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="92.0" text="Time" />
-                        <TableColumn fx:id="statusCol" prefWidth="148.0" text="Status" />
-                  <TableColumn fx:id="actionCol" prefWidth="109.0" text="Action" />
+                        <TableColumn fx:id="addressCol" prefWidth="270.0" text="Stop Point" />
+                        <TableColumn fx:id="directionCol" prefWidth="74.0" text="Direction" />
+                        <TableColumn fx:id="dateCol" prefWidth="84.0" text="Date" />
+                        <TableColumn fx:id="timeCol" minWidth="2.0" prefWidth="84.0" text="Time" />
+                        <TableColumn fx:id="statusCol" prefWidth="128.0" text="Status" />
+                  <TableColumn fx:id="priceCol" prefWidth="81.0" text="Price(NZD)" />
+                  <TableColumn fx:id="actionCol" prefWidth="110.0" text="Action" />
                     </columns>
                 </TableView>
             <GridPane layoutX="14.0" prefHeight="287.0" prefWidth="336.0">
