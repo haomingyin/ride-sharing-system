@@ -16,7 +16,6 @@ import models.notification.Notification;
 import models.ride.Ride;
 import models.ride.RideInstance;
 import models.ride.Status;
-import org.sqlite.SQLiteException;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -46,9 +45,8 @@ public class ViewRideController extends Controller implements Initializable {
 	@FXML
 	private CheckBox toUCCheckBox, fromUCCheckBox, passengerCheckBox, noPassengerCheckBox;
 
-	private Map<Integer, Ride> rides;
-	private Map<Integer, Trip> trips;
-	private List<RideInstance> rideInstances;
+	private List<Ride> rides;
+	private List<Trip> trips;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -81,7 +79,7 @@ public class ViewRideController extends Controller implements Initializable {
 	private void loadTrips() {
 		trips = SQLExecutor.fetchTripsByUser(rss.getUser());
 		tripComboBox.getItems().clear();
-		tripComboBox.getItems().addAll(trips.values());
+		tripComboBox.getItems().addAll(trips);
 	}
 
 	private void loadRideTable() {
@@ -135,7 +133,7 @@ public class ViewRideController extends Controller implements Initializable {
 	private void loadPassengerTable() {
 		Ride ride = rideTable.getSelectionModel().getSelectedItem();
 		if (ride != null) {
-			rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
+			List<RideInstance> rideInstances = SQLExecutor.fetchRideInstancesByRide(ride);
 
 			if (rideInstances != null) {
 				ObservableList<RideInstance> rideInstanceObservableList = FXCollections.observableList(rideInstances);
@@ -241,12 +239,12 @@ public class ViewRideController extends Controller implements Initializable {
 					for (RideInstance ri : rideInstances) {
 						if (!Status.CANCELLED.equals(ri.getStatus())) {
 							ri.setComment(comment);
-							SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER);
+							SQLExecutor.updateRideInstanceStatus(ri, Status.CANCELLED_BY_DRIVER);
 							sendNotification(ri);
 						}
 					}
 				}
-				if (SQLExecutor.updateRide(ride, Status.CANCELLED) == 1) {
+				if (SQLExecutor.updateRideStatus(ride, Status.CANCELLED) == 1) {
 					btn.setDisable(true);
 					rss.showInformationDialog("Cancellation Succeeded!",
 							"You have cancelled this ride.");
@@ -278,7 +276,7 @@ public class ViewRideController extends Controller implements Initializable {
 						"Please enter at least 20 characters for your reason.");
 			} else if (comment != null) {
 				ri.setComment(comment);
-				if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_DRIVER) == 1) {
+				if (SQLExecutor.updateRideInstanceStatus(ri, Status.CANCELLED_BY_DRIVER) == 1) {
 					btn.setDisable(true);
 					sendNotification(ri);
 					rss.showInformationDialog("Cancellation Succeeded!",
@@ -301,7 +299,7 @@ public class ViewRideController extends Controller implements Initializable {
 
 		List<Ride> filteredRides = new ArrayList<>();
 
-		for (Ride ride : rides.values()) {
+		for (Ride ride : rides) {
 			if (!allTripsToggle.isSelected() && !(ride.getTripId().equals(tripComboBox.getValue().getTripId()))) {
 				continue;
 			}
@@ -315,7 +313,7 @@ public class ViewRideController extends Controller implements Initializable {
 				continue;
 			}
 
-			String direction = trips.get(ride.getTripId()).getDirection();
+			String direction = ride.getTrip().getDirection();
 			if (!(toUCCheckBox.isSelected() && direction.equals("To UC")) &&
 					!(fromUCCheckBox.isSelected() && direction.equals("From UC"))) {
 				continue;

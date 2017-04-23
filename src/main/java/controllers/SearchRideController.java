@@ -72,7 +72,7 @@ public class SearchRideController extends Controller implements Initializable {
 		filterPane.add(addressField, 0, 1, 2, 1);
 
 		TextFields.bindAutoCompletion(addressField,
-				event -> SQLExecutor.fetchStopPointsByString(addressField.getText(), 6).values()
+				event -> SQLExecutor.fetchStopPointsByString(addressField.getText(), 6)
 		).setPrefWidth(350);
 		mapHandler = new MapHandler(webView.getEngine());
 	}
@@ -162,7 +162,7 @@ public class SearchRideController extends Controller implements Initializable {
 		String errorMsg;
 		try {
 			rideInstance.setPassengerId(rss.getUser().getUsername());
-			if(SQLExecutor.bookRide(rideInstance) == 1) {
+			if(SQLExecutor.addRideInstance(rideInstance) == 1) {
 				rss.showInformationDialog("Booking Succeeded!", "You have successfully booked this ride.");
 
 				btn.setText("Booked");

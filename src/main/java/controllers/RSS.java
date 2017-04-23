@@ -14,6 +14,7 @@ import models.notification.Notification;
 import models.notification.Notifications;
 import models.ride.Status;
 import org.controlsfx.control.action.Action;
+import server.RSSServer;
 
 import java.util.*;
 
@@ -36,6 +37,12 @@ public class RSS implements Observer {
 		SQLConnector sqlConnector = new SQLConnector();
 		sqlConnector.initializeDatabase();
 		showLoginView();
+
+		// start running server
+		RSSServer rssServer = new RSSServer();
+		Thread thread = new Thread(rssServer, "RSS Server");
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	void login() {
@@ -45,10 +52,9 @@ public class RSS implements Observer {
 		notificationCenter = new Notifications(user);
 		notificationCenter.addObserver(this);
 		nIds = new HashSet<>();
-		Thread thread = new Thread(notificationCenter);
+		Thread thread = new Thread(notificationCenter, "Notification");
 		thread.setDaemon(true);
 		thread.start();
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,7 +95,7 @@ public class RSS implements Observer {
 							}
 						});
 						try {
-							Thread.sleep(2000);
+							Thread.sleep(3000);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}

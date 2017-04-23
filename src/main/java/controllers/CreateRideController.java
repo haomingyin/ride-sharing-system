@@ -7,9 +7,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import models.Car;
-import models.position.StopPoint;
 import models.Trip;
 import models.database.SQLExecutor;
+import models.position.StopPoint;
 import models.ride.Ride;
 
 import java.net.URL;
@@ -35,12 +35,14 @@ public class CreateRideController extends Controller implements Initializable {
 	private CheckBox mondayCheckBox, tuesdayCheckBox, wednesdayCheckBox, thursdayCheckBox,
 			fridayCheckBox, saturdayCheckBox, sundayCheckBox;
 
-	private Map<Integer, StopPoint> stopPoints;
-	private Map<Integer, Trip> trips;
+	private List<StopPoint> stopPoints;
+	private List<Trip> trips;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		tripComboBox.setOnAction(event -> {if (tripComboBox.getValue() != null) loadTripDetail();});
+		tripComboBox.setOnAction(event -> {
+			if (tripComboBox.getValue() != null) loadTripDetail();
+		});
 		submitBtn.setOnAction(event -> clickSubmitBtn());
 	}
 
@@ -62,19 +64,18 @@ public class CreateRideController extends Controller implements Initializable {
 	private void loadTripDetail() {
 		Trip trip = tripComboBox.getValue();
 		if (trip != null) {
-			try {
-				Car car = SQLExecutor.fetchCarByCarId(trip.getCarId());
+			Car car = SQLExecutor.fetchCarByCarId(trip.getCarId());
+			if (car != null) {
 				refreshSeatComboBox(car);
 				carField.setText(car.getPlate());
-				directionField.setText(trip.getDirection());
-				beginField.setText(trip.getBeginDate().toString());
-				endField.setText(trip.getExpireDate().toString());
-				setRecurrenceCheckBox(trip.getDay());
-				loadStopPoints();
-			} catch (Exception e) {
-				System.out.println("cannot load trip details");
-				e.printStackTrace();
+			} else {
+				carField.setText("null");
 			}
+			directionField.setText(trip.getDirection());
+			beginField.setText(trip.getBeginDate().toString());
+			endField.setText(trip.getExpireDate().toString());
+			setRecurrenceCheckBox(trip.getDay());
+			loadStopPoints();
 		}
 	}
 
@@ -100,6 +101,7 @@ public class CreateRideController extends Controller implements Initializable {
 
 	/**
 	 * Using recurrence bitmask to set up recurrent check boxes.
+	 *
 	 * @param recurrence a bitmask represents the recurrence.
 	 */
 	private void setRecurrenceCheckBox(int recurrence) {
@@ -124,15 +126,17 @@ public class CreateRideController extends Controller implements Initializable {
 
 	private void refreshTripComboBox() {
 		tripComboBox.getItems().clear();
-		tripComboBox.getItems().addAll(trips.values());
+		tripComboBox.getItems().addAll(trips);
 	}
 
 	private void refreshSeatComboBox(Car car) {
 		seatComboBox.getItems().clear();
-		for (int i = 0; i <= car.getSeatNo(); i++) {
-			seatComboBox.getItems().add(i);
+		if (car != null) {
+			for (int i = 0; i <= car.getSeatNo(); i++) {
+				seatComboBox.getItems().add(i);
+			}
+			seatComboBox.getSelectionModel().selectFirst();
 		}
-		seatComboBox.getSelectionModel().selectFirst();
 	}
 
 	private void loadStopPoints() {
@@ -142,7 +146,7 @@ public class CreateRideController extends Controller implements Initializable {
 
 	private void fillSPTable() {
 		SPTable.getItems().clear();
-		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(stopPoints);
 
 		timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
 		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
@@ -177,10 +181,10 @@ public class CreateRideController extends Controller implements Initializable {
 			if (rides.size() != 0) {
 				if ((result = SQLExecutor.addRides(rides)) >= 0) {
 					String infoMsg = String.format("%d ride(s) should be created. " +
-							"%d ride(s) have been successfully created.\n" +
-							"----------------------------------------------------\n" +
-							"[%d ride(s) are conflicted with existed ride(s).]\n" +
-							"----------------------------------------------------\n",
+									"%d ride(s) have been successfully created.\n" +
+									"----------------------------------------------------\n" +
+									"[%d ride(s) are conflicted with existed ride(s).]\n" +
+									"----------------------------------------------------\n",
 							rides.size(), result, rides.size() - result);
 					rss.showInformationDialog("Operation Succeeded!", infoMsg);
 					clearFields();
@@ -203,12 +207,14 @@ public class CreateRideController extends Controller implements Initializable {
 
 		// handle and show error message in dialog
 		if (errorMsg.size() != 0) {
-			String errorString = "Operation failed is caused by: \n";
+			StringBuilder errorString = new StringBuilder("Operation failed is caused by: \n");
 			for (Integer i = 1; i <= errorMsg.size(); i++) {
-				errorString += i.toString() + ". " + errorMsg.get(i - 1);
+				errorString.append(i.toString());
+				errorString.append(". ");
+				errorString.append(errorMsg.get(i - 1));
 			}
 			String headMsg = "Failed To Share Your Rides.";
-			rss.showErrorDialog(headMsg, errorString);
+			rss.showErrorDialog(headMsg, errorString.toString());
 			return false;
 		}
 		return true;

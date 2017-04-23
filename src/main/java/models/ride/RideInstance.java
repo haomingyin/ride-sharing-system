@@ -20,7 +20,7 @@ public class RideInstance extends Ride {
 		super();
 		this.status = new SimpleStringProperty(Status.BOOKED.toString());
 		this.passengerId = new SimpleStringProperty();
-		this.price = new SimpleDoubleProperty(-1.0);
+		this.price = new SimpleDoubleProperty(0.0);
 		this.comment = new SimpleStringProperty();
 	}
 
@@ -61,7 +61,7 @@ public class RideInstance extends Ride {
 	}
 
 	public double getPrice() {
-		if (Status.BOOKED.equals(status.get())) {
+		if (!Status.DONE.equals(status.get())) {
 			DecimalFormat df = new DecimalFormat(".00");
 			df.setRoundingMode(RoundingMode.HALF_UP);
 			setPrice(Double.valueOf(df.format(2.05 * stopPoint.getDistance() / getTrip().getCar().getPerformance())));

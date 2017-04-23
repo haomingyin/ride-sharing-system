@@ -8,6 +8,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import models.Car;
 import models.database.SQLExecutor;
+import models.notification.Notification;
 import org.apache.commons.lang3.text.WordUtils;
 import org.sqlite.SQLiteException;
 
@@ -17,7 +18,7 @@ import java.util.*;
 
 public class CarController extends Controller implements Initializable {
 
-	private Map<Integer, Car> cars;
+	private List<Car> cars;
 
 	@FXML
 	private MenuController menuController;
@@ -38,7 +39,7 @@ public class CarController extends Controller implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		cars = new HashMap<>();
+		cars = new ArrayList<>();
 
 		// add all possible years, default is 2017
 		for (int i = 1970; i <= 2017; i++) {
@@ -84,7 +85,7 @@ public class CarController extends Controller implements Initializable {
 
 	private void refreshCarComboBox() {
 		carComboBox.getItems().clear();
-		carComboBox.getItems().addAll(cars.values());
+		carComboBox.getItems().addAll(cars);
 		carComboBox.getSelectionModel().selectFirst();
 	}
 
@@ -133,6 +134,7 @@ public class CarController extends Controller implements Initializable {
 	/* TODO: check if the performance is changed, then notify the price changes to related passengers. 4/14/2017*/
 	private void clickSubmitBtn() {
 		if (validateFields()) {
+			double oldPerformance = mode == Mode.UPDATE_MODE ? carComboBox.getValue().getPerformance() : 0;
 			Car car = mode == Mode.ADD_MODE ? new Car() : carComboBox.getValue();
 			car.setPlate(plateField.getText().toUpperCase());
 			car.setUsername(rss.getUser().getUsername());
@@ -148,6 +150,9 @@ public class CarController extends Controller implements Initializable {
 			int resultCode;
 			if (mode == Mode.UPDATE_MODE) {
 				if (SQLExecutor.updateCar(car) == 1) {
+					if (oldPerformance != car.getPerformance()) {
+						sendCarPriceChangedNotifications(car);
+					}
 					rss.showInformationDialog("Update Succeeded!", "The car has been updated.");
 				}
 			} else {
@@ -159,6 +164,20 @@ public class CarController extends Controller implements Initializable {
 				}
 			}
 
+		}
+	}
+
+	/*TODO: in future, notification should be sent base on ride instances instead of userid .*/
+	private void sendCarPriceChangedNotifications(Car car) {
+		List<String> p = SQLExecutor.fetchPassengerIdByCar(car);
+		if (p != null) {
+			Set<String> passengers = new HashSet<>(p);
+			for (String userId : passengers) {
+				Notification no = new Notification();
+				no.setRecipient(userId);
+				no.setMessage("One of your ride's price has been changed by its driver.");
+				SQLExecutor.addNotification(no);
+			}
 		}
 	}
 

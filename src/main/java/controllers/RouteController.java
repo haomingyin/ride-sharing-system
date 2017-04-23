@@ -47,14 +47,14 @@ public class RouteController extends Controller implements Initializable {
 	private Mode mode;
 	private MapHandler mapHandler;
 
-	private Map<Integer, StopPoint> stopPoints;
-	private Map<Integer, Route> routes;
+	private List<StopPoint> stopPoints;
+	private List<Route> routes;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		mapHandler = new MapHandler(webView.getEngine());
-		stopPoints = new HashMap<>();
-		routes = new HashMap<>();
+		stopPoints = new ArrayList<>();
+		routes = new ArrayList<>();
 
 		routeComboBox.setOnAction(event -> {
 			if (routeComboBox.getValue() != null) {
@@ -71,7 +71,7 @@ public class RouteController extends Controller implements Initializable {
 		// autocomplete address finder
 		TextFields.bindAutoCompletion(addressField, new Callback<AutoCompletionBinding.ISuggestionRequest, Collection<StopPoint>>() {
 			public Collection<StopPoint> call(AutoCompletionBinding.ISuggestionRequest param) {
-				return SQLExecutor.fetchStopPointsByString(param.getUserText(), 6).values();
+				return SQLExecutor.fetchStopPointsByString(param.getUserText(), 6);
 			}
 		}).setPrefWidth(315);
 
@@ -98,7 +98,7 @@ public class RouteController extends Controller implements Initializable {
 
 	private void refreshComboBox() {
 		routeComboBox.getItems().clear();
-		ObservableList<Route> routeObservableList = FXCollections.observableList(new ArrayList<>(routes.values()));
+		ObservableList<Route> routeObservableList = FXCollections.observableList(routes);
 		routeComboBox.setItems(routeObservableList);
 	}
 
@@ -164,10 +164,10 @@ public class RouteController extends Controller implements Initializable {
 	private void fillSPTable() {
 		stopPoints = SQLExecutor.fetchStopPointsByRoute(routeComboBox.getValue());
 		if (stopPoints != null) {
-			mapHandler.drawMarkers(new ArrayList<>(stopPoints.values()));
+			mapHandler.drawMarkers(stopPoints);
 			SPTable.getItems().clear();
 			ObservableList<StopPoint> stopPointObservableList =
-					FXCollections.observableList(new ArrayList<>(stopPoints.values()));
+					FXCollections.observableList(stopPoints);
 
 			streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
 			streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
@@ -206,7 +206,7 @@ public class RouteController extends Controller implements Initializable {
 
 	private void clickAddSPBtn() {
 		String address = addressField.getText().toLowerCase().replaceAll("([^a-z0-9]+|(city))+", "");
-		List<StopPoint> sp = new ArrayList<>(SQLExecutor.fetchStopPointsByString(address, 2).values());
+		List<StopPoint> sp = SQLExecutor.fetchStopPointsByString(address, 2);
 
 		int result = 0;
 		String errorMsg;

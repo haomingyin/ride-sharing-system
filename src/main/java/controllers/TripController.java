@@ -48,10 +48,10 @@ public class TripController extends Controller implements Initializable {
 	@FXML
 	private TableColumn<StopPoint, String> timeCol, streetNoCol, streetCol, suburbCol, cityCol;
 
-	private Map<Integer, Trip> trips;
-	private Map<Integer, StopPoint> stopPoints;
-	private Map<Integer, Route> routes;
-	private Map<Integer, Car> cars;
+	private List<Trip> trips;
+	private List<StopPoint> stopPoints;
+	private List<Route> routes;
+	private List<Car> cars;
 
 	private enum Mode {ADD_MODE, UPDATE_MODE}
 	private Mode mode;
@@ -59,10 +59,10 @@ public class TripController extends Controller implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		trips = new HashMap<>();
-		stopPoints = new HashMap<>();
-		routes = new HashMap<>();
-		cars = new HashMap<>();
+		trips = new ArrayList<>();
+		stopPoints = new ArrayList<>();
+		routes = new ArrayList<>();
+		cars = new ArrayList<>();
 
 		setSPTimeBtn.setOnAction(event -> clickSetSPTimeBtn());
 		submitBtn.setOnAction(event -> clickSubmitBtn());
@@ -140,10 +140,24 @@ public class TripController extends Controller implements Initializable {
 			// set date picker
 			startDatePicker.setValue(trip.getBeginDate());
 			endDatePicker.setValue(trip.getExpireDate());
-			carComboBox.getSelectionModel().select(cars.get(trip.getCarId()));
-			routeComboBox.getSelectionModel().select(routes.get(trip.getRouteId()));
+			carComboBox.getSelectionModel().select(getCarByCarId(trip.getCarId()));
+			routeComboBox.getSelectionModel().select(getRouteByRouteId(trip.getRouteId()));
 			setRecurrenceCheckBox(trip.getDay());
 		}
+	}
+
+	private Car getCarByCarId(int carId) {
+		for (Car car : cars) {
+			if (carId == car.getCarId()) return car;
+		}
+		return null;
+	}
+
+	private Route getRouteByRouteId(int routeId) {
+		for (Route route : routes) {
+			if (routeId == route.getRouteId()) return route;
+		}
+		return null;
 	}
 
 	private void loadRoutes() {
@@ -163,18 +177,18 @@ public class TripController extends Controller implements Initializable {
 
 	private void refreshTripsComboBox() {
 		tripComboBox.getItems().clear();
-		tripComboBox.getItems().addAll(trips.values());
+		tripComboBox.getItems().addAll(trips);
 		tripComboBox.getSelectionModel().selectLast();
 	}
 
 	private void refreshRouteComboBox() {
 		routeComboBox.getItems().clear();
-		routeComboBox.getItems().addAll(routes.values());
+		routeComboBox.getItems().addAll(routes);
 	}
 
 	private void refreshCarComboBox() {
 		carComboBox.getItems().clear();
-		carComboBox.getItems().addAll(cars.values());
+		carComboBox.getItems().addAll(cars);
 	}
 
 	private void addTripMode() {
@@ -234,7 +248,7 @@ public class TripController extends Controller implements Initializable {
 
 	private void fillSPTable() {
 		SPTable.getItems().clear();
-		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(new ArrayList<>(stopPoints.values()));
+		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(stopPoints);
 
 		timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
 		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
@@ -269,7 +283,7 @@ public class TripController extends Controller implements Initializable {
 			int time = Integer.valueOf(hourComboBox.getValue()) * 60;
 			time += Integer.valueOf(minuteComboBox.getValue());
 			time += timeIndicatorComboBox.getValue().equals("PM") ? 12 * 60 : 0;
-			for (StopPoint stopPoint : stopPoints.values()) {
+			for (StopPoint stopPoint : stopPoints) {
 				if (stopPoint.getTime() != null && !stopPoint.getTime().equals("") && stopPoint != currentSP) {
 					String[] spTimeString = stopPoint.getTime().split("[ :]+");
 					int spTime = Integer.valueOf(spTimeString[0]) * 60;
@@ -383,7 +397,7 @@ public class TripController extends Controller implements Initializable {
 		if (routeComboBox.getValue() == null)
 			errorMsg.add("A route should be assigned to the trip.\n");
 
-		for (StopPoint stopPoint : stopPoints.values()) {
+		for (StopPoint stopPoint : stopPoints) {
 			if (stopPoint.getTime() == null || stopPoint.getTime().equals(""))
 				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
 		}

@@ -153,7 +153,7 @@ public class BookedRideController extends Controller implements Initializable {
 			} else if (comment != null){
 				ri.setPassengerId(rss.getUser().getUsername());
 
-				if (SQLExecutor.updateRideByRideInstance(ri, Status.CANCELLED_BY_PASSENGER) == 1) {
+				if (SQLExecutor.updateRideInstanceStatus(ri, Status.CANCELLED_BY_PASSENGER) == 1) {
 					sendNotification(ri);
 					rss.showInformationDialog("Cancellation Succeeded!", "You have successfully cancelled this ride.");
 					ri.setStatus(Status.CANCELLED_BY_PASSENGER.toString());

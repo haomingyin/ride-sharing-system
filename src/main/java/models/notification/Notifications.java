@@ -32,7 +32,7 @@ public class Notifications extends Observable implements Runnable {
 
 			// fetch new notifications after 5 seconds
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				System.out.println("Notifications has been interrupted. " + e.getMessage());
 				break;

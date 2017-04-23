@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 import models.position.StopPoint;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 public class Trip {
@@ -16,7 +17,7 @@ public class Trip {
 
 	// properties not existed in database schema
 	private Car car;
-	private Map<Integer, StopPoint> stopPoints;
+	private List<StopPoint> stopPoints;
 
 	public Trip() {
 		this.tripId = null;
@@ -115,11 +116,11 @@ public class Trip {
 		this.expireDate = expireDate;
 	}
 
-	public Map<Integer, StopPoint> getStopPoints() {
+	public List<StopPoint> getStopPoints() {
 		return stopPoints;
 	}
 
-	public void setStopPoints(Map<Integer, StopPoint> stopPoints) {
+	public void setStopPoints(List<StopPoint> stopPoints) {
 		this.stopPoints = stopPoints;
 	}
 
