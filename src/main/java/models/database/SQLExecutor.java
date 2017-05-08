@@ -96,7 +96,7 @@ public class SQLExecutor {
 		return null;
 	}
 
-	private static User fetchUser(String username) {
+	public static User fetchUser(String username) {
 		try {
 			connectDB();
 			User user = new User();
