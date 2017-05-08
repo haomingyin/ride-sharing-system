@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
 import models.Trip;
+import models.User;
 import models.database.SQLExecutor;
 import models.notification.Notification;
 import models.ride.Ride;
@@ -46,7 +47,6 @@ public class ViewRideController extends Controller implements Initializable {
 	private CheckBox toUCCheckBox, fromUCCheckBox, passengerCheckBox, noPassengerCheckBox;
 
 	private List<Ride> rides;
-	private List<Trip> trips;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -77,7 +77,7 @@ public class ViewRideController extends Controller implements Initializable {
 	}
 
 	private void loadTrips() {
-		trips = SQLExecutor.fetchTripsByUser(rss.getUser());
+		List<Trip> trips = SQLExecutor.fetchTripsByUser(rss.getUser());
 		tripComboBox.getItems().clear();
 		tripComboBox.getItems().addAll(trips);
 	}
@@ -165,6 +165,7 @@ public class ViewRideController extends Controller implements Initializable {
 										cancelBtn.setDisable(true);
 									}
 
+									detailBtn.setOnAction(event -> clickDetailBtn(rideInstance));
 									cancelBtn.setOnAction(event -> clickCancelRIBtn(rideInstance, cancelBtn));
 
 									detailBtn.setFont(Font.font(9));
@@ -258,6 +259,25 @@ public class ViewRideController extends Controller implements Initializable {
 		}
 	}
 
+	private void clickDetailBtn(RideInstance ri) {
+		StringBuilder sb = new StringBuilder();
+		User passenger = ri.getPassenger();
+		// driver info
+		sb.append("---------- PASSENGER INFO ----------\n");
+		sb.append(String.format("Driver name: %s\n", passenger.getName()));
+		sb.append(String.format("Email: %s\n", passenger.getEmail()));
+		sb.append(String.format("Home phone: %s\n", passenger.gethPhone()));
+		sb.append(String.format("Mobile phone: %s\n\n", passenger.getmPhone()));
+
+		// ride status
+		sb.append("----------- RIDE STATUS -----------\n");
+		sb.append(String.format("Distance: %.2f km\n", ri.getStopPoint().getDistance()));
+		sb.append(String.format("Status: %s\n", ri.getStatus()));
+		sb.append(String.format("Comment: %s\n\n", ri.getComment()));
+
+		rss.showInformationDialog("Ride Detail", sb.toString());
+	}
+
 	private void clickCancelRIBtn(RideInstance ri, Button btn) {
 
 		boolean confirmed = true;
@@ -340,8 +360,8 @@ public class ViewRideController extends Controller implements Initializable {
 
 	private boolean showConfirmationDialog() {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("Confirmation of Cancelling Ride");
 		alert.setHeaderText("Are you sure to cancel this ride?");
+		alert.setTitle("Confirmation of Cancelling Ride");
 		alert.setContentText("Cancelling a ride less than 2 hours before the ride time will lower your evaluation.");
 
 		return alert.showAndWait().get() == ButtonType.OK;

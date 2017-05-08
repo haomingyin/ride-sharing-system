@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
+import models.Car;
+import models.User;
 import models.database.SQLExecutor;
 import models.notification.Notification;
 import models.ride.RideInstance;
@@ -115,6 +117,7 @@ public class BookedRideController extends Controller implements Initializable {
 									cancelBtn.setDisable(true);
 								}
 
+								detailBtn.setOnAction(event -> clickDetailBtn(rideInstance));
 								cancelBtn.setOnAction(event -> clickCancelBtn(rideInstance, cancelBtn));
 
 								detailBtn.setFont(Font.font(9));
@@ -132,6 +135,34 @@ public class BookedRideController extends Controller implements Initializable {
 
 			table.setItems(rideInstanceObservableList);
 		}
+	}
+
+	private void clickDetailBtn(RideInstance ri) {
+		StringBuilder sb = new StringBuilder();
+		User driver = SQLExecutor.fetchUser(ri.getUsername());
+		// driver info
+		sb.append("---------- DRIVER INFO ----------\n");
+		sb.append(String.format("Driver name: %s\n", driver.getName()));
+		sb.append(String.format("Email: %s\n", driver.getEmail()));
+		sb.append(String.format("Home phone: %s\n", driver.gethPhone()));
+		sb.append(String.format("Mobile phone: %s\n\n", driver.getmPhone()));
+
+		// car detail
+		Car car = ri.getTrip().getCar();
+		sb.append("----------- CAR DETAIL -----------\n");
+		sb.append(String.format("Plate: %s\n", car.getPlate()));
+		sb.append(String.format("Model: %s\n", car.getModel()));
+		sb.append(String.format("Color: %s\n", car.getColor()));
+		sb.append(String.format("Year: %d\n", car.getYear()));
+		sb.append(String.format("Performance: %.2f km/litre\n\n", car.getPerformance()));
+
+		// ride status
+		sb.append("----------- RIDE STATUS -----------\n");
+		sb.append(String.format("Distance: %.2f km\n", ri.getStopPoint().getDistance()));
+		sb.append(String.format("Status: %s\n", ri.getStatus()));
+		sb.append(String.format("Comment: %s\n\n", ri.getComment()));
+
+		rss.showInformationDialog("Ride Detail", sb.toString());
 	}
 
 	private void clickCancelBtn(RideInstance ri, Button btn) {
