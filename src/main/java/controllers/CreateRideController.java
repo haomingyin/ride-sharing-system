@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import models.Car;
+import models.RecurrenceUtility;
 import models.Trip;
 import models.database.SQLExecutor;
 import models.position.StopPoint;
@@ -149,8 +150,8 @@ public class CreateRideController extends Controller implements Initializable {
 		ObservableList<StopPoint> stopPointObservableList = FXCollections.observableList(stopPoints);
 
 		timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
-		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
 		streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
+		streetNoCol.setCellValueFactory(new PropertyValueFactory<>("streetNo"));
 		suburbCol.setCellValueFactory(new PropertyValueFactory<>("suburb"));
 		cityCol.setCellValueFactory(new PropertyValueFactory<>("city"));
 		SPTable.setItems(stopPointObservableList);
@@ -160,13 +161,14 @@ public class CreateRideController extends Controller implements Initializable {
 		if (validateFields()) {
 			List<Ride> rides = new ArrayList<>();
 			Trip trip = tripComboBox.getValue();
-			Set<DayOfWeek> recurrence = parseBitmaskToSet(trip.getDay());
+			Set<DayOfWeek> recurrence = RecurrenceUtility.parseBitmaskToSet(trip.getDay());
 			LocalDate begin = trip.getBeginDate();
 			LocalDate end = trip.getExpireDate();
 
-			// matches date with recurrent day
+			// matches date with recurrent days
 			for (LocalDate now = begin; !now.isAfter(end); now = now.plusDays(1)) {
-				if (recurrence.contains(now.getDayOfWeek())) {
+				// rides before current date and not in recurrence days should not be created.
+				if (now.isAfter(LocalDate.now()) && recurrence.contains(now.getDayOfWeek())) {
 					Ride ride = new Ride();
 					ride.setAlias(trip.getAlias());
 					ride.setTripId(trip.getTripId());

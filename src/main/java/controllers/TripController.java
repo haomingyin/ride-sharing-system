@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import models.Car;
+import models.RecurrenceUtility;
 import models.Route;
 import models.position.StopPoint;
 import models.Trip;
@@ -15,6 +16,7 @@ import models.database.SQLExecutor;
 import org.sqlite.SQLiteException;
 
 import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -402,14 +404,31 @@ public class TripController extends Controller implements Initializable {
 				errorMsg.add("You need to set an arriving time for '" + stopPoint.toString() + "'.\n");
 		}
 
-		/* TODO: check during the recurring period, if user doesn't select any day. */
+		if (endDatePicker.getValue() != null && startDatePicker.getValue() != null)
+		{
+			if (startDatePicker.getValue().isBefore(LocalDate.now())) {
+				errorMsg.add("Trip start date should be after current date.\n");
+			} else if (endDatePicker.getValue().isBefore(startDatePicker.getValue())) {
+				errorMsg.add("Trip end date should be after start date.\n");
+			} else {
+				Set<DayOfWeek> recurrence = RecurrenceUtility.parseBitmaskToSet(getRecurrence());
+				boolean isValidRecurrence = false;
+				for (LocalDate now = startDatePicker.getValue(); !now.isAfter(endDatePicker.getValue()); now = now.plusDays(1)) {
+					if (recurrence.contains(now.getDayOfWeek()))
+						isValidRecurrence = true;
+				}
+				if (!isValidRecurrence) {
+					errorMsg.add("No recurrent day exists between trip start date and end date.\n");
+				}
+			}
+		} else {
+			errorMsg.add("Trip starts date or/and end date is invalid.\n");
+		}
+
 		// consistency check
 		// WOF & registration cannot be expired before the end date of recurring trip
 		Car car = carComboBox.getValue();
 		if (endDatePicker.getValue() != null && startDatePicker.getValue() != null && car != null) {
-			if (endDatePicker.getValue().isBefore(startDatePicker.getValue())) {
-				errorMsg.add("Trip end date should be after start date.\n");
-			}
 			if (LocalDate.parse(car.getWof()).isBefore(endDatePicker.getValue()) ||
 			LocalDate.parse(car.getRegistration()).isBefore(endDatePicker.getValue())) {
 				errorMsg.add(String.format("The expiration date of a recurring trip cannot occur after the expiry date of car's WOF and registration.\n" +

@@ -131,7 +131,6 @@ public class CarController extends Controller implements Initializable {
 		submitBtn.setText("Update");
 	}
 
-	/* TODO: check if the performance is changed, then notify the price changes to related passengers. 4/14/2017*/
 	private void clickSubmitBtn() {
 		if (validateFields()) {
 			double oldPerformance = mode == Mode.UPDATE_MODE ? carComboBox.getValue().getPerformance() : 0;
