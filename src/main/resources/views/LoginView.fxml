@@ -33,9 +33,9 @@
               </rowConstraints>
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="UC Username: " textAlignment="RIGHT" GridPane.halignment="LEFT" GridPane.valignment="CENTER" />
-                  <TextField fx:id="usernameField" alignment="CENTER" prefHeight="38.0" prefWidth="234.0" text="haoming" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                  <TextField fx:id="usernameField" alignment="CENTER" prefHeight="38.0" prefWidth="234.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Password: " textAlignment="RIGHT" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <PasswordField fx:id="passwordField" alignment="CENTER" prefHeight="42.0" prefWidth="234.0" text="abc123" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+                  <PasswordField fx:id="passwordField" alignment="CENTER" prefHeight="42.0" prefWidth="234.0" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
                </children>
             </GridPane>
             <GridPane fx:id="loginBtnPane" alignment="CENTER" layoutX="40.0" layoutY="313.0" prefHeight="93.0" prefWidth="234.0">

@@ -216,7 +216,7 @@ public class SignupController extends Controller implements Initializable {
 		List<String> errorMsg = new ArrayList<>();
 
 		// check username
-		if (!usernameField.getText().matches("[a-zA-Z1-9]{4,7}")) {
+		if (!usernameField.getText().matches("[a-zA-Z0-9]{4,7}")) {
 			errorMsg.add("Username should only contains 4 to 7 alphanumeric characters.\n");
 		} else {
 			if (mode == Mode.SIGNUP && SQLExecutor.fetchNumberOfUser(usernameField.getText()) != 0)
@@ -241,12 +241,12 @@ public class SignupController extends Controller implements Initializable {
 		}
 
 		// check email
-		if (!emailField.getText().matches("[a-zA-Z1-9_.]+")) {
+		if (!emailField.getText().matches("[a-zA-Z0-9_.]+")) {
 			errorMsg.add("Email address is empty or contains invalid characters.\n");
 		}
 
 		// check residential address
-		if (!addressField.getText().matches("[a-zA-Z1-9,. ]+")) {
+		if (!addressField.getText().matches("[a-zA-Z0-9,. ]+")) {
 			errorMsg.add("Address is empty or contains invalid characters.\n");
 		}
 
