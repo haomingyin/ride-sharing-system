@@ -63,8 +63,6 @@ public class SQLConnector {
 		try {
 			if (conn != null && !conn.isClosed() && !keepConnect) {
 				conn.close();
-			} else {
-				System.out.println("No connection has been established.");
 			}
 		} catch (Exception e) {
 			System.out.println("Failed to close connection. Error is:");

@@ -187,7 +187,8 @@ public class RouteController extends Controller implements Initializable {
 		if (mode == Mode.ADD_MODE) {
 			route.setUsername(rss.getUser().getUsername());
 			if ((result = SQLExecutor.addRoute(route)) == 1)
-				infoMsg = "A route with alias '" + route.getAlias() + "' has been created.";
+				infoMsg = "A route with alias '" + route.getAlias() + "' has been created.\n" +
+						"Now you can go to view your route and add stop points into it.";
 
 		} else {
 			if ((result = SQLExecutor.updateRouteAlias(route)) == 1)
