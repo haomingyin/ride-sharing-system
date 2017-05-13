@@ -109,6 +109,7 @@ public class CarController extends Controller implements Initializable {
 
 	private void addCarMode() {
 		mode = Mode.ADD_MODE;
+		addBtn.setVisible(false);
 		carComboBox.getSelectionModel().select(null);
 		plateField.setEditable(true);
 		deleteBtn.setVisible(false);
@@ -126,6 +127,7 @@ public class CarController extends Controller implements Initializable {
 
 	private void updateCarMode() {
 		mode = Mode.UPDATE_MODE;
+		addBtn.setVisible(true);
 		deleteBtn.setVisible(true);
 		plateField.setEditable(false);
 		submitBtn.setText("Update");
@@ -149,6 +151,8 @@ public class CarController extends Controller implements Initializable {
 			int resultCode;
 			if (mode == Mode.UPDATE_MODE) {
 				if (SQLExecutor.updateCar(car) == 1) {
+					SQLExecutor.updateWofRemindDate(car, true);
+					SQLExecutor.updateRegoRemindDate(car, true);
 					if (oldPerformance != car.getPerformance()) {
 						sendCarPriceChangedNotifications(car);
 					}

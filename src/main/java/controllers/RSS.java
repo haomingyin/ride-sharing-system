@@ -26,7 +26,7 @@ public class RSS implements Observer {
 //			giveRideController, routeController, bookRideController;
 	private String style;
 	private Notifications notificationCenter;
-	private Set<Integer> nIds; // record notifications have already been shown but not deleted.
+//	private Set<Integer> nIds; // record notifications have already been shown but not deleted.
 
 	public void initialize() {
 		user = new User();
@@ -51,7 +51,7 @@ public class RSS implements Observer {
 		// set up notifications
 		notificationCenter = new Notifications(user);
 		notificationCenter.addObserver(this);
-		nIds = new HashSet<>();
+//		nIds = new HashSet<>();
 		Thread thread = new Thread(notificationCenter, "Notification");
 		thread.setDaemon(true);
 		thread.start();
@@ -61,26 +61,27 @@ public class RSS implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o instanceof Notifications) {
-			List<Notification> rawNos = (List<Notification>) arg;
-			List<Notification> nos = new ArrayList<>();
+//			List<Notification> rawNos = (List<Notification>) arg;
+//			List<Notification> nos = new ArrayList<>();
+			List<Notification> nos = (List<Notification>) arg;
 
 			// remove notifications that have already been shown but not deleted.
-			if (rawNos != null)
-				rawNos.forEach(note -> {
-					if (!nIds.contains(note.getnId())) {
-						nIds.add(note.getnId());
-						nos.add(note);
-					}
-				});
+//			if (rawNos != null)
+//				rawNos.forEach(note -> {
+//					if (!nIds.contains(note.getnId())) {
+//						nIds.add(note.getnId());
+//						nos.add(note);
+//					}
+//				});
 
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					nos.forEach(no -> {
 
-						Action action = new Action("Dismiss", e -> {
-							SQLExecutor.deleteNotification(no);
-						});
+//						Action action = new Action("Dismiss", e -> {
+//							SQLExecutor.deleteNotification(no);
+//						});
 
 						Platform.runLater(new Runnable() {
 							@Override
@@ -89,8 +90,8 @@ public class RSS implements Observer {
 										.title("Notification")
 										.text(no.getMessage())
 										.hideAfter(Duration.seconds(10))
-										.hideCloseButton()
-										.action(action)
+//										.hideCloseButton()
+//										.action(action)
 										.showInformation();
 							}
 						});

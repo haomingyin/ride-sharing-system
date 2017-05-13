@@ -1,6 +1,7 @@
 package models.database;
 
 import models.*;
+import models.notification.ExpirationUtility;
 import models.notification.Notification;
 import models.position.StopPoint;
 import models.ride.Ride;
@@ -140,8 +141,8 @@ public class SQLExecutor {
 			connectDB();
 			String sql = "INSERT INTO user (username, password, email, " +
 							"fName, lName, address, hPhone, mPhone, licenceNo, licenceType, " +
-							"issueDate, expireDate, photo) " +
-							"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+							"issueDate, expireDate, photo, remindDate) " +
+							"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 			int cnt = 1;
 			pstmt.setString(cnt++, user.getUsername());
@@ -156,7 +157,9 @@ public class SQLExecutor {
 			pstmt.setString(cnt++, user.getLicenceType());
 			pstmt.setString(cnt++, user.getIssueDate().toString());
 			pstmt.setString(cnt++, user.getExpireDate().toString());
-			pstmt.setBytes(cnt, user.getPhoto());
+			pstmt.setBytes(cnt++, user.getPhoto());
+			LocalDate remindDate = user.getExpireDate().minusMonths(1);
+			pstmt.setString(cnt, remindDate.toString());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -220,8 +223,8 @@ public class SQLExecutor {
 		try {
 			connectDB();
 			String sql = "INSERT INTO car " +
-					"(plate, username, model, manufacturer, color, year, seatNo, wof, performance, registration) " +
-					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					"(plate, username, model, manufacturer, color, year, seatNo, wof, performance, registration, remindWof, remindRego) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
 			int cnt = 1;
@@ -234,7 +237,10 @@ public class SQLExecutor {
 			pstmt.setInt(cnt++, car.getSeatNo());
 			pstmt.setString(cnt++, car.getWof());
 			pstmt.setDouble(cnt++, car.getPerformance());
-			pstmt.setString(cnt, car.getRegistration());
+			pstmt.setString(cnt++, car.getRegistration());
+			pstmt.setString(cnt++, LocalDate.parse(car.getWof()).minusMonths(1).toString());
+			pstmt.setString(cnt, LocalDate.parse(car.getRegistration()).minusMonths(1).toString());
+
 
 			return pstmt.executeUpdate();
 		} catch (SQLiteException e) {
@@ -1228,4 +1234,146 @@ public class SQLExecutor {
 		return null;
 	}
 
+	public static LocalDate fetchLicenceRemindDate(User user) {
+		try {
+			connectDB();
+			String sql = "SELECT remindDate FROM user WHERE username=?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setString(1, user.getUsername());
+
+			ResultSet rs = pstmt.executeQuery();
+			if (!rs.isClosed() && rs.next()) {
+				return LocalDate.parse(rs.getString("remindDate"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
+	}
+
+	/**
+	 * Update the date when the notification should show up next time
+	 * @param user user whose remind date needs to be updated
+	 * @param flag if flag is true, then next remind date is one month before expiration
+	 * @return an int shows how many row has been affected
+	 */
+	public static int updateLicenceRemindDate(User user, boolean flag) {
+		try {
+			connectDB();
+			String sql = "UPDATE user " +
+					"SET remindDate=? " +
+					"WHERE username= ?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			LocalDate remindDate = ExpirationUtility.getRemindDate(user.getExpireDate());
+			if (flag)
+				remindDate = user.getExpireDate().minusMonths(1);
+			pstmt.setString(1, remindDate.toString());
+			pstmt.setString(2, user.getUsername());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static LocalDate fetchWofRemindDate(Car car) {
+		try {
+			connectDB();
+			String sql = "SELECT remindWof FROM car WHERE carId=?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, car.getCarId());
+
+			ResultSet rs = pstmt.executeQuery();
+			if (!rs.isClosed() && rs.next()) {
+				return LocalDate.parse(rs.getString("remindWof"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
+	}
+
+	/**
+	 * Update the date when the notification should show up next time
+	 * @param car the car whose remind wof date needs to be updated
+	 * @param flag if flas is true, then next remind date is one month before expiration
+	 * @return an int shows how many row has been affected
+	 */
+	public static int updateWofRemindDate(Car car, boolean flag) {
+		try {
+			connectDB();
+			String sql = "UPDATE car SET remindWof=? WHERE carId=?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			LocalDate remindWof = ExpirationUtility.getRemindDate(LocalDate.parse(car.getWof()));
+			if (flag)
+				remindWof = LocalDate.parse(car.getWof()).minusMonths(1);
+			pstmt.setString(1, remindWof.toString());
+			pstmt.setInt(2, car.getCarId());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
+
+	public static LocalDate fetchRegoRemindDate(Car car) {
+		try {
+			connectDB();
+			String sql = "SELECT remindRego FROM car WHERE carId=?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			pstmt.setInt(1, car.getCarId());
+
+			ResultSet rs = pstmt.executeQuery();
+			if (!rs.isClosed() && rs.next()) {
+				return LocalDate.parse(rs.getString("remindRego"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return null;
+	}
+
+	/**
+	 * Update the date when the notification should show up next time
+	 * @param car the car whose remind reg date needs to be updated
+	 * @param flag if flag is true, then next remind date is one month before expiration
+	 * @return an int shows how many row has been affected
+	 */
+	public static int updateRegoRemindDate(Car car, boolean flag) {
+		try {
+			connectDB();
+			String sql = "UPDATE car SET remindRego=? WHERE carId=?;";
+
+			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
+			LocalDate remindRego = ExpirationUtility.getRemindDate(LocalDate.parse(car.getRegistration()));
+			if (flag)
+				remindRego = LocalDate.parse(car.getRegistration()).minusMonths(1);
+			pstmt.setString(1, remindRego.toString());
+			pstmt.setInt(2, car.getCarId());
+
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
+		}
+		return 0;
+	}
 }

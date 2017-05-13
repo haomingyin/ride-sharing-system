@@ -10,27 +10,40 @@ import java.util.Observable;
 public class Notifications extends Observable implements Runnable {
 
 	private User user;
-	private boolean terminate, pause;
+	private boolean terminate;
 	private List<Notification> notifications;
 
 	public Notifications(User user) {
 		this.user = user;
 		this.terminate = false;
-		this.pause = false;
 	}
 
 	@Override
 	public void run() {
 		notifications = new ArrayList<>();
+		notifications = ExpirationUtility.fetchExpirationNotifications(user);
+		if (notifications != null) {
+			setChanged();
+			notifyObservers(notifications);
+
+			// fetch new notifications after 5 seconds
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				System.out.println("Notifications has been interrupted. " + e.getMessage());
+			}
+		}
+
 		while (!terminate) {
-			notifications = pause ? null : SQLExecutor.fetchNotificationsByUser(user);
+			notifications = SQLExecutor.fetchNotificationsByUser(user);
 
 			if (notifications != null) {
+				notifications.forEach(SQLExecutor::deleteNotification);
 				setChanged();
 				notifyObservers(notifications);
 			}
 
-			// fetch new notifications after 5 seconds
+			// fetch new notifications after 10 seconds
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
@@ -42,14 +55,6 @@ public class Notifications extends Observable implements Runnable {
 
 	public void terminate() {
 		terminate = true;
-	}
-
-	public void pause() {
-		this.pause = true;
-	}
-
-	public void resume() {
-		this.pause = false;
 	}
 
 	public List<Notification> getNotifications() {

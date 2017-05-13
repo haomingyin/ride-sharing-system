@@ -122,7 +122,7 @@ public class User {
 	}
 
 	public LocalDate getIssueDate() {
-		if (issueDate == null) return LocalDate.of(1901,1,1);
+		if (issueDate == null) return LocalDate.of(2099,1,1);
 		return issueDate;
 	}
 
@@ -131,7 +131,7 @@ public class User {
 	}
 
 	public LocalDate getExpireDate() {
-		if (expireDate == null) return LocalDate.of(1901,1,1);
+		if (expireDate == null) return LocalDate.of(2099,1,1);
 		return expireDate;
 	}
 
