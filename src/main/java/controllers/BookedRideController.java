@@ -259,7 +259,7 @@ public class BookedRideController extends Controller implements Initializable {
 		return alert.showAndWait().get() == ButtonType.OK;
 	}
 
-	private void sendNotification(RideInstance ri) {
+	public void sendNotification(RideInstance ri) {
 		Notification no = new Notification();
 		no.setRecipient(ri.getUsername());
 		no.setMessage(String.format("A passenger has cancelled the ride on %s %s.",

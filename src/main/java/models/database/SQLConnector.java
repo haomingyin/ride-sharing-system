@@ -97,7 +97,7 @@ public class SQLConnector {
 	/**
 	 * Copy pre-defined database file in resource to outside
 	 */
-	private void exportDatabaseResource() {
+	public void exportDatabaseResource() {
 		String fileName = "/rss.db";
 		try {
 			//note that each / is a directory down in the "jar tree" been the jar the root of the tree

@@ -11,8 +11,8 @@ public class RideFilter {
 	private String spRequest, username;
 
 	public RideFilter() {
-		toUC = false;
-		fromUC = false;
+		toUC = true;
+		fromUC = true;
 	}
 
 	public String getQuery() {
