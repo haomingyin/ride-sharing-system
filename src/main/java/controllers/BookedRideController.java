@@ -183,6 +183,7 @@ public class BookedRideController extends Controller implements Initializable {
 						"Please enter at least 20 characters for your reason.");
 			} else if (comment != null){
 				ri.setPassengerId(rss.getUser().getUsername());
+				ri.setComment(comment);
 
 				if (SQLExecutor.updateRideInstanceStatus(ri, Status.CANCELLED_BY_PASSENGER) == 1) {
 					sendNotification(ri);

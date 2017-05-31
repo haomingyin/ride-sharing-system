@@ -1122,7 +1122,7 @@ public class SQLExecutor {
 			connectDB();
 			String sql = "UPDATE ride_passenger " +
 					"SET status = ?, comment = ?, spId = ?, price = ? " +
-					"WHERE rideId = ? AND username = ?;";
+					"WHERE rideId = ? AND username = ? AND spId = ?;";
 			PreparedStatement pstmt = connector.conn.prepareStatement(sql);
 
 			pstmt.setString(1, status.toString());
@@ -1131,6 +1131,7 @@ public class SQLExecutor {
 			pstmt.setDouble(4, rideInstance.getPrice());
 			pstmt.setInt(5, rideInstance.getRideId());
 			pstmt.setString(6, rideInstance.getPassengerId());
+			pstmt.setInt(7, rideInstance.getSpId());
 
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
