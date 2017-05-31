@@ -57,6 +57,10 @@ public class RSS implements Observer {
 		thread.start();
 	}
 
+	void logout() {
+		notificationCenter.terminate();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void update(Observable o, Object arg) {

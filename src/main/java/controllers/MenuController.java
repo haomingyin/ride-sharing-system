@@ -49,7 +49,7 @@ public class MenuController extends Controller implements Initializable {
 	}
 
 	public void logout() {
-
+		this.rss.logout();
 		this.rss.showLoginView();
 	}
 
