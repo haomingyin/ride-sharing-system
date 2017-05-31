@@ -980,6 +980,7 @@ public class SQLExecutor {
 				ri.setSpId(rs.getInt("spId"));
 				ri.setStatus(rs.getString("status"));
 				ri.setPrice(rs.getDouble("price"));
+				ri.setComment(rs.getString("comment"));
 				instances.add(ri);
 			}
 			disconnectDB();

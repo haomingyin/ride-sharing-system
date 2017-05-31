@@ -115,6 +115,9 @@ public class ViewRideController extends Controller implements Initializable {
 								Ride ride = getTableView().getItems().get(getIndex());
 								btn.setOnAction(e -> clickCancelRideBtn(ride, btn));
 								btn.setFont(Font.font(9));
+								if (!Status.ACTIVE.equals(ride.getRideStatus())) {
+									btn.setDisable(true);
+								}
 
 								setGraphic(btn);
 								setText(null);
