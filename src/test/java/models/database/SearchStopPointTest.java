@@ -1,7 +1,9 @@
 package models.database;
 
+import models.TestUtility;
 import models.position.StopPoint;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -12,6 +14,11 @@ import static org.junit.Assert.*;
  * Created by Haoming on 20/05/17.
  */
 public class SearchStopPointTest {
+	@Before
+	public void setUp() throws Exception{
+		TestUtility.beforeTest();
+	}
+
 	@Test
 	public void preciseSearch() throws Exception {
 		String address = "16 Vicki street, sockburn";
