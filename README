@@ -8,13 +8,5 @@ RSS User Instruction:
     d. Giving a ride. Click 'add a new ride' and set up alias, and pick a trip and available seats #. The maximum available seats is derived from the trip's car seat number. (at this stage, rides cannot be changed)
 3. To book a ride, just click 'Book a ride' in Book Rides view. Firstly, type the desired SP at the right side, click 'search' to find your destination or set off location. When select a SP in the table view, the bottom table will show all rides associated with the selected SP. Simply selecting a ride and clicking 'Book Ride', you can book it and view it from view mode. FYI, bookings can be deleted as it won't mess anything up. (Known bugs: you can even book your own rides = =#)
 
-Note:
-1. SQLite database is used for this assignment. All controllers are basically just do queries with DB, so I really don't know how to write unit tests or Cucumber for it. Writing another queries in tests doesn't value much as the purpose for testing is not see if database works. So for, I only have one test and I know that is bad. Hope I can improve that for the next delivery.
-2. Known bugs: 
-    a. any fields containing quotes would mess up sql queries and cause operation failures. 
-    b. Deleting a car after associating the car with a trip/ride causes ride view failed to load, as app cannot load car's carId and seat no to combo box.
-    c. You can book your own rides.
-    d. When booking a ride, if a ride has no more available seats, the ride does not show up but its stop points do. It means that even though you can see there is a stop point, no ride is available to book after you click the SP.
-
 Cheers,
-Haoming Yin (hyi25) -- the programmer
+Haoming Yin -- the programmer
